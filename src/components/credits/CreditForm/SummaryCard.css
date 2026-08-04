@@ -1,0 +1,156 @@
+.credit-summary{
+
+  width:100%;
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  box-sizing:border-box;
+
+  box-shadow:0 10px 25px rgba(15,23,42,.06);
+
+}
+
+
+
+.credit-summary h3{
+
+  margin:0 0 18px;
+
+  font-size:18px;
+
+  color:#0f172a;
+
+  font-weight:700;
+
+}
+
+
+
+.credit-summary{
+
+  display:grid;
+
+  grid-template-columns:repeat(2,1fr);
+
+  gap:12px;
+
+}
+
+
+
+.credit-summary h3{
+
+  grid-column:span 2;
+
+}
+
+
+
+.credit-summary__item{
+
+  width:100%;
+
+  box-sizing:border-box;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:6px;
+
+  background:#f8fafc;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:14px;
+
+  padding:12px 14px;
+
+  overflow:hidden;
+
+}
+
+
+
+.credit-summary__item span{
+
+  font-size:12px;
+
+  color:#64748b;
+
+  font-weight:600;
+
+}
+
+
+
+.credit-summary__item strong{
+
+  font-size:15px;
+
+  color:#0f172a;
+
+  font-weight:700;
+
+  word-break:break-word;
+
+}
+
+
+
+.credit-summary__divider{
+
+  grid-column:span 2;
+
+  height:1px;
+
+  background:#e2e8f0;
+
+  margin:4px 0;
+
+}
+
+
+
+.credit-summary__item.total{
+
+  background:#eff6ff;
+
+  border-color:#bfdbfe;
+
+}
+
+
+
+.credit-summary__item.total strong{
+
+  color:#2563eb;
+
+}
+
+
+
+@media(max-width:700px){
+
+  .credit-summary{
+
+    grid-template-columns:1fr;
+
+  }
+
+
+  .credit-summary h3,
+
+  .credit-summary__divider{
+
+    grid-column:span 1;
+
+  }
+
+}

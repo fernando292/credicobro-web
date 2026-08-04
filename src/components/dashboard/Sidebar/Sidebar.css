@@ -1,0 +1,255 @@
+.sidebar {
+
+  width: 270px;
+
+  min-height: 100vh;
+
+  padding: 30px 18px;
+
+
+  display: flex;
+
+  flex-direction: column;
+
+
+  background:
+    linear-gradient(
+      160deg,
+      #0f172a 0%,
+      #172554 100%
+    );
+
+
+  color:white;
+
+
+  position: relative;
+
+  overflow:hidden;
+
+}
+
+
+
+/* efecto de fondo */
+
+.sidebar::before {
+
+  content:"";
+
+  position:absolute;
+
+  width:220px;
+
+  height:220px;
+
+  top:-80px;
+
+  right:-80px;
+
+
+  background:#2563eb;
+
+  opacity:.18;
+
+  filter:blur(70px);
+
+  border-radius:50%;
+
+}
+
+
+
+.sidebar__logo {
+
+  padding:0 12px;
+
+  margin-bottom:50px;
+
+  position:relative;
+
+}
+
+
+
+.sidebar__logo h2 {
+
+  font-size:30px;
+
+  font-weight:900;
+
+  letter-spacing:-1px;
+
+}
+
+
+
+.sidebar__logo span {
+
+  color:#60a5fa;
+
+}
+
+
+
+.sidebar__menu {
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+
+  position:relative;
+
+}
+
+
+
+.sidebar__item {
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+
+  padding:14px 16px;
+
+
+  border-radius:16px;
+
+
+  color:#cbd5e1;
+
+
+  font-size:15px;
+
+  font-weight:600;
+
+
+  text-decoration:none;
+
+
+  transition:.3s ease;
+
+
+}
+
+
+
+.sidebar__item svg {
+
+  opacity:.8;
+
+}
+
+
+
+.sidebar__item:hover {
+
+  background:rgba(255,255,255,.10);
+
+  color:white;
+
+
+  transform:translateX(6px);
+
+}
+
+
+
+.sidebar__item.active {
+
+  background:
+
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #3b82f6
+    );
+
+
+  color:white;
+
+
+  box-shadow:
+
+    0 12px 25px rgba(37,99,235,.35);
+
+}
+
+
+
+.sidebar__item.active svg {
+
+  opacity:1;
+
+}
+
+
+
+/* parte inferior */
+
+.sidebar__footer {
+
+  margin-top:auto;
+
+  position:relative;
+
+}
+
+
+
+.sidebar__footer button {
+
+  width:100%;
+
+
+  display:flex;
+
+  align-items:center;
+
+
+  gap:15px;
+
+
+  padding:14px 16px;
+
+
+  border-radius:16px;
+
+
+  background:rgba(255,255,255,.05);
+
+
+  border:1px solid rgba(255,255,255,.08);
+
+
+  color:#cbd5e1;
+
+
+  cursor:pointer;
+
+
+  font-size:15px;
+
+  font-weight:600;
+
+
+  transition:.3s ease;
+
+}
+
+
+
+.sidebar__footer button:hover {
+
+
+  background:rgba(255,255,255,.12);
+
+
+  color:white;
+
+}

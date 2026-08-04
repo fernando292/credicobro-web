@@ -1,0 +1,137 @@
+.payment-table{
+
+  margin-top:24px;
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:22px;
+
+  padding:24px;
+
+}
+
+
+
+.payment-table__header{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  margin-bottom:20px;
+
+}
+
+
+
+.payment-table__header h3{
+
+  margin:0;
+
+  color:#0f172a;
+
+  font-size:20px;
+
+}
+
+
+
+.payment-table__header span{
+
+  background:#eff6ff;
+
+  color:#2563eb;
+
+  padding:6px 12px;
+
+  border-radius:20px;
+
+  font-size:13px;
+
+  font-weight:600;
+
+}
+
+
+
+.payment-table table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+}
+
+
+
+.payment-table th{
+
+  text-align:left;
+
+  padding:15px;
+
+  color:#64748b;
+
+  background:#f8fafc;
+
+  font-size:13px;
+
+}
+
+
+
+.payment-table td{
+
+  padding:16px;
+
+  border-top:1px solid #f1f5f9;
+
+}
+
+
+
+.payment-value{
+
+  font-weight:700;
+
+  color:#0f172a;
+
+}
+
+
+
+.payment-status{
+
+  background:#dcfce7;
+
+  color:#16a34a;
+
+  padding:6px 12px;
+
+  border-radius:20px;
+
+  font-size:13px;
+
+  font-weight:700;
+
+}
+
+
+
+.payment-empty{
+
+  padding:40px;
+
+  text-align:center;
+
+  color:#64748b;
+
+  background:#f8fafc;
+
+  border-radius:16px;
+
+}

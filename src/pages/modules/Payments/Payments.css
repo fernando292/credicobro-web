@@ -1,0 +1,37 @@
+.module-page {
+
+  background:white;
+
+  border-radius:24px;
+
+  padding:40px;
+
+  border:1px solid #e2e8f0;
+
+}
+
+
+
+.module-page h1 {
+
+  margin:0 0 12px;
+
+  font-size:32px;
+
+  font-weight:800;
+
+  color:#0f172a;
+
+}
+
+
+
+.module-page p {
+
+  margin:0;
+
+  color:#64748b;
+
+  font-size:16px;
+
+}

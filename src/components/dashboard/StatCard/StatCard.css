@@ -1,0 +1,159 @@
+.stat-card {
+
+  background: white;
+
+  padding: 26px;
+
+  border-radius: 24px;
+
+  border: 1px solid #e2e8f0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:18px;
+
+  transition:.3s ease;
+
+  position:relative;
+
+  overflow:hidden;
+
+}
+
+
+
+.stat-card::before {
+
+  content:"";
+
+  position:absolute;
+
+  width:90px;
+
+  height:90px;
+
+  right:-30px;
+
+  top:-30px;
+
+  background:rgba(37,99,235,.05);
+
+  border-radius:50%;
+
+}
+
+
+
+.stat-card:hover {
+
+  transform:translateY(-6px);
+
+  box-shadow:
+
+  0 20px 45px rgba(15,23,42,.10);
+
+}
+
+
+
+.stat-card__icon {
+
+  width:62px;
+
+  height:62px;
+
+  border-radius:18px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+}
+
+
+
+.stat-card__icon.blue {
+
+  background:#dbeafe;
+
+  color:#2563eb;
+
+}
+
+
+
+.stat-card__icon.green {
+
+  background:#dcfce7;
+
+  color:#16a34a;
+
+}
+
+
+
+.stat-card__icon.purple {
+
+  background:#ede9fe;
+
+  color:#7c3aed;
+
+}
+
+
+
+.stat-card__icon.orange {
+
+  background:#ffedd5;
+
+  color:#ea580c;
+
+}
+
+
+
+.stat-card__content span {
+
+  display:block;
+
+  color:#64748b;
+
+  font-size:14px;
+
+  margin-bottom:6px;
+
+}
+
+
+
+.stat-card__content h2 {
+
+  margin:0;
+
+  font-size:30px;
+
+  font-weight:800;
+
+  color:#0f172a;
+
+}
+
+
+
+.stat-card__content small {
+
+  display:block;
+
+  margin-top:8px;
+
+  color:#16a34a;
+
+  font-weight:700;
+
+  font-size:13px;
+
+}

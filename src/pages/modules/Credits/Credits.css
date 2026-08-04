@@ -1,0 +1,220 @@
+.credits-page{
+  padding:32px;
+  background:#f8fafc;
+  min-height:100%;
+}
+
+
+/* HEADER */
+
+.credits-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:32px;
+}
+
+
+.credits-header h1{
+  margin:0;
+  font-size:32px;
+  font-weight:700;
+  color:#0f172a;
+}
+
+
+.credits-header p{
+  margin:8px 0 0;
+  color:#64748b;
+  font-size:15px;
+}
+
+
+
+.credits-header button{
+
+  background:#2563eb;
+  color:white;
+
+  border:none;
+
+  padding:12px 24px;
+
+  border-radius:12px;
+
+  font-size:15px;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.2s;
+
+}
+
+
+
+.credits-header button:hover{
+
+  background:#1d4ed8;
+
+}
+
+
+
+/* ESTADISTICAS */
+
+
+.credits-stats{
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(4, minmax(0,1fr));
+
+  gap:22px;
+
+  margin-bottom:35px;
+
+}
+
+
+
+
+.credit-card{
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:20px;
+
+  padding:24px;
+
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:10px;
+
+
+  box-shadow:
+  0 10px 25px rgba(15,23,42,.05);
+
+}
+
+
+
+.credit-card span{
+
+  color:#64748b;
+
+  font-size:14px;
+
+}
+
+
+
+.credit-card strong{
+
+  color:#0f172a;
+
+  font-size:28px;
+
+  font-weight:700;
+
+}
+
+
+
+/* TABLA */
+
+
+.credits-main{
+
+  background:white;
+
+  border-radius:20px;
+
+  border:1px solid #e2e8f0;
+
+  padding:20px;
+
+  overflow:hidden;
+
+
+}
+
+
+
+.credits-main table{
+
+  width:100%;
+
+}
+
+
+
+
+
+/* FORM */
+
+
+.credits-page form{
+
+  margin-bottom:30px;
+
+}
+
+
+
+/* RESPONSIVE */
+
+
+@media(max-width:1100px){
+
+
+  .credits-stats{
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+  }
+
+
+}
+
+
+
+@media(max-width:650px){
+
+
+  .credits-page{
+
+    padding:20px;
+
+  }
+
+
+
+  .credits-header{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:20px;
+
+  }
+
+
+
+  .credits-stats{
+
+    grid-template-columns:1fr;
+
+  }
+
+
+}

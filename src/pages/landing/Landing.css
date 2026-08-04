@@ -1,0 +1,130 @@
+/* ==============================
+   LANDING PAGE
+============================== */
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+
+
+.landing {
+
+  width: 100%;
+
+  overflow-x: hidden;
+
+}
+
+
+
+
+
+/* ==============================
+   SECTIONS
+============================== */
+
+
+.landing__hero {
+
+  padding-top: 80px;
+
+  padding-bottom: 80px;
+
+}
+
+
+
+.landing__features {
+
+  padding: 90px 0;
+
+}
+
+
+
+.landing__how {
+
+  padding: 90px 0;
+
+}
+
+
+
+.landing__benefits {
+
+  padding: 90px 0;
+
+}
+
+
+
+.landing__pricing {
+
+  padding: 90px 0;
+
+}
+
+
+
+.landing__cta {
+
+  padding: 90px 0;
+
+}
+
+
+
+
+
+/* ==============================
+   ANCHOR SCROLL OFFSET
+============================== */
+
+
+#soluciones,
+#caracteristicas,
+#beneficios,
+#precios,
+#contacto {
+
+  scroll-margin-top: 90px;
+
+}
+
+
+
+
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+
+@media (max-width: 768px) {
+
+
+  .landing__hero {
+
+    padding-top: 50px;
+
+    padding-bottom: 50px;
+
+  }
+
+
+
+
+  .landing__features,
+  .landing__how,
+  .landing__benefits,
+  .landing__pricing,
+  .landing__cta {
+
+    padding: 60px 0;
+
+  }
+
+
+}

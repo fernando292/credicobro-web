@@ -6,11 +6,26 @@
   box-sizing: border-box;
 }
 
-html {
-  font-family: "Inter", sans-serif;
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
+  font-family: Inter, sans-serif;
   background: var(--background);
   color: var(--text);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
 }

@@ -1,0 +1,129 @@
+.credit-stats{
+
+  display:grid;
+
+  grid-template-columns:repeat(4,1fr);
+
+  gap:22px;
+
+  margin-bottom:30px;
+
+}
+
+.credit-stat-card{
+
+  background:white;
+
+  border-radius:22px;
+
+  border:1px solid #e2e8f0;
+
+  padding:24px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:18px;
+
+  transition:.3s;
+
+}
+
+.credit-stat-card:hover{
+
+  transform:translateY(-5px);
+
+  box-shadow:0 18px 40px rgba(15,23,42,.08);
+
+}
+
+.credit-stat-card__icon{
+
+  width:56px;
+
+  height:56px;
+
+  border-radius:18px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+}
+
+.credit-stat-card__icon.blue{
+
+  background:#dbeafe;
+
+  color:#2563eb;
+
+}
+
+.credit-stat-card__icon.green{
+
+  background:#dcfce7;
+
+  color:#16a34a;
+
+}
+
+.credit-stat-card__icon.purple{
+
+  background:#ede9fe;
+
+  color:#7c3aed;
+
+}
+
+.credit-stat-card__icon.orange{
+
+  background:#ffedd5;
+
+  color:#ea580c;
+
+}
+
+.credit-stat-card span{
+
+  display:block;
+
+  font-size:14px;
+
+  color:#64748b;
+
+  margin-bottom:6px;
+
+}
+
+.credit-stat-card h3{
+
+  margin:0;
+
+  font-size:28px;
+
+  color:#0f172a;
+
+}
+
+@media(max-width:1100px){
+
+  .credit-stats{
+
+    grid-template-columns:repeat(2,1fr);
+
+  }
+
+}
+
+@media(max-width:700px){
+
+  .credit-stats{
+
+    grid-template-columns:1fr;
+
+  }
+
+}

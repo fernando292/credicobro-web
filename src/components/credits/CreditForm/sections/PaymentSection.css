@@ -1,0 +1,83 @@
+.credit-section{
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:22px;
+
+  padding:28px;
+
+  margin-bottom:24px;
+
+}
+
+.credit-section h2{
+
+  margin:0 0 24px;
+
+  font-size:22px;
+
+  color:#0f172a;
+
+}
+
+.credit-grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(2,1fr);
+
+  gap:22px;
+
+}
+
+.credit-grid label{
+
+  display:block;
+
+  margin-bottom:8px;
+
+  color:#475569;
+
+  font-weight:600;
+
+}
+
+.credit-grid input,
+.credit-grid select{
+
+  width:100%;
+
+  padding:14px;
+
+  border:1px solid #dbe2ea;
+
+  border-radius:12px;
+
+  font-size:15px;
+
+  outline:none;
+
+  transition:.25s;
+
+}
+
+.credit-grid input:focus,
+.credit-grid select:focus{
+
+  border-color:#2563eb;
+
+  box-shadow:0 0 0 4px rgba(37,99,235,.08);
+
+}
+
+@media(max-width:768px){
+
+  .credit-grid{
+
+    grid-template-columns:1fr;
+
+  }
+
+}

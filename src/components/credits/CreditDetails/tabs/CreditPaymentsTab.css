@@ -1,0 +1,357 @@
+.credit-payments{
+
+  width:100%;
+
+}
+
+
+
+/* RESUMEN DE PAGOS */
+
+.payment-summary{
+
+  display:grid;
+
+  grid-template-columns:repeat(3,1fr);
+
+  gap:16px;
+
+  margin-bottom:25px;
+
+}
+
+
+
+.payment-summary > div{
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:18px;
+
+  padding:20px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+
+}
+
+
+
+.payment-summary span{
+
+  color:#64748b;
+
+  font-size:14px;
+
+}
+
+
+
+.payment-summary strong{
+
+  color:#0f172a;
+
+  font-size:24px;
+
+}
+
+
+
+
+
+
+
+/* FORMULARIO */
+
+.payment-form{
+
+  background:#f8fafc;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:18px;
+
+  padding:22px;
+
+  display:grid;
+
+  grid-template-columns:repeat(3,1fr);
+
+  gap:16px;
+
+  margin-bottom:25px;
+
+}
+
+
+
+.payment-form input,
+
+.payment-form select{
+
+
+  height:44px;
+
+  border:1px solid #cbd5e1;
+
+  border-radius:12px;
+
+  padding:0 14px;
+
+  font-size:14px;
+
+  outline:none;
+
+  background:white;
+
+
+}
+
+
+
+.payment-form input:focus,
+
+.payment-form select:focus{
+
+
+  border-color:#2563eb;
+
+
+}
+
+
+
+
+
+.payment-form button{
+
+
+  grid-column:span 3;
+
+
+  height:45px;
+
+  border:none;
+
+  border-radius:12px;
+
+  background:#2563eb;
+
+  color:white;
+
+  font-weight:600;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+
+}
+
+
+
+.payment-form button:hover{
+
+
+  background:#1d4ed8;
+
+
+}
+
+
+
+
+
+
+
+/* LISTA DE PAGOS */
+
+
+.payments-list{
+
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:14px;
+
+
+}
+
+
+
+
+
+.payment-item{
+
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:18px;
+
+  padding:18px 20px;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+
+
+}
+
+
+
+
+
+.payment-item div{
+
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:6px;
+
+
+}
+
+
+
+
+
+.payment-item strong:first-child{
+
+
+  font-size:15px;
+
+  color:#2563eb;
+
+
+}
+
+
+
+.payment-item strong:nth-child(2){
+
+
+  font-size:22px;
+
+  color:#0f172a;
+
+
+}
+
+
+
+
+
+.payment-item span{
+
+
+  color:#475569;
+
+  font-size:14px;
+
+
+}
+
+
+
+
+
+.payment-item small{
+
+
+  color:#94a3b8;
+
+
+}
+
+
+
+
+
+.payment-item button{
+
+
+  border:none;
+
+  background:#fee2e2;
+
+  color:#dc2626;
+
+  padding:10px 16px;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-weight:600;
+
+
+}
+
+
+
+
+
+.payment-item button:hover{
+
+
+  background:#fecaca;
+
+
+}
+
+
+
+
+
+
+
+@media(max-width:900px){
+
+
+  .payment-summary{
+
+
+    grid-template-columns:1fr;
+
+
+  }
+
+
+
+  .payment-form{
+
+
+    grid-template-columns:1fr;
+
+
+  }
+
+
+
+  .payment-form button{
+
+
+    grid-column:span 1;
+
+
+  }
+
+
+}
