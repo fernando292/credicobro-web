@@ -53,8 +53,7 @@ function CreditForm({
 
       client =>
 
-        client.id === form.clientId
-
+        String(client.id) === String(form.clientId)
     );
 
 

@@ -1,32 +1,43 @@
-.credit-summary{
+.credit-stats{
 
   display:grid;
 
-  grid-template-columns:repeat(2, 1fr);
+  grid-template-columns:repeat(3, 1fr);
 
-  gap:12px;
+  gap:14px;
+
+  width:100%;
 
 }
 
 
 
+/* Tarjetas individuales */
+
 .summary-card{
 
-  background:#f8fafc;
+
+  background:#ffffff;
 
   border:1px solid #e2e8f0;
 
-  border-radius:14px;
+  border-radius:18px;
 
-  padding:12px 14px;
+  padding:18px;
+
+  min-height:85px;
 
   display:flex;
 
   flex-direction:column;
 
-  gap:5px;
+  justify-content:center;
 
-  transition:.2s;
+  gap:8px;
+
+  box-shadow:0 8px 20px rgba(15,23,42,.05);
+
+  transition:.25s ease;
 
 }
 
@@ -34,11 +45,13 @@
 
 .summary-card:hover{
 
-  border-color:#2563eb;
+  transform:translateY(-2px);
 
-  background:#f1f5ff;
+  box-shadow:0 12px 25px rgba(15,23,42,.08);
 
 }
+
+
 
 
 
@@ -54,34 +67,86 @@
 
 
 
+
+
 .summary-card strong{
 
-  font-size:15px;
+  font-size:18px;
 
   color:#0f172a;
 
-  font-weight:700;
+  font-weight:800;
+
+  line-height:1.2;
+
+  word-break:break-word;
 
 }
 
 
 
-/* Cliente ocupa una fila */
 
-.summary-card:first-child{
 
-  grid-column:span 2;
+/* Cliente ocupa todo el ancho */
+
+.summary-card:nth-child(2){
+
+  grid-column:span 3;
 
 }
 
 
 
-/* Responsive */
-
-@media(max-width:600px){
 
 
-  .credit-summary{
+
+
+/* Progreso del crédito */
+
+.credit-progress{
+
+  grid-column:span 3;
+
+}
+
+
+
+
+
+
+
+@media(max-width:1000px){
+
+
+  .credit-stats{
+
+    grid-template-columns:repeat(2,1fr);
+
+  }
+
+
+
+  .summary-card:nth-child(2),
+
+  .credit-progress{
+
+    grid-column:span 2;
+
+  }
+
+
+}
+
+
+
+
+
+
+
+@media(max-width:650px){
+
+
+  .credit-stats{
 
     grid-template-columns:1fr;
 
@@ -89,10 +154,13 @@
 
 
 
-  .summary-card:first-child{
+  .summary-card:nth-child(2),
+
+  .credit-progress{
 
     grid-column:span 1;
 
   }
+
 
 }

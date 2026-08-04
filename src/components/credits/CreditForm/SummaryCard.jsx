@@ -2,7 +2,6 @@ import { formatCurrency } from "../../../utils/currency";
 
 import "./SummaryCard.css";
 
-
 function SummaryCard({ summary }) {
 
   return (
@@ -12,7 +11,6 @@ function SummaryCard({ summary }) {
       <h3>
         Resumen del crédito
       </h3>
-
 
       <div className="credit-summary__item">
 
@@ -26,8 +24,6 @@ function SummaryCard({ summary }) {
 
       </div>
 
-
-
       <div className="credit-summary__item">
 
         <span>
@@ -39,8 +35,6 @@ function SummaryCard({ summary }) {
         </strong>
 
       </div>
-
-
 
       <div className="credit-summary__item">
 
@@ -54,11 +48,7 @@ function SummaryCard({ summary }) {
 
       </div>
 
-
-
       <div className="credit-summary__divider"></div>
-
-
 
       <div className="credit-summary__item total">
 
@@ -72,12 +62,10 @@ function SummaryCard({ summary }) {
 
       </div>
 
-
     </div>
 
   );
 
 }
-
 
 export default SummaryCard;

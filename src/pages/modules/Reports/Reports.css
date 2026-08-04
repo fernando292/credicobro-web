@@ -1,0 +1,182 @@
+.reports-page {
+
+  width:100%;
+
+}
+
+
+/* HEADER */
+
+.reports-header {
+
+  margin-bottom:30px;
+
+}
+
+
+.reports-header h1 {
+
+  margin:0;
+
+  font-size:28px;
+
+  color:#0f172a;
+
+}
+
+
+.reports-header p {
+
+  margin-top:8px;
+
+  color:#64748b;
+
+  font-size:15px;
+
+}
+
+
+
+/* GRID PRINCIPAL */
+
+.reports-grid {
+
+  display:grid;
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(230px,1fr));
+
+  gap:20px;
+
+}
+
+
+
+
+
+/* TARJETAS */
+
+.report-card {
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:20px;
+
+  padding:24px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+  box-shadow:
+  0 10px 30px rgba(15,23,42,.05);
+
+  transition:.25s;
+
+}
+
+
+
+.report-card:hover {
+
+  transform:translateY(-3px);
+
+  box-shadow:
+  0 15px 35px rgba(15,23,42,.10);
+
+}
+
+
+
+
+
+.report-card span {
+
+  color:#64748b;
+
+  font-size:14px;
+
+  font-weight:600;
+
+}
+
+
+
+
+
+.report-card strong {
+
+  font-size:28px;
+
+  color:#0f172a;
+
+  font-weight:800;
+
+}
+
+
+
+
+
+
+/* COLORES POR IMPORTANCIA */
+
+
+.report-card:nth-child(3) strong {
+
+  color:#dc2626;
+
+}
+
+
+
+.report-card:nth-child(4) strong {
+
+  color:#16a34a;
+
+}
+
+
+
+.report-card:nth-child(5) strong {
+
+  color:#2563eb;
+
+}
+
+
+
+
+
+
+.reports-loading {
+
+  padding:40px;
+
+  text-align:center;
+
+  color:#64748b;
+
+  font-size:18px;
+
+}
+
+
+
+
+
+@media(max-width:768px){
+
+
+  .reports-grid {
+
+    grid-template-columns:1fr;
+
+  }
+
+
+}

@@ -1,14 +1,16 @@
 .credit-summary{
 
+  display:block !important;
+
   width:100%;
 
-  background:white;
+  background:#ffffff;
 
   border:1px solid #e2e8f0;
 
   border-radius:20px;
 
-  padding:20px;
+  padding:24px;
 
   box-sizing:border-box;
 
@@ -20,33 +22,13 @@
 
 .credit-summary h3{
 
-  margin:0 0 18px;
+  margin:0 0 22px;
 
   font-size:18px;
 
-  color:#0f172a;
-
   font-weight:700;
 
-}
-
-
-
-.credit-summary{
-
-  display:grid;
-
-  grid-template-columns:repeat(2,1fr);
-
-  gap:12px;
-
-}
-
-
-
-.credit-summary h3{
-
-  grid-column:span 2;
+  color:#0f172a;
 
 }
 
@@ -54,25 +36,25 @@
 
 .credit-summary__item{
 
-  width:100%;
-
-  box-sizing:border-box;
-
   display:flex;
 
-  flex-direction:column;
+  justify-content:space-between;
 
-  gap:6px;
+  align-items:center;
 
-  background:#f8fafc;
+  gap:20px;
 
-  border:1px solid #e2e8f0;
+  padding:14px 0;
 
-  border-radius:14px;
+  border-bottom:1px solid #eef2f7;
 
-  padding:12px 14px;
+}
 
-  overflow:hidden;
+
+
+.credit-summary__item:last-of-type{
+
+  border-bottom:none;
 
 }
 
@@ -80,11 +62,11 @@
 
 .credit-summary__item span{
 
-  font-size:12px;
-
   color:#64748b;
 
-  font-weight:600;
+  font-size:14px;
+
+  font-weight:500;
 
 }
 
@@ -92,13 +74,13 @@
 
 .credit-summary__item strong{
 
-  font-size:15px;
-
   color:#0f172a;
+
+  font-size:16px;
 
   font-weight:700;
 
-  word-break:break-word;
+  text-align:right;
 
 }
 
@@ -106,13 +88,11 @@
 
 .credit-summary__divider{
 
-  grid-column:span 2;
-
   height:1px;
 
   background:#e2e8f0;
 
-  margin:4px 0;
+  margin:8px 0;
 
 }
 
@@ -120,9 +100,17 @@
 
 .credit-summary__item.total{
 
-  background:#eff6ff;
+  padding-top:18px;
 
-  border-color:#bfdbfe;
+}
+
+
+
+.credit-summary__item.total span{
+
+  font-size:15px;
+
+  font-weight:600;
 
 }
 
@@ -132,24 +120,35 @@
 
   color:#2563eb;
 
+  font-size:20px;
+
+  font-weight:800;
+
 }
 
 
 
-@media(max-width:700px){
+@media (max-width:700px){
 
   .credit-summary{
 
-    grid-template-columns:1fr;
+    padding:18px;
 
   }
 
+  .credit-summary__item{
 
-  .credit-summary h3,
+    flex-direction:column;
 
-  .credit-summary__divider{
+    align-items:flex-start;
 
-    grid-column:span 1;
+    gap:6px;
+
+  }
+
+  .credit-summary__item strong{
+
+    text-align:left;
 
   }
 

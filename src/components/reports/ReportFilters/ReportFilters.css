@@ -1,0 +1,65 @@
+.report-filters {
+
+  display:flex;
+
+  gap:15px;
+
+  margin-bottom:25px;
+
+}
+
+
+
+.report-filters input,
+
+.report-filters select {
+
+
+  height:42px;
+
+  padding:0 15px;
+
+  border-radius:12px;
+
+  border:1px solid #e2e8f0;
+
+  background:white;
+
+  font-size:14px;
+
+  outline:none;
+
+}
+
+
+
+.report-filters input {
+
+  flex:1;
+
+}
+
+
+
+.report-filters input:focus,
+
+.report-filters select:focus {
+
+  border-color:#2563eb;
+
+}
+
+
+
+
+@media(max-width:700px){
+
+
+  .report-filters {
+
+    flex-direction:column;
+
+  }
+
+
+}

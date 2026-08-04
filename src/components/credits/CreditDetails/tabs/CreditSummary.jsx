@@ -2,22 +2,15 @@ import "./CreditSummary.css";
 
 import CreditProgress from "./CreditProgress";
 
-
 function CreditSummary({ credit }) {
-
 
   return (
 
-    <div className="credit-summary">
-
+    <div className="credit-stats">
 
       <CreditProgress
-
         credit={credit}
-
       />
-
-
 
       <div className="summary-card">
 
@@ -30,8 +23,6 @@ function CreditSummary({ credit }) {
         </strong>
 
       </div>
-
-
 
       <div className="summary-card">
 
@@ -48,9 +39,6 @@ function CreditSummary({ credit }) {
 
       </div>
 
-
-
-
       <div className="summary-card">
 
         <span>
@@ -65,9 +53,6 @@ function CreditSummary({ credit }) {
         </strong>
 
       </div>
-
-
-
 
       <div className="summary-card">
 
@@ -84,9 +69,6 @@ function CreditSummary({ credit }) {
 
       </div>
 
-
-
-
       <div className="summary-card">
 
         <span>
@@ -102,9 +84,6 @@ function CreditSummary({ credit }) {
 
       </div>
 
-
-
-
       <div className="summary-card">
 
         <span>
@@ -116,9 +95,6 @@ function CreditSummary({ credit }) {
         </strong>
 
       </div>
-
-
-
 
       <div className="summary-card">
 
@@ -132,9 +108,6 @@ function CreditSummary({ credit }) {
 
       </div>
 
-
-
-
       <div className="summary-card">
 
         <span>
@@ -147,13 +120,10 @@ function CreditSummary({ credit }) {
 
       </div>
 
-
-
     </div>
 
   );
 
 }
-
 
 export default CreditSummary;

@@ -1,9 +1,35 @@
 import {
+  useEffect,
+  useState
+} from "react";
+
+
+import {
   X
 } from "lucide-react";
 
 
+import {
+  useAuth
+} from "../../../context/AuthContext";
+
+
+import {
+  getUserProfile
+} from "../../../pages/modules/services/company/companyService";
+
+
+import {
+  getClientFinancialSummary
+} from "../../../pages/modules/services/clients/clientFinanceService";
+
+
+import ClientFinancialSummary from "../ClientFinancialSummary/ClientFinancialSummary";
+
+
 import "./ClientDetails.css";
+
+
 
 
 
@@ -17,7 +43,108 @@ function ClientDetails({
 
 
 
-  if (!client) {
+  const { user } = useAuth();
+
+
+  const [summary,setSummary] = useState(null);
+
+
+
+
+
+
+  useEffect(()=>{
+
+
+    async function loadSummary(){
+
+
+
+      if(!user || !client) return;
+
+
+
+
+
+      try{
+
+
+
+        const profile = await getUserProfile(
+
+          user.uid
+
+        );
+
+
+
+
+
+        if(!profile?.companyId) return;
+
+
+
+
+
+
+        const data = await getClientFinancialSummary(
+
+          profile.companyId,
+
+          client.id
+
+        );
+
+
+
+
+
+        setSummary(data);
+
+
+
+
+
+      }catch(error){
+
+
+
+        console.error(
+
+          "Error cargando resumen financiero",
+
+          error
+
+        );
+
+
+
+      }
+
+
+
+    }
+
+
+
+
+
+    loadSummary();
+
+
+
+
+  },[user,client]);
+
+
+
+
+
+
+
+
+
+  if(!client){
 
 
     return (
@@ -30,14 +157,25 @@ function ClientDetails({
 
     );
 
+
   }
+
+
+
+
+
+
 
 
 
   return (
 
 
+
     <div className="client-details">
+
+
+
 
 
 
@@ -51,13 +189,20 @@ function ClientDetails({
 
         <X size={20}/>
 
+
       </button>
 
 
 
 
 
+
+
+
+
       <div className="client-details__header">
+
+
 
 
 
@@ -70,7 +215,11 @@ function ClientDetails({
 
 
 
+
+
+
         <div>
+
 
           <h2>
 
@@ -80,13 +229,20 @@ function ClientDetails({
 
 
 
+
+
           <span>
 
             {client.status}
 
           </span>
 
+
+
+
         </div>
+
+
 
 
 
@@ -97,11 +253,17 @@ function ClientDetails({
 
 
 
+
+
+
       <div className="client-details__info">
 
 
 
+
+
         <div>
+
 
           <label>
 
@@ -123,7 +285,10 @@ function ClientDetails({
 
 
 
+
+
         <div>
+
 
           <label>
 
@@ -146,7 +311,9 @@ function ClientDetails({
 
 
 
+
         <div>
+
 
           <label>
 
@@ -169,7 +336,9 @@ function ClientDetails({
 
 
 
+
         <div>
+
 
           <label>
 
@@ -190,17 +359,39 @@ function ClientDetails({
 
 
 
+
       </div>
+
+
+
+
+
+
+
+
+
+      <ClientFinancialSummary
+
+        summary={summary}
+
+      />
+
+
+
+
 
 
 
     </div>
 
 
+
   );
 
 
+
 }
+
 
 
 export default ClientDetails;

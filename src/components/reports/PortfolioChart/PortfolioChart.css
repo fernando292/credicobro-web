@@ -1,0 +1,27 @@
+.portfolio-chart {
+
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:20px;
+
+  padding:25px;
+
+  margin-top:25px;
+
+  box-shadow:0 10px 25px rgba(15,23,42,.06);
+
+}
+
+
+
+.portfolio-chart h3 {
+
+  margin:0 0 20px;
+
+  font-size:18px;
+
+  color:#0f172a;
+
+}

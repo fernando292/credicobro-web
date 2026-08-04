@@ -19,6 +19,11 @@ import {
 } from "../services/payment/paymentGlobalService";
 
 
+import {
+  getCredits
+} from "../services/credit/creditService";
+
+
 import PaymentStats from "../../../components/payments/PaymentStats";
 
 import PaymentTable from "../../../components/payments/PaymentTable/PaymentTable";
@@ -36,9 +41,17 @@ function Payments(){
   const { user } = useAuth();
 
 
+
   const [payments,setPayments] = useState([]);
 
+
+  const [credits,setCredits] = useState([]);
+
+
   const [loading,setLoading] = useState(true);
+
+
+
 
 
 
@@ -82,22 +95,52 @@ function Payments(){
 
 
 
+        const companyId = String(
 
-        const data = await getAllCompanyPayments(
-
-          String(profile.companyId)
+          profile.companyId
 
         );
 
 
+
+
+
+
+
+        const paymentsData = await getAllCompanyPayments(
+
+          companyId
+
+        );
 
 
 
         setPayments(
 
-          data
+          paymentsData
 
         );
+
+
+
+
+
+
+
+        const creditsData = await getCredits(
+
+          companyId
+
+        );
+
+
+
+        setCredits(
+
+          creditsData
+
+        );
+
 
 
 
@@ -126,6 +169,7 @@ function Payments(){
 
 
     }
+
 
 
 
@@ -215,6 +259,7 @@ function Payments(){
 
 
 
+
       {
 
         loading ? (
@@ -241,7 +286,10 @@ function Payments(){
 
               payments={payments}
 
+              credits={credits}
+
             />
+
 
 
 
@@ -257,6 +305,7 @@ function Payments(){
 
 
           </>
+
 
 
         )
@@ -276,6 +325,7 @@ function Payments(){
 
 
 }
+
 
 
 

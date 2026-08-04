@@ -5,7 +5,9 @@ function PaymentStats({
 
   totalCollected,
 
-  payments
+  payments,
+
+  credits
 
 }) {
 
@@ -13,9 +15,13 @@ function PaymentStats({
   const totalPayments = payments.length;
 
 
+
   const today = new Date()
+
     .toISOString()
+
     .split("T")[0];
+
 
 
   const todayPayments = payments.filter(
@@ -29,25 +35,149 @@ function PaymentStats({
 
 
 
+  const activeCredits = credits.filter(
+
+    credit =>
+
+      credit.status === "Activo"
+
+  ).length;
+
+
+
+
+
+  const capitalPrestado = credits.reduce(
+
+    (total,credit)=>
+
+      total +
+
+      Number(
+
+        credit.amount || 0
+
+      ),
+
+    0
+
+  );
+
+
+
+
+
+  const saldoPendiente = credits.reduce(
+
+    (total,credit)=>
+
+      total +
+
+      Number(
+
+        credit.balance || 0
+
+      ),
+
+    0
+
+  );
+
+
+
+
+
+
   return (
 
     <div className="payment-stats">
 
 
+
       <div className="payment-stat-card">
 
         <span>
-          Total recaudado
+          Créditos activos
         </span>
 
         <strong>
-          $
-          {Number(
-            totalCollected || 0
-          ).toLocaleString()}
+          {activeCredits}
         </strong>
 
       </div>
+
+
+
+
+
+      <div className="payment-stat-card">
+
+        <span>
+          Capital prestado
+        </span>
+
+        <strong>
+
+          $
+
+          {capitalPrestado.toLocaleString()}
+
+        </strong>
+
+      </div>
+
+
+
+
+
+
+      <div className="payment-stat-card">
+
+        <span>
+          Saldo pendiente
+        </span>
+
+
+        <strong>
+
+          $
+
+          {saldoPendiente.toLocaleString()}
+
+        </strong>
+
+
+      </div>
+
+
+
+
+
+
+      <div className="payment-stat-card">
+
+        <span>
+          Total pagado
+        </span>
+
+
+        <strong>
+
+          $
+
+          {Number(
+
+            totalCollected || 0
+
+          ).toLocaleString()}
+
+        </strong>
+
+
+      </div>
+
+
+
 
 
 
@@ -57,11 +187,16 @@ function PaymentStats({
           Pagos registrados
         </span>
 
+
         <strong>
+
           {totalPayments}
+
         </strong>
 
+
       </div>
+
 
 
 
@@ -72,9 +207,13 @@ function PaymentStats({
           Pagos de hoy
         </span>
 
+
         <strong>
+
           {todayPayments}
+
         </strong>
+
 
       </div>
 
