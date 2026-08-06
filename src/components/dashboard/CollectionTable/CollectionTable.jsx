@@ -207,7 +207,7 @@ function CollectionTable({
 
                         <td>
 
-                          {item.firstPayment || "-"}
+                          {item.nextPaymentDate || "-"}
 
 
                         </td>

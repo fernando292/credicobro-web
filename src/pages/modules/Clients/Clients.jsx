@@ -123,7 +123,7 @@ function Clients(){
 
         companyId,
 
-        client.id,
+        editingClient.id,
 
         client
 
@@ -135,15 +135,14 @@ function Clients(){
 
         prev.map(item=>
 
-          item.id===client.id
+          item.id===editingClient.id
 
-          ?
-
-          client
-
-          :
-
-          item
+          ? {
+            ...item,
+            ...client
+          } 
+          
+          :item
 
         )
 

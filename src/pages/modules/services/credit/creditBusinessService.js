@@ -13,35 +13,23 @@ import {
   removePayment
 } from "../payment/paymentService";
 
-
-
-
-
 function calculateInstallments(
   paidAmount,
   installmentValue,
   totalInstallments
-){
+) {
 
-
-  if(
-    !installmentValue ||
-    installmentValue <= 0
-  ){
+  if (!installmentValue || installmentValue <= 0) {
 
     return 0;
 
   }
-
-
 
   const paid = Math.floor(
 
     paidAmount / installmentValue
 
   );
-
-
 
   return Math.min(
 
@@ -51,16 +39,7 @@ function calculateInstallments(
 
   );
 
-
 }
-
-
-
-
-
-
-
-
 
 export async function registerCreditPayment(
 
@@ -70,9 +49,7 @@ export async function registerCreditPayment(
 
   payment
 
-){
-
-
+) {
 
   const paymentsRef = collection(
 
@@ -90,20 +67,11 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
   const paymentsSnapshot = await getDocs(
 
     paymentsRef
 
   );
-
-
-
-
-
 
   const usedInstallments = paymentsSnapshot.docs.map(
 
@@ -117,11 +85,6 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
-
   const nextInstallment =
 
     Math.max(
@@ -132,30 +95,13 @@ export async function registerCreditPayment(
 
     ) + 1;
 
-
-
-
-
-
-
   const paymentWithInstallment = {
-
 
     ...payment,
 
-
-    installmentNumber:
-
-      nextInstallment
-
+    installmentNumber: nextInstallment
 
   };
-
-
-
-
-
-
 
   const savedPayment = await createPayment(
 
@@ -167,13 +113,6 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
-
-
-
   const creditRef = doc(
 
     db,
@@ -188,26 +127,13 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
-
-
   const snapshot = await getDoc(
 
     creditRef
 
   );
 
-
-
-
-
-
-
-  if(!snapshot.exists()){
-
+  if (!snapshot.exists()) {
 
     throw new Error(
 
@@ -215,23 +141,9 @@ export async function registerCreditPayment(
 
     );
 
-
   }
 
-
-
-
-
-
-
-
   const credit = snapshot.data();
-
-
-
-
-
-
 
   const paymentValue = Number(
 
@@ -239,64 +151,33 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
-
-
-
   const paidAmount =
-
 
     Number(
 
       credit.paidAmount || 0
 
-    )
-
-    +
+    ) +
 
     paymentValue;
 
-
-
-
-
-
-
-
   const balance = Math.max(
-
 
     Number(
 
       credit.total || 0
 
-    )
-
-    -
+    ) -
 
     paidAmount,
-
 
     0
 
-
   );
-
-
-
-
-
-
-
 
   const paidInstallments = calculateInstallments(
 
-
     paidAmount,
-
 
     Number(
 
@@ -304,87 +185,113 @@ export async function registerCreditPayment(
 
     ),
 
-
     Number(
 
       credit.installments || 0
 
     )
 
-
   );
-
-
-
-
-
-
-
 
   const pendingInstallments = Math.max(
 
-
     Number(
 
       credit.installments || 0
 
-    )
-
-    -
+    ) -
 
     paidInstallments,
-
 
     0
 
-
   );
 
+  // ============================================
+  // Calcular próxima fecha de pago
+  // ============================================
 
+  let nextPaymentDate = credit.nextPaymentDate;
 
+  if (pendingInstallments > 0) {
 
+    const currentDate = credit.nextPaymentDate
 
+      ? new Date(credit.nextPaymentDate)
 
+      : new Date(credit.firstPayment);
 
+    switch (credit.frequency) {
 
+      case "Semanal":
+
+        currentDate.setDate(
+
+          currentDate.getDate() + 7
+
+        );
+
+        break;
+
+      case "Quincenal":
+
+        currentDate.setDate(
+
+          currentDate.getDate() + 15
+
+        );
+
+        break;
+
+      case "Mensual":
+
+        currentDate.setMonth(
+
+          currentDate.getMonth() + 1
+
+        );
+
+        break;
+
+      default:
+
+        break;
+
+    }
+
+    nextPaymentDate = currentDate
+
+      .toISOString()
+
+      .split("T")[0];
+
+  } else {
+
+    nextPaymentDate = null;
+
+  }
 
   const updatedCredit = {
 
-
     balance,
-
 
     paidAmount,
 
-
     paidInstallments,
-
 
     pendingInstallments,
 
-
+    nextPaymentDate,
 
     status:
 
-
       balance === 0
-
 
         ? "Pagado"
 
-
         : "Activo"
 
-
-
   };
-
-
-
-
-
-
-
 
   await updateDoc(
 
@@ -394,50 +301,23 @@ export async function registerCreditPayment(
 
   );
 
-
-
-
-
-
-
-
   return {
 
+    payment: savedPayment,
 
-    payment:savedPayment,
-
-
-    updatedCredit:{
-
+    updatedCredit: {
 
       ...credit,
 
-
       ...updatedCredit,
 
-
-      id:creditId
-
+      id: creditId
 
     }
 
-
   };
 
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
 
 export async function deleteCreditPayment(
 
@@ -447,11 +327,7 @@ export async function deleteCreditPayment(
 
   paymentId
 
-){
-
-
-
-
+) {
 
   await removePayment(
 
@@ -463,12 +339,6 @@ export async function deleteCreditPayment(
 
   );
 
-
-
-
-
-
-
   const creditRef = doc(
 
     db,
@@ -483,28 +353,13 @@ export async function deleteCreditPayment(
 
   );
 
-
-
-
-
-
-
-
   const creditSnapshot = await getDoc(
 
     creditRef
 
   );
 
-
-
-
-
-
-
-
-  if(!creditSnapshot.exists()){
-
+  if (!creditSnapshot.exists()) {
 
     throw new Error(
 
@@ -512,23 +367,9 @@ export async function deleteCreditPayment(
 
     );
 
-
   }
 
-
-
-
-
-
-
   const credit = creditSnapshot.data();
-
-
-
-
-
-
-
 
   const paymentsRef = collection(
 
@@ -546,24 +387,11 @@ export async function deleteCreditPayment(
 
   );
 
-
-
-
-
-
-
   const paymentsSnapshot = await getDocs(
 
     paymentsRef
 
   );
-
-
-
-
-
-
-
 
   const payments = paymentsSnapshot.docs.map(
 
@@ -571,18 +399,9 @@ export async function deleteCreditPayment(
 
   );
 
-
-
-
-
-
-
-
   const paidAmount = payments.reduce(
 
-
-    (total,item)=>
-
+    (total, item) =>
 
       total +
 
@@ -592,25 +411,13 @@ export async function deleteCreditPayment(
 
       ),
 
-
     0
-
 
   );
 
-
-
-
-
-
-
-
-
   const paidInstallments = calculateInstallments(
 
-
     paidAmount,
-
 
     Number(
 
@@ -618,155 +425,82 @@ export async function deleteCreditPayment(
 
     ),
 
-
     Number(
 
       credit.installments || 0
 
     )
 
-
   );
-
-
-
-
-
-
-
-
 
   const pendingInstallments = Math.max(
 
-
     Number(
 
       credit.installments || 0
 
-    )
-
-    -
+    ) -
 
     paidInstallments,
 
-
     0
-
 
   );
 
-
-
-
-
-
-
-
-
   const balance = Math.max(
-
 
     Number(
 
       credit.total || 0
 
-    )
-
-    -
+    ) -
 
     paidAmount,
-
 
     0
 
-
   );
-
-
-
-
-
-
-
-
 
   const updatedCredit = {
 
-
     balance,
-
 
     paidAmount,
 
-
     paidInstallments,
-
 
     pendingInstallments,
 
-
-
     status:
 
-
       balance === 0
-
 
         ? "Pagado"
 
         : "Activo"
 
-
-
   };
-
-
-
-
-
-
-
-
 
   await updateDoc(
 
-
     creditRef,
-
 
     updatedCredit
 
-
   );
-
-
-
-
-
-
-
-
 
   return {
 
-
-    updatedCredit:{
-
+    updatedCredit: {
 
       ...credit,
 
-
       ...updatedCredit,
 
-
-      id:creditId
-
+      id: creditId
 
     }
 
-
   };
-
-
 
 }

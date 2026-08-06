@@ -14,7 +14,6 @@ import {
 import { db } from "../../../../config/firebase";
 
 
-
 /* =======================================================
    Crear notificación
 ======================================================= */
@@ -300,6 +299,54 @@ export async function deleteNotification(
     console.error(
 
       "Error eliminando notificación",
+
+      error
+
+    );
+
+  }
+
+}
+
+
+
+/* =======================================================
+   Limpiar historial de notificaciones
+======================================================= */
+
+export async function clearNotifications(
+
+  companyId
+
+) {
+
+  try {
+
+    const notifications = await getNotifications(
+
+      companyId
+
+    );
+
+    await Promise.all(
+
+      notifications.map(notification =>
+
+        deleteNotification(
+
+          notification.id
+
+        )
+
+      )
+
+    );
+
+  } catch (error) {
+
+    console.error(
+
+      "Error limpiando historial",
 
       error
 

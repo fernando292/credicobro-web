@@ -10,23 +10,81 @@
 
     margin-bottom:25px;
 
+    box-shadow:0 4px 12px rgba(0,0,0,.04);
+
 }
 
 .notification-center__header{
 
     display:flex;
 
-    align-items:center;
+    justify-content:space-between;
 
-    gap:10px;
+    align-items:center;
 
     margin-bottom:18px;
 
 }
 
-.notification-center__header h3{
+.notification-center__title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.notification-center__title h3{
 
     margin:0;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+.notification-center__title span{
+
+    display:block;
+
+    margin-top:2px;
+
+    font-size:13px;
+
+    color:#64748b;
+
+}
+
+.notification-center__toggle{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:36px;
+
+    height:36px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#f8fafc;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.notification-center__toggle:hover{
+
+    background:#e2e8f0;
 
 }
 
@@ -38,6 +96,26 @@
 
     gap:12px;
 
+    max-height:420px;
+
+    overflow-y:auto;
+
+    padding-right:6px;
+
+}
+
+.notification-center__list::-webkit-scrollbar{
+
+    width:6px;
+
+}
+
+.notification-center__list::-webkit-scrollbar-thumb{
+
+    background:#cbd5e1;
+
+    border-radius:20px;
+
 }
 
 .notification-card{
@@ -46,13 +124,23 @@
 
     justify-content:space-between;
 
-    align-items:center;
+    align-items:flex-start;
+
+    gap:15px;
 
     padding:14px;
 
     border-radius:12px;
 
     border:1px solid #e2e8f0;
+
+    transition:.2s;
+
+}
+
+.notification-card:hover{
+
+    background:#f8fafc;
 
 }
 
@@ -62,30 +150,68 @@
 
 }
 
+.notification-card strong{
+
+    display:block;
+
+    margin-bottom:5px;
+
+}
+
 .notification-card p{
 
-    margin-top:4px;
+    margin:0;
 
     color:#64748b;
 
     font-size:14px;
 
+    line-height:1.4;
+
 }
 
 .notification-card button{
 
-    background:none;
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:34px;
+
+    height:34px;
 
     border:none;
 
-    cursor:pointer;
+    border-radius:8px;
+
+    background:#ecfdf5;
 
     color:#16a34a;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    flex-shrink:0;
+
+}
+
+.notification-card button:hover{
+
+    background:#16a34a;
+
+    color:white;
 
 }
 
 .notification-center__empty{
 
+    text-align:center;
+
     color:#94a3b8;
+
+    padding:40px 0;
 
 }

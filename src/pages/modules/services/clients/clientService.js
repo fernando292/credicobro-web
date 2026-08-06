@@ -12,10 +12,11 @@ import { db } from "../../../../config/firebase";
 
 
 
+// =======================================================
 // Obtener clientes
+// =======================================================
 
 export async function getClients(companyId) {
-
 
   const clientsRef = collection(
 
@@ -29,25 +30,31 @@ export async function getClients(companyId) {
 
   );
 
-
   const snapshot = await getDocs(clientsRef);
 
+  return snapshot.docs.map(item => {
 
+    const data = item.data();
 
-  return snapshot.docs.map((item)=>({
+    delete data.id;
 
-    id:item.id,
+    return {
 
-    ...item.data()
+      id: item.id,
 
-  }));
+      ...data
+
+    };
+
+  });
 
 }
 
 
 
-
+// =======================================================
 // Obtener cliente por ID
+// =======================================================
 
 export async function getClientById(
 
@@ -55,8 +62,7 @@ export async function getClientById(
 
   clientId
 
-){
-
+) {
 
   const clientRef = doc(
 
@@ -68,41 +74,37 @@ export async function getClientById(
 
     "clients",
 
-    clientId
+    String(clientId)
 
   );
 
-
-
   const snapshot = await getDoc(clientRef);
 
-
-
-  if(!snapshot.exists()){
+  if (!snapshot.exists()) {
 
     return null;
 
   }
 
+  const data = snapshot.data();
 
+  delete data.id;
 
   return {
 
-    id:snapshot.id,
+    id: snapshot.id,
 
-    ...snapshot.data()
+    ...data
 
   };
-
 
 }
 
 
 
-
-
-
+// =======================================================
 // Crear cliente
+// =======================================================
 
 export async function createClient(
 
@@ -110,8 +112,9 @@ export async function createClient(
 
   client
 
-){
+) {
 
+  const { id, ...clientData } = client;
 
   const clientsRef = collection(
 
@@ -125,35 +128,29 @@ export async function createClient(
 
   );
 
-
-
   const result = await addDoc(
 
     clientsRef,
 
-    client
+    clientData
 
   );
 
-
-
   return {
 
-    id:result.id,
+    id: result.id,
 
-    ...client
+    ...clientData
 
   };
-
 
 }
 
 
 
-
-
-
+// =======================================================
 // Actualizar cliente
+// =======================================================
 
 export async function updateClient(
 
@@ -163,8 +160,9 @@ export async function updateClient(
 
   data
 
-){
+) {
 
+  const { id, ...clientData } = data;
 
   const clientRef = doc(
 
@@ -172,33 +170,29 @@ export async function updateClient(
 
     "companies",
 
-    companyId,
+    String(companyId),
 
     "clients",
 
-    clientId
+    String(clientId)
 
   );
-
-
 
   await updateDoc(
 
     clientRef,
 
-    data
+    clientData
 
   );
-
 
 }
 
 
 
-
-
-
+// =======================================================
 // Eliminar cliente
+// =======================================================
 
 export async function removeClient(
 
@@ -206,8 +200,7 @@ export async function removeClient(
 
   clientId
 
-){
-
+) {
 
   const clientRef = doc(
 
@@ -215,21 +208,18 @@ export async function removeClient(
 
     "companies",
 
-    companyId,
+    String(companyId),
 
     "clients",
 
-    clientId
+    String(clientId)
 
   );
-
-
 
   await deleteDoc(
 
     clientRef
 
   );
-
 
 }

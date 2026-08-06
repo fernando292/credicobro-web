@@ -105,9 +105,9 @@ export async function getPendingCollections(companyId) {
         credit.pendingInstallments || 0,
 
 
-      firstPayment:
+      nextPaymentDate:
 
-        credit.firstPayment,
+        credit.nextPaymentDate || credit.firstPayment,
 
 
       status:

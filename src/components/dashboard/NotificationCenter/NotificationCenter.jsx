@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 
 import {
   Bell,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Trash2
 } from "lucide-react";
 
 import {
   getNotifications,
-  markNotificationAsRead
+  markNotificationAsRead,
+  clearNotifications
 } from "../../../pages/modules/services/notifications/notificationService";
 
 import "./NotificationCenter.css";
@@ -15,6 +19,7 @@ import "./NotificationCenter.css";
 function NotificationCenter({ companyId }) {
 
   const [notifications, setNotifications] = useState([]);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
 
@@ -31,6 +36,8 @@ function NotificationCenter({ companyId }) {
     loadNotifications();
 
   }, [companyId]);
+
+
 
   async function handleRead(notificationId) {
 
@@ -52,81 +59,187 @@ function NotificationCenter({ companyId }) {
 
   }
 
+
+
+  async function handleClearHistory() {
+
+    const confirmDelete = window.confirm(
+
+      "¿Deseas eliminar todo el historial de notificaciones?"
+
+    );
+
+    if (!confirmDelete) return;
+
+    await clearNotifications(companyId);
+
+    setNotifications([]);
+
+  }
+
+
+
+  const unread = notifications.filter(item => !item.read).length;
+
+
+
   return (
 
     <div className="notification-center">
 
       <div className="notification-center__header">
 
-        <Bell size={20} />
+        <div className="notification-center__title">
 
-        <h3>Notificaciones</h3>
+          <Bell size={20} />
+
+          <div>
+
+            <h3>Notificaciones</h3>
+
+            <span>{unread} pendientes</span>
+
+          </div>
+
+        </div>
+
+        <button
+
+          className="notification-center__toggle"
+
+          onClick={() => setCollapsed(!collapsed)}
+
+        >
+
+          {
+
+            collapsed
+
+              ? <ChevronDown size={18} />
+
+              : <ChevronUp size={18} />
+
+          }
+
+        </button>
 
       </div>
 
-      <div className="notification-center__list">
+      {
 
-        {
+        !collapsed && (
 
-          notifications.length === 0
+          <>
 
-            ? (
+            <div className="notification-center__list">
 
-              <p className="notification-center__empty">
+              {
 
-                No hay notificaciones.
+                notifications.length === 0
 
-              </p>
+                  ? (
 
-            )
+                    <p className="notification-center__empty">
 
-            : (
+                      No hay notificaciones.
 
-              notifications.map(item => (
+                    </p>
 
-                <div
+                  )
 
-                  key={item.id}
+                  : (
 
-                  className={`notification-card ${item.read ? "read" : ""}`}
+                    notifications.map(item => (
 
-                >
+                      <div
 
-                  <div>
+                        key={item.id}
 
-                    <strong>{item.title}</strong>
-
-                    <p>{item.message}</p>
-
-                  </div>
-
-                  {
-
-                    !item.read && (
-
-                      <button
-
-                        onClick={() => handleRead(item.id)}
+                        className={`notification-card ${item.read ? "read" : ""}`}
 
                       >
 
-                        <CheckCircle2 size={18} />
+                        <div>
 
-                      </button>
+                          <strong>{item.title}</strong>
 
-                    )
+                          <p>{item.message}</p>
 
-                  }
+                        </div>
+
+                        {
+
+                          !item.read && (
+
+                            <button
+
+                              onClick={() => handleRead(item.id)}
+
+                            >
+
+                              <CheckCircle2 size={18} />
+
+                            </button>
+
+                          )
+
+                        }
+
+                      </div>
+
+                    ))
+
+                  )
+
+              }
+
+            </div>
+
+            {
+
+              notifications.length > 0 && (
+
+                <div
+                  style={{
+                    marginTop: "18px",
+                    display: "flex",
+                    justifyContent: "flex-end"
+                  }}
+                >
+
+                  <button
+                    onClick={handleClearHistory}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "10px 16px",
+                      borderRadius: "10px",
+                      border: "1px solid #ef4444",
+                      background: "white",
+                      color: "#ef4444",
+                      cursor: "pointer",
+                      fontWeight: 600
+                    }}
+                  >
+
+                    <Trash2 size={18} />
+
+                    Limpiar historial
+
+                  </button>
 
                 </div>
 
-              ))
+              )
 
-            )
+            }
 
-        }
+          </>
 
-      </div>
+        )
+
+      }
 
     </div>
 
