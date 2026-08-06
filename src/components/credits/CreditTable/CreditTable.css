@@ -1,179 +1,317 @@
 .credit-table {
 
-  background: white;
+  background:white;
 
-  border: 1px solid #e2e8f0;
+  border:1px solid #e2e8f0;
 
-  border-radius: 22px;
+  border-radius:22px;
 
-  overflow: hidden;
+  overflow:hidden;
 
 }
+
+
 
 .credit-table table {
 
-  width: 100%;
+  width:100%;
 
-  border-collapse: collapse;
+  border-collapse:collapse;
 
 }
+
+
 
 .credit-table th {
 
-  padding: 18px;
+  padding:18px;
 
-  text-align: left;
+  text-align:left;
 
-  background: #f8fafc;
+  background:#f8fafc;
 
-  color: #64748b;
+  color:#64748b;
 
-  font-size: 14px;
+  font-size:14px;
 
-  font-weight: 700;
+  font-weight:700;
 
 }
+
+
 
 .credit-table td {
 
-  padding: 18px;
+  padding:18px;
 
-  border-top: 1px solid #f1f5f9;
+  border-top:1px solid #f1f5f9;
 
-  color: #0f172a;
+  color:#0f172a;
 
 }
+
+
+
+
+
+
+/* ACCIONES */
+
 
 .credit-actions {
 
-  display: flex;
+  display:flex;
 
-  align-items: center;
+  align-items:center;
 
-  gap: 10px;
+  gap:10px;
 
 }
+
+
 
 .credit-actions button {
 
-  width: 36px;
+  width:38px;
 
-  height: 36px;
+  height:38px;
 
-  display: flex;
+  display:flex;
 
-  align-items: center;
+  align-items:center;
 
-  justify-content: center;
+  justify-content:center;
 
-  border: none;
+  border:none;
 
-  border-radius: 10px;
+  border-radius:10px;
 
-  background: #f1f5f9;
+  cursor:pointer;
 
-  cursor: pointer;
-
-  transition: .25s;
+  transition:.2s ease;
 
 }
+
+
+
+
+
+.credit-actions button svg {
+
+  width:20px;
+
+  height:20px;
+
+  stroke-width:2.4;
+
+}
+
+
+
+
+
+
+/* VER */
+
+
+.credit-actions button:first-child {
+
+  background:#dbeafe;
+
+  color:#2563eb;
+
+}
+
+
+
+.credit-actions button:first-child:hover {
+
+  background:#bfdbfe;
+
+}
+
+
+
+
+
+
+/* EDITAR */
+
+
+.credit-actions button:nth-child(2) {
+
+  background:#fef3c7;
+
+  color:#d97706;
+
+}
+
+
+
+.credit-actions button:nth-child(2):hover {
+
+  background:#fde68a;
+
+}
+
+
+
+
+
+
+/* ELIMINAR */
+
+
+.credit-actions button:nth-child(3) {
+
+  background:#fee2e2;
+
+  color:#dc2626;
+
+}
+
+
+
+.credit-actions button:nth-child(3):hover {
+
+  background:#fecaca;
+
+}
+
+
+
+
+
 
 .credit-actions button:hover {
 
-  background: #2563eb;
-
-  color: white;
+  transform:translateY(-2px);
 
 }
+
+
+
+
+
+
+/* ESTADOS */
+
 
 .credit-status {
 
-  display: inline-flex;
+  display:inline-flex;
 
-  align-items: center;
+  align-items:center;
 
-  justify-content: center;
+  justify-content:center;
 
-  padding: 6px 12px;
+  padding:6px 12px;
 
-  border-radius: 20px;
+  border-radius:20px;
 
-  font-size: 13px;
+  font-size:13px;
 
-  font-weight: 700;
+  font-weight:700;
 
 }
+
+
 
 .credit-status.activo {
 
-  background: #dcfce7;
+  background:#dcfce7;
 
-  color: #16a34a;
+  color:#16a34a;
 
 }
+
+
 
 .credit-status.pagado {
 
-  background: #dbeafe;
+  background:#dbeafe;
 
-  color: #2563eb;
+  color:#2563eb;
 
 }
+
+
 
 .credit-status.mora {
 
-  background: #fee2e2;
+  background:#fee2e2;
 
-  color: #dc2626;
+  color:#dc2626;
 
 }
+
+
+
+
+
+
+/* TABLA VACIA */
+
 
 .credit-table-empty {
 
-  background: white;
+  background:white;
 
-  border: 1px solid #e2e8f0;
+  border:1px solid #e2e8f0;
 
-  border-radius: 22px;
+  border-radius:22px;
 
-  padding: 70px 40px;
+  padding:70px 40px;
 
-  text-align: center;
+  text-align:center;
 
 }
+
+
 
 .credit-table-empty h3 {
 
-  margin: 0 0 10px;
+  margin:0 0 10px;
 
-  font-size: 24px;
+  font-size:24px;
 
-  color: #0f172a;
+  color:#0f172a;
 
 }
+
+
 
 .credit-table-empty p {
 
-  margin: 0;
+  margin:0;
 
-  color: #64748b;
+  color:#64748b;
 
-  font-size: 15px;
+  font-size:15px;
 
 }
 
-@media (max-width: 900px) {
+
+
+
+
+
+@media(max-width:900px){
+
 
   .credit-table {
 
-    overflow-x: auto;
+    overflow-x:auto;
 
   }
+
+
 
   .credit-table table {
 
-    min-width: 800px;
+    min-width:800px;
 
   }
+
 
 }

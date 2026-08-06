@@ -134,7 +134,7 @@ function ClientTable({
 
                     >
 
-                      <Eye size={18}/>
+                      <Eye size={23}/>
 
                     </button>
 
@@ -150,7 +150,7 @@ function ClientTable({
 
                     >
 
-                      <Pencil size={18}/>
+                      <Pencil size={23}/>
 
                     </button>
 
@@ -166,7 +166,7 @@ function ClientTable({
 
                     >
 
-                      <Trash2 size={18}/>
+                      <Trash2 size={23}/>
 
                     </button>
 

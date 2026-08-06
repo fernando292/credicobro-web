@@ -1,0 +1,51 @@
+.calendar-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+
+}
+
+
+
+.calendar-header h1{
+
+    margin:0;
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+
+
+.calendar-header p{
+
+    margin-top:6px;
+
+    color:#64748b;
+
+}
+
+
+
+.calendar-header__month{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:12px 20px;
+
+    border-radius:14px;
+
+    font-weight:600;
+
+    text-transform:capitalize;
+
+}

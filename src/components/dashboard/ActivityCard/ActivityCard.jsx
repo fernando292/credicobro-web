@@ -2,7 +2,9 @@ import "./ActivityCard.css";
 
 
 function ActivityCard({
-  activities
+
+  activities = []
+
 }) {
 
 
@@ -12,7 +14,9 @@ function ActivityCard({
 
 
       <h3>
+
         Actividad reciente
+
       </h3>
 
 
@@ -21,25 +25,45 @@ function ActivityCard({
 
 
         {
+
           activities.map((activity, index)=>(
 
+
             <div
+
               className="activity-card__item"
+
               key={index}
+
             >
 
 
               <div className="activity-card__dot"></div>
 
 
-              <p>
-                {activity}
-              </p>
+
+              <div>
+
+
+                <p>
+
+                  {
+                    activity.text ||
+                    activity
+                  }
+
+                </p>
+
+
+              </div>
+
 
 
             </div>
 
+
           ))
+
         }
 
 
@@ -47,6 +71,7 @@ function ActivityCard({
 
 
     </div>
+
 
   );
 

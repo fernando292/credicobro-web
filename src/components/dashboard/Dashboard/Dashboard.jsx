@@ -1,172 +1,304 @@
 import {
-  Users,
-  CreditCard,
-  Wallet,
-  TrendingUp
-} from "lucide-react";
+  useEffect,
+  useMemo,
+  useState
+} from "react";
+
+import {
+  useAuth
+} from "../../../context/AuthContext";
+
+import {
+  getUserProfile
+} from "../../../pages/modules/services/company/companyService";
+
+import {
+  getClients
+} from "../../../pages/modules/services/clients/clientService";
+
+import {
+  getCredits
+} from "../../../pages/modules/services/credit/creditService";
+
+import {
+  getAllCompanyPayments
+} from "../../../pages/modules/services/payment/paymentGlobalService";
+
+import DashboardStats from "../DashboardStats/DashboardStats";
+import DashboardCharts from "../DashboardCharts/DashboardCharts";
+import RecentPayments from "../RecentPayments/RecentPayments";
+import RecentCredits from "../RecentCredits/RecentCredits";
 
 import "./Dashboard.css";
 
-
 function Dashboard() {
 
+  const { user } = useAuth();
 
-  const stats = [
-    {
-      title: "Clientes activos",
-      value: "248",
-      icon: Users,
-      growth: "+12%"
-    },
-    {
-      title: "Créditos activos",
-      value: "$18.5M",
-      icon: CreditCard,
-      growth: "+8%"
-    },
-    {
-      title: "Cobros del mes",
-      value: "$24.8M",
-      icon: Wallet,
-      growth: "+15%"
-    },
-    {
-      title: "Ingresos",
-      value: "$32M",
-      icon: TrendingUp,
-      growth: "+20%"
+  const [loading,setLoading] = useState(true);
+
+  const [clients,setClients] = useState([]);
+
+  const [credits,setCredits] = useState([]);
+
+  const [payments,setPayments] = useState([]);
+
+  useEffect(()=>{
+
+    async function loadDashboard(){
+
+      try{
+
+        if(!user){
+
+          return;
+
+        }
+
+        const profile = await getUserProfile(
+
+          user.uid
+
+        );
+
+        if(!profile?.companyId){
+
+          return;
+
+        }
+
+        const companyId = String(
+
+          profile.companyId
+
+        );
+
+        const [
+
+          clientsData,
+
+          creditsData,
+
+          paymentsData
+
+        ] = await Promise.all([
+
+          getClients(companyId),
+
+          getCredits(companyId),
+
+          getAllCompanyPayments(companyId)
+
+        ]);
+
+        setClients(
+
+          clientsData
+
+        );
+
+        setCredits(
+
+          creditsData
+
+        );
+
+        setPayments(
+
+          paymentsData
+
+        );
+
+      }catch(error){
+
+        console.error(
+
+          "Error cargando dashboard",
+
+          error
+
+        );
+
+      }finally{
+
+        setLoading(false);
+
+      }
+
     }
-  ];
+
+    loadDashboard();
+
+  },[user]);
 
 
-  return (
+
+  const dashboardData = useMemo(()=>{
+
+    const capitalPrestado = credits.reduce(
+
+      (total,credit)=>
+
+        total +
+
+        Number(
+
+          credit.amount || 0
+
+        ),
+
+      0
+
+    );
+
+
+
+    const saldoPendiente = credits.reduce(
+
+      (total,credit)=>
+
+        total +
+
+        Number(
+
+          credit.balance || 0
+
+        ),
+
+      0
+
+    );
+
+
+
+    const totalPagado = payments.reduce(
+
+      (total,payment)=>
+
+        total +
+
+        Number(
+
+          payment.value || 0
+
+        ),
+
+      0
+
+    );
+
+
+
+    const creditosActivos = credits.filter(
+
+      credit=>
+
+        credit.status==="Activo"
+
+    ).length;
+
+
+
+    return{
+
+      capitalPrestado,
+
+      saldoPendiente,
+
+      totalPagado,
+
+      creditosActivos,
+
+      totalClientes:clients.length
+
+    };
+
+  },[clients,credits,payments]);
+
+
+
+  if(loading){
+
+    return(
+
+      <section className="dashboard">
+
+        Cargando Dashboard...
+
+      </section>
+
+    );
+
+  }
+
+
+
+  return(
+
     <section className="dashboard">
-
 
       <div className="dashboard__header">
 
         <div>
 
           <h2>
+
             Panel general
+
           </h2>
 
           <p>
-            Aquí tienes el resumen financiero de tu negocio.
+
+            Resumen general del negocio.
+
           </p>
 
         </div>
 
-
       </div>
 
 
 
-      <div className="dashboard__stats">
+      <DashboardStats
+
+        data={dashboardData}
+
+      />
 
 
-        {stats.map((item) => {
 
-          const Icon = item.icon;
+      <DashboardCharts
 
+        credits={credits}
 
-          return (
+        payments={payments}
 
-            <div
-              className="stat-card"
-              key={item.title}
-            >
-
-              <div className="stat-card__icon">
-
-                <Icon size={24}/>
-
-              </div>
+      />
 
 
-              <div>
 
-                <span>
-                  {item.title}
-                </span>
+      <div className="dashboard__bottom">
 
-                <h3>
-                  {item.value}
-                </h3>
+        <RecentPayments
 
-                <small>
-                  {item.growth} este mes
-                </small>
+          payments={payments}
 
-              </div>
+        />
 
 
-            </div>
 
-          );
+        <RecentCredits
 
-        })}
+          credits={credits}
 
+        />
 
       </div>
-
-
-
-
-      <div className="dashboard__grid">
-
-
-        <div className="panel-card">
-
-          <h3>
-            Resumen de cobros
-          </h3>
-
-
-          <div className="chart-placeholder">
-
-            Próximamente gráfica financiera
-
-          </div>
-
-        </div>
-
-
-
-        <div className="panel-card">
-
-
-          <h3>
-            Actividad reciente
-          </h3>
-
-
-          <ul className="activity">
-
-            <li>
-              Nuevo cliente registrado
-            </li>
-
-            <li>
-              Pago recibido
-            </li>
-
-            <li>
-              Crédito actualizado
-            </li>
-
-          </ul>
-
-
-        </div>
-
-
-      </div>
-
 
     </section>
-  );
-}
 
+  );
+
+}
 
 export default Dashboard;

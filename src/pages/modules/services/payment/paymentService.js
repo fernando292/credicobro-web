@@ -9,7 +9,16 @@ import {
 
 import { db } from "../../../../config/firebase";
 
+import {
+  createNotification
+} from "../notifications/notificationService";
 
+
+
+
+/* ======================================================
+   Obtener pagos
+====================================================== */
 
 export async function getPayments(
 
@@ -54,6 +63,10 @@ export async function getPayments(
 
 
 
+/* ======================================================
+   Crear pago
+====================================================== */
+
 export async function createPayment(
 
   companyId,
@@ -90,6 +103,33 @@ export async function createPayment(
   );
 
 
+
+  /*---------------------------------------
+      Crear notificación automática
+  ---------------------------------------*/
+
+  await createNotification({
+
+    companyId,
+
+    title:"Pago registrado",
+
+    message:`${payment.client} realizó un pago por $${Number(
+
+      payment.amount || 0
+
+    ).toLocaleString()}`,
+
+    type:"success",
+
+    module:"payments",
+
+    referenceId:result.id
+
+  });
+
+
+
   return {
 
     id:result.id,
@@ -102,6 +142,10 @@ export async function createPayment(
 
 
 
+
+/* ======================================================
+   Actualizar pago
+====================================================== */
 
 export async function updatePayment(
 
@@ -146,6 +190,10 @@ export async function updatePayment(
 
 
 
+
+/* ======================================================
+   Eliminar pago
+====================================================== */
 
 export async function removePayment(
 

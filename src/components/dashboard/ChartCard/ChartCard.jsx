@@ -1,50 +1,85 @@
+import PaymentEvolutionChart from "../../charts/PaymentEvolutionChart/PaymentEvolutionChart";
+
 import "./ChartCard.css";
 
 
-function ChartCard() {
+function ChartCard({
+
+  payments = []
+
+}) {
 
 
   return (
 
     <div className="chart-card">
 
+
       <div className="chart-card__header">
+
 
         <div>
 
           <h3>
-            Resumen financiero
+
+            Evolución de pagos
+
           </h3>
 
 
           <p>
-            Comportamiento general de la cartera
+
+            Comportamiento mensual de los cobros
+
           </p>
+
 
         </div>
 
 
         <span>
+
           2026
+
         </span>
+
 
       </div>
 
 
 
+
+
       <div className="chart-card__body">
 
-        <div className="chart-placeholder">
 
-          <div className="chart-line"></div>
+        {
 
-
-          <p>
-            Gráfico financiero
-          </p>
+          payments.length > 0 ? (
 
 
-        </div>
+            <PaymentEvolutionChart
+
+              payments={payments}
+
+            />
+
+
+          ) : (
+
+
+            <p className="chart-empty">
+
+              No hay pagos registrados todavía.
+
+            </p>
+
+
+          )
+
+
+        }
+
 
       </div>
 

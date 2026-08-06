@@ -1,0 +1,87 @@
+.notification-item {
+
+  display: flex;
+
+  gap: 15px;
+
+  padding: 16px;
+
+  border-bottom: 1px solid #edf2f7;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+}
+
+.notification-item:hover {
+
+  background: #f8fafc;
+
+}
+
+.notification-item.unread {
+
+  background: #eff6ff;
+
+}
+
+.notification-item__icon {
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 12px;
+
+  background: #2563eb15;
+
+  color: #2563eb;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+}
+
+.notification-item__content {
+
+  flex: 1;
+
+}
+
+.notification-item__content h4 {
+
+  margin: 0;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+}
+
+.notification-item__content p {
+
+  margin: 4px 0 8px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+
+}
+
+.notification-item__content span {
+
+  color: #94a3b8;
+
+  font-size: 12px;
+
+}

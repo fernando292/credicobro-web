@@ -1,0 +1,101 @@
+.daily-summary {
+
+  display:grid;
+
+  grid-template-columns:repeat(3,1fr);
+
+  gap:20px;
+
+  margin:25px 0;
+
+}
+
+
+
+.daily-summary__card {
+
+  background:white;
+
+  padding:20px;
+
+  border-radius:20px;
+
+  border:1px solid #e2e8f0;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+}
+
+
+
+.daily-summary__icon {
+
+  width:45px;
+
+  height:45px;
+
+  border-radius:12px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+}
+
+
+
+.daily-summary__icon.green {
+
+  background:#dcfce7;
+
+  color:#16a34a;
+
+}
+
+
+
+.daily-summary__icon.blue {
+
+  background:#dbeafe;
+
+  color:#2563eb;
+
+}
+
+
+
+.daily-summary__icon.orange {
+
+  background:#ffedd5;
+
+  color:#ea580c;
+
+}
+
+
+
+.daily-summary__card span {
+
+  color:#64748b;
+
+  font-size:14px;
+
+}
+
+
+
+.daily-summary__card h3 {
+
+  margin:5px 0 0;
+
+  font-size:24px;
+
+  color:#0f172a;
+
+}

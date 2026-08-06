@@ -1,0 +1,97 @@
+.calendar-grid-container{
+
+    display:grid;
+
+    grid-template-columns:repeat(7,1fr);
+
+    gap:12px;
+
+}
+
+
+
+.calendar-grid__weekday{
+
+    background:#f8fafc;
+
+    padding:12px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    font-weight:600;
+
+    color:#475569;
+
+}
+
+
+
+.calendar-grid__empty{
+
+    min-height:120px;
+
+}
+
+
+
+.calendar-day{
+
+    min-height:120px;
+
+    background:white;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:16px;
+
+    padding:10px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+
+
+.calendar-day__number{
+
+    font-weight:700;
+
+    color:#0f172a;
+
+}
+
+
+
+.calendar-event{
+
+    padding:6px 8px;
+
+    border-radius:8px;
+
+    font-size:12px;
+
+    color:white;
+
+}
+
+
+
+.calendar-event.payment{
+
+    background:#16a34a;
+
+}
+
+
+
+.calendar-event.followup{
+
+    background:#2563eb;
+
+}

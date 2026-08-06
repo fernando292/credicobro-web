@@ -1,0 +1,91 @@
+.notification-center{
+
+    background:white;
+
+    border-radius:20px;
+
+    border:1px solid #e2e8f0;
+
+    padding:20px;
+
+    margin-bottom:25px;
+
+}
+
+.notification-center__header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:18px;
+
+}
+
+.notification-center__header h3{
+
+    margin:0;
+
+}
+
+.notification-center__list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+.notification-card{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:14px;
+
+    border-radius:12px;
+
+    border:1px solid #e2e8f0;
+
+}
+
+.notification-card.read{
+
+    opacity:.6;
+
+}
+
+.notification-card p{
+
+    margin-top:4px;
+
+    color:#64748b;
+
+    font-size:14px;
+
+}
+
+.notification-card button{
+
+    background:none;
+
+    border:none;
+
+    cursor:pointer;
+
+    color:#16a34a;
+
+}
+
+.notification-center__empty{
+
+    color:#94a3b8;
+
+}

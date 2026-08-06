@@ -20,6 +20,10 @@ import {
   deleteCreditPayment
 } from "../../../../pages/modules/services/credit/creditBusinessService";
 
+import {
+  notifyPaymentRegistered
+} from "../../../../pages/modules/services/notifications/notificationEvents";
+
 import "./CreditPaymentsTab.css";
 
 
@@ -38,9 +42,7 @@ function CreditPaymentsTab({
 
   const [companyId,setCompanyId] = useState(null);
 
-
   const [payments,setPayments] = useState([]);
-
 
 
   const [form,setForm] = useState({
@@ -65,43 +67,65 @@ function CreditPaymentsTab({
 
 
 
-      const profile = await getUserProfile(
-
-        user.uid
-
-      );
+      try{
 
 
+        const profile = await getUserProfile(
 
-      if(!profile?.companyId) return;
+          user.uid
 
-
-
-      const company = String(
-        profile.companyId
-      );
-
-
-      setCompanyId(company);
+        );
 
 
 
-      const data = await getPayments(
-
-        company,
-
-        String(credit.id)
-
-      );
+        if(!profile?.companyId) return;
 
 
 
-      const ordered = [...data].reverse();
+        const company = String(
+
+          profile.companyId
+
+        );
 
 
 
-      setPayments(ordered);
+        setCompanyId(company);
 
+
+
+
+        const data = await getPayments(
+
+          company,
+
+          String(credit.id)
+
+        );
+
+
+
+        setPayments(
+
+          [...data].reverse()
+
+        );
+
+
+
+      }catch(error){
+
+
+        console.error(
+
+          "Error cargando pagos",
+
+          error
+
+        );
+
+
+      }
 
 
     }
@@ -113,6 +137,7 @@ function CreditPaymentsTab({
 
 
   },[user,credit]);
+
 
 
 
@@ -141,7 +166,6 @@ function CreditPaymentsTab({
 
 
 
-
   async function handleSubmit(e){
 
 
@@ -150,62 +174,131 @@ function CreditPaymentsTab({
 
 
     if(
+
       !form.value ||
+
       !companyId
+
     ) return;
 
 
 
 
-    const payment = {
 
-
-      value:Number(form.value),
-
-      method:form.method,
-
-      date:form.date,
-
-      createdAt:new Date()
-
-
-    };
+    try{
 
 
 
+      const payment = {
 
-    const result = await registerCreditPayment(
 
-      companyId,
+        value:Number(form.value),
 
-      String(credit.id),
 
-      payment
+        method:form.method,
 
-    );
+
+        date:form.date,
+
+
+        createdAt:new Date()
+
+
+      };
 
 
 
 
 
-    setPayments(prev=>[
+      const result = await registerCreditPayment(
 
-      result.payment,
+        companyId,
 
-      ...prev
+        String(credit.id),
 
-    ]);
+        payment
 
-
-
-
-
-    if(onCreditUpdated){
+      );
 
 
-      onCreditUpdated(
 
-        result.updatedCredit
+
+
+
+      await notifyPaymentRegistered({
+
+        companyId,
+
+        client:
+
+          credit.clientName ||
+
+          credit.client ||
+
+          "Cliente",
+
+
+        amount:payment.value
+
+      });
+
+
+
+
+
+
+
+      setPayments(prev=>[
+
+        result.payment,
+
+        ...prev
+
+      ]);
+
+
+
+
+
+
+      if(onCreditUpdated){
+
+
+        onCreditUpdated(
+
+          result.updatedCredit
+
+        );
+
+
+      }
+
+
+
+
+
+
+      setForm({
+
+        value:"",
+
+        method:"Efectivo",
+
+        date:""
+
+      });
+
+
+
+
+    }catch(error){
+
+
+      console.error(
+
+        "Error registrando pago",
+
+        error
 
       );
 
@@ -214,24 +307,7 @@ function CreditPaymentsTab({
 
 
 
-
-
-    setForm({
-
-      value:"",
-
-      method:"Efectivo",
-
-      date:""
-
-    });
-
-
-
   }
-
-
-
 
 
 
@@ -258,44 +334,63 @@ function CreditPaymentsTab({
 
 
 
-    const result = await deleteCreditPayment(
-
-      companyId,
-
-      String(credit.id),
-
-      String(paymentId)
-
-    );
+    try{
 
 
+      const result = await deleteCreditPayment(
 
+        companyId,
 
+        String(credit.id),
 
+        String(paymentId)
 
-    setPayments(prev=>
-
-      prev.filter(
-
-        item=>
-
-          String(item.id)!==String(paymentId)
-
-      )
-
-    );
+      );
 
 
 
 
 
 
-    if(onCreditUpdated){
+      setPayments(prev=>
+
+        prev.filter(
+
+          item =>
+
+            String(item.id)!==String(paymentId)
+
+        )
+
+      );
 
 
-      onCreditUpdated(
 
-        result.updatedCredit
+
+
+
+      if(onCreditUpdated){
+
+
+        onCreditUpdated(
+
+          result.updatedCredit
+
+        );
+
+
+      }
+
+
+
+    }catch(error){
+
+
+      console.error(
+
+        "Error eliminando pago",
+
+        error
 
       );
 
@@ -305,6 +400,8 @@ function CreditPaymentsTab({
 
 
   }
+
+
 
 
 
@@ -323,6 +420,8 @@ function CreditPaymentsTab({
     0
 
   );
+
+
 
 
 
@@ -357,6 +456,7 @@ function CreditPaymentsTab({
 
 
 
+
         <div>
 
           <span>
@@ -375,27 +475,35 @@ function CreditPaymentsTab({
 
 
 
+
+
         <div>
 
           <span>
             Saldo restante
           </span>
 
+
           <strong>
 
             $
 
             {Number(
+
               credit.balance || 0
+
             ).toLocaleString()}
 
+
           </strong>
+
 
         </div>
 
 
 
       </div>
+
 
 
 
@@ -442,13 +550,16 @@ function CreditPaymentsTab({
 
         >
 
+
           <option>
             Efectivo
           </option>
 
+
           <option>
             Transferencia
           </option>
+
 
           <option>
             Otro
@@ -493,7 +604,10 @@ function CreditPaymentsTab({
 
 
 
+
+
       <div className="payments-list">
+
 
 
         {
@@ -516,7 +630,7 @@ function CreditPaymentsTab({
 
                 <strong>
 
-                  Pago #{payments.length - index}
+                  Pago #{payments.length-index}
 
                 </strong>
 
@@ -559,6 +673,7 @@ function CreditPaymentsTab({
 
 
 
+
               <button
 
                 type="button"
@@ -573,13 +688,14 @@ function CreditPaymentsTab({
 
 
 
-            </div>
 
+            </div>
 
 
           ))
 
         }
+
 
 
       </div>
@@ -595,6 +711,7 @@ function CreditPaymentsTab({
 
 
 }
+
 
 
 export default CreditPaymentsTab;

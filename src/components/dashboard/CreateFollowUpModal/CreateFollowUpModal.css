@@ -1,0 +1,254 @@
+.follow-modal-overlay {
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(15,23,42,.45);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  z-index:1000;
+
+}
+
+
+
+
+
+.follow-modal {
+
+  width:450px;
+
+  max-width:90%;
+
+  background:white;
+
+  border-radius:24px;
+
+  padding:25px;
+
+  box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+}
+
+
+
+
+
+.follow-modal__header {
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  margin-bottom:20px;
+
+}
+
+
+
+.follow-modal__header h2 {
+
+  margin:0;
+
+  color:#0f172a;
+
+  font-size:22px;
+
+}
+
+
+
+.follow-modal__header button {
+
+  width:34px;
+
+  height:34px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:#f1f5f9;
+
+  cursor:pointer;
+
+  font-size:22px;
+
+  color:#475569;
+
+}
+
+
+
+
+
+
+.follow-modal form {
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:16px;
+
+}
+
+
+
+
+
+.follow-modal label {
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:7px;
+
+  color:#334155;
+
+  font-size:14px;
+
+  font-weight:600;
+
+}
+
+
+
+
+
+.follow-modal input,
+
+.follow-modal select,
+
+.follow-modal textarea {
+
+  width:100%;
+
+  padding:12px 14px;
+
+  border-radius:12px;
+
+  border:1px solid #cbd5e1;
+
+  font-size:14px;
+
+  outline:none;
+
+}
+
+
+
+.follow-modal textarea {
+
+  min-height:90px;
+
+  resize:none;
+
+}
+
+
+
+
+
+.follow-modal input:focus,
+
+.follow-modal select:focus,
+
+.follow-modal textarea:focus {
+
+  border-color:#2563eb;
+
+}
+
+
+
+
+
+
+
+.follow-modal__actions {
+
+  display:flex;
+
+  justify-content:flex-end;
+
+  gap:12px;
+
+  margin-top:10px;
+
+}
+
+
+
+
+
+.follow-modal__actions button {
+
+  padding:11px 20px;
+
+  border:none;
+
+  border-radius:12px;
+
+  cursor:pointer;
+
+  font-weight:700;
+
+}
+
+
+
+
+
+.follow-modal__actions button:first-child {
+
+  background:#f1f5f9;
+
+  color:#475569;
+
+}
+
+
+
+
+
+.follow-modal__actions button:last-child {
+
+  background:#2563eb;
+
+  color:white;
+
+}
+
+
+
+.follow-modal__actions button:last-child:hover {
+
+  background:#1d4ed8;
+
+}
+
+
+
+
+
+@media(max-width:600px){
+
+
+  .follow-modal {
+
+    padding:20px;
+
+  }
+
+
+}

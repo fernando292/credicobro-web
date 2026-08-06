@@ -10,50 +10,36 @@ import {
 
 import { db } from "../../../../config/firebase";
 
+import {
+  createNotification
+} from "../notifications/notificationService";
 
 
 
+/* ======================================================
+   Obtener créditos
+====================================================== */
 
-
-
-export async function getCredits(companyId){
-
-
+export async function getCredits(companyId) {
 
   const creditsRef = collection(
-
     db,
-
     "companies",
-
     companyId,
-
     "credits"
-
   );
-
-
 
   const snapshot = await getDocs(
-
     creditsRef
-
   );
-
-
 
   return snapshot.docs.map(item => ({
 
-
-    firestoreId:item.id,
-
+    firestoreId: item.id,
 
     ...item.data(),
 
-
-    id:item.id
-
-
+    id: item.id
 
   }));
 
@@ -61,11 +47,9 @@ export async function getCredits(companyId){
 
 
 
-
-
-
-
-
+/* ======================================================
+   Obtener crédito
+====================================================== */
 
 export async function getCreditById(
 
@@ -73,9 +57,7 @@ export async function getCreditById(
 
   creditId
 
-){
-
-
+) {
 
   const creditRef = doc(
 
@@ -91,36 +73,23 @@ export async function getCreditById(
 
   );
 
-
-
   const snapshot = await getDoc(
-
     creditRef
-
   );
 
-
-
-  if(!snapshot.exists()){
+  if (!snapshot.exists()) {
 
     return null;
 
   }
 
-
-
   return {
 
-
-    firestoreId:snapshot.id,
-
+    firestoreId: snapshot.id,
 
     ...snapshot.data(),
 
-
-    id:snapshot.id
-
-
+    id: snapshot.id
 
   };
 
@@ -128,14 +97,9 @@ export async function getCreditById(
 
 
 
-
-
-
-
-
-
-
-
+/* ======================================================
+   Crear crédito
+====================================================== */
 
 export async function createCredit(
 
@@ -143,9 +107,7 @@ export async function createCredit(
 
   credit
 
-){
-
-
+) {
 
   const creditsRef = collection(
 
@@ -158,8 +120,6 @@ export async function createCredit(
     "credits"
 
   );
-
-
 
   const result = await addDoc(
 
@@ -171,31 +131,49 @@ export async function createCredit(
 
 
 
+  /*----------------------------------
+      Crear notificación automática
+  -----------------------------------*/
+
+  await createNotification({
+
+    companyId,
+
+    title: "Nuevo crédito",
+
+    message: `${credit.client} recibió un crédito por $${Number(
+
+      credit.amount || 0
+
+    ).toLocaleString()}`,
+
+    type: "success",
+
+    module: "credits",
+
+    referenceId: result.id
+
+  });
+
+
+
   return {
 
-
-    firestoreId:result.id,
-
+    firestoreId: result.id,
 
     ...credit,
 
-
-    id:result.id
-
-
+    id: result.id
 
   };
-
 
 }
 
 
 
-
-
-
-
-
+/* ======================================================
+   Actualizar crédito
+====================================================== */
 
 export async function updateCredit(
 
@@ -205,9 +183,7 @@ export async function updateCredit(
 
   data
 
-){
-
-
+) {
 
   const creditRef = doc(
 
@@ -222,8 +198,6 @@ export async function updateCredit(
     creditId
 
   );
-
-
 
   await updateDoc(
 
@@ -237,11 +211,9 @@ export async function updateCredit(
 
 
 
-
-
-
-
-
+/* ======================================================
+   Eliminar crédito
+====================================================== */
 
 export async function removeCredit(
 
@@ -249,9 +221,7 @@ export async function removeCredit(
 
   creditId
 
-){
-
-
+) {
 
   const creditRef = doc(
 
@@ -267,24 +237,19 @@ export async function removeCredit(
 
   );
 
-
-
   await deleteDoc(
 
     creditRef
 
   );
 
-
 }
 
 
 
-
-
-
-
-
+/* ======================================================
+   Aplicar pago
+====================================================== */
 
 export async function applyPaymentToCredit(
 
@@ -294,9 +259,7 @@ export async function applyPaymentToCredit(
 
   paymentValue
 
-){
-
-
+) {
 
   const creditRef = doc(
 
@@ -312,18 +275,13 @@ export async function applyPaymentToCredit(
 
   );
 
-
-
   const snapshot = await getDoc(
 
     creditRef
 
   );
 
-
-
-  if(!snapshot.exists()){
-
+  if (!snapshot.exists()) {
 
     throw new Error(
 
@@ -331,14 +289,9 @@ export async function applyPaymentToCredit(
 
     );
 
-
   }
 
-
-
   const credit = snapshot.data();
-
-
 
   const newBalance = Math.max(
 
@@ -350,15 +303,13 @@ export async function applyPaymentToCredit(
 
   );
 
-
-
   await updateDoc(
 
     creditRef,
 
     {
 
-      balance:newBalance,
+      balance: newBalance,
 
       paidAmount:
 
@@ -378,8 +329,6 @@ export async function applyPaymentToCredit(
 
   );
 
-
-
   return await getCreditById(
 
     companyId,
@@ -387,7 +336,5 @@ export async function applyPaymentToCredit(
     creditId
 
   );
-
-
 
 }

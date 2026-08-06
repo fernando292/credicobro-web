@@ -6,9 +6,9 @@
 
   border-radius:20px;
 
-  border:1px solid #e2e8f0;
-
   overflow:hidden;
+
+  border:1px solid #e2e8f0;
 
 }
 
@@ -28,15 +28,13 @@
 
   text-align:left;
 
-  padding:18px 22px;
+  padding:16px;
 
   background:#f8fafc;
 
   color:#475569;
 
   font-size:14px;
-
-  font-weight:700;
 
 }
 
@@ -44,21 +42,11 @@
 
 .client-table td {
 
-  padding:18px 22px;
+  padding:16px;
 
-  border-top:1px solid #e2e8f0;
+  border-top:1px solid #f1f5f9;
 
   color:#334155;
-
-  font-size:14px;
-
-}
-
-
-
-.client-table tr:hover {
-
-  background:#f8fafc;
 
 }
 
@@ -66,47 +54,47 @@
 
 .client-status {
 
-  display:inline-flex;
-
   padding:6px 12px;
 
   border-radius:20px;
 
   background:#dcfce7;
 
-  color:#16a34a;
+  color:#15803d;
 
-  font-size:12px;
+  font-size:13px;
 
-  font-weight:700;
+  font-weight:600;
 
 }
 
+
+
+
+
+
+/* ACCIONES */
 
 
 .client-actions {
 
   display:flex;
 
-  gap:8px;
+  align-items:center;
+
+  gap:10px;
 
 }
 
 
 
+
+
 .client-actions button {
 
-  width:34px;
+  width:38px;
 
-  height:34px;
-
-  border:none;
-
-  border-radius:10px;
-
-  background:#f1f5f9;
-
-  color:#475569;
+  height:38px;
 
   display:flex;
 
@@ -114,16 +102,101 @@
 
   justify-content:center;
 
+  border:none;
+
+  border-radius:10px;
+
   cursor:pointer;
+
+  background:#f1f5f9;
+
+  color:#475569;
+
+  transition:.2s ease;
 
 }
 
 
 
-.client-actions button:hover {
+
+
+.client-actions button svg {
+
+  width:20px;
+
+  height:20px;
+
+  stroke-width:2.4;
+
+}
+
+
+
+
+
+.client-actions button:first-child {
 
   background:#dbeafe;
 
   color:#2563eb;
+
+}
+
+
+
+
+
+.client-actions button:nth-child(2) {
+
+  background:#fef3c7;
+
+  color:#d97706;
+
+}
+
+
+
+
+
+.client-actions button:nth-child(3) {
+
+  background:#fee2e2;
+
+  color:#dc2626;
+
+}
+
+
+
+
+
+.client-actions button:hover {
+
+  transform:translateY(-2px);
+
+}
+
+
+
+
+.client-actions button:first-child:hover {
+
+  background:#bfdbfe;
+
+}
+
+
+
+.client-actions button:nth-child(2):hover {
+
+  background:#fde68a;
+
+}
+
+
+
+.client-actions button:nth-child(3):hover {
+
+  background:#fecaca;
 
 }

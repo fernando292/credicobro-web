@@ -24,6 +24,7 @@ import Dashboard from "../pages/Dashboard/Dashboard.jsx";
 
 import Clients from "../pages/modules/Clients/Clients";
 import Credits from "../pages/modules/Credits/Credits";
+import Collections from "../pages/modules/Collections/Collections";
 import Payments from "../pages/modules/payments/Payments";
 import Reports from "../pages/modules/Reports/Reports";
 import Settings from "../pages/modules/Settings/Settings";
@@ -157,6 +158,11 @@ function AppRouter() {
 
             element={<Credits />}
 
+          />
+
+          <Route
+            path="/cobranza"  
+          element={<Collections />}
           />
 
 

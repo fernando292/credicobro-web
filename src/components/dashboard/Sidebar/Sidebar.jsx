@@ -5,7 +5,8 @@ import {
   Wallet,
   BarChart3,
   Settings,
-  LogOut
+  LogOut,
+  HandCoins
 } from "lucide-react";
 
 
@@ -31,48 +32,56 @@ function Sidebar() {
 
 
 
+
   const menu = [
 
 
     {
-      name: "Dashboard",
-      icon: LayoutDashboard,
-      path: "/dashboard"
+      name:"Dashboard",
+      icon:LayoutDashboard,
+      path:"/dashboard"
     },
 
 
     {
-      name: "Clientes",
-      icon: Users,
-      path: "/clientes"
+      name:"Clientes",
+      icon:Users,
+      path:"/clientes"
     },
 
 
     {
-      name: "Créditos",
-      icon: CreditCard,
-      path: "/creditos"
+      name:"Créditos",
+      icon:CreditCard,
+      path:"/creditos"
     },
 
 
     {
-      name: "Pagos",
-      icon: Wallet,
-      path: "/pagos"
+      name:"Cobranza",
+      icon:HandCoins,
+      path:"/cobranza"
     },
 
 
     {
-      name: "Reportes",
-      icon: BarChart3,
-      path: "/reportes"
+      name:"Pagos",
+      icon:Wallet,
+      path:"/pagos"
     },
 
 
     {
-      name: "Configuración",
-      icon: Settings,
-      path: "/configuracion"
+      name:"Reportes",
+      icon:BarChart3,
+      path:"/reportes"
+    },
+
+
+    {
+      name:"Configuración",
+      icon:Settings,
+      path:"/configuracion"
     }
 
 
@@ -135,11 +144,11 @@ function Sidebar() {
 
 
 
-
       <nav className="sidebar__menu">
 
 
         {
+
           menu.map((item)=>{
 
 
@@ -161,11 +170,13 @@ function Sidebar() {
 
                 className={({isActive}) =>
 
+
                   isActive
 
                     ? "sidebar__item active"
 
                     : "sidebar__item"
+
 
                 }
 
@@ -173,7 +184,9 @@ function Sidebar() {
               >
 
 
+
                 <Icon size={20}/>
+
 
 
                 <span>
@@ -183,6 +196,7 @@ function Sidebar() {
                 </span>
 
 
+
               </NavLink>
 
 
@@ -190,11 +204,12 @@ function Sidebar() {
 
 
           })
+
+
         }
 
 
       </nav>
-
 
 
 
@@ -212,6 +227,7 @@ function Sidebar() {
 
 
           <LogOut size={20}/>
+
 
 
           <span>
@@ -236,7 +252,6 @@ function Sidebar() {
   );
 
 }
-
 
 
 export default Sidebar;
