@@ -1,0 +1,312 @@
+.route-details-overlay,
+.route-visit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, .55);
+  backdrop-filter: blur(5px);
+}
+
+.route-details {
+  width: min(100%, 900px);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 28px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, .22);
+}
+
+.route-details__header,
+.route-visit-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.route-details__header {
+  margin-bottom: 24px;
+}
+
+.route-details__header p,
+.route-details__header span,
+.route-visit-modal__header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.route-details__header h2,
+.route-visit-modal__header h3 {
+  margin: 4px 0;
+  color: #0f172a;
+  font-size: 23px;
+}
+
+.route-details__close,
+.route-visit-modal__header button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.route-details__summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.route-details__summary > div {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+  background: #f8fafc;
+}
+
+.route-details__summary span {
+  display: block;
+  margin-bottom: 6px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.route-details__summary strong {
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.route-details__toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.route-details__toolbar input,
+.route-details__toolbar select,
+.route-visit-modal label input,
+.route-visit-modal label select,
+.route-visit-modal label textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  background: white;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+}
+
+.route-details__toolbar input:focus,
+.route-details__toolbar select:focus,
+.route-visit-modal label input:focus,
+.route-visit-modal label select:focus,
+.route-visit-modal label textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+}
+
+.route-details__toolbar input {
+  flex: 1;
+}
+
+.route-details__toolbar select {
+  width: 180px;
+}
+
+.route-visit-list {
+  display: grid;
+  gap: 10px;
+}
+
+.route-visit {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+}
+
+.route-visit__client,
+.route-visit__result {
+  display: grid;
+  gap: 5px;
+}
+
+.route-visit__client strong,
+.route-visit__result strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.route-visit__client span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.route-visit__status {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.route-visit__status--cobrado {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.route-visit__status--pago-parcial,
+.route-visit__status--reprogramado {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.route-visit__status--no-pagó,
+.route-visit__status--no-atendió {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.route-visit__action,
+.route-visit-modal__actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 13px;
+  background: #eff6ff;
+  color: #2563eb;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.route-details__loading,
+.route-details__empty {
+  padding: 36px 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #64748b;
+  text-align: center;
+}
+
+.route-visit-modal {
+  z-index: 120;
+}
+
+.route-visit-modal__content {
+  width: min(100%, 520px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 26px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, .24);
+}
+
+.route-visit-modal__header {
+  margin-bottom: 22px;
+}
+
+.route-visit-modal label {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 15px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.route-visit-modal label textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.route-visit-modal__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.route-visit-modal__warning {
+  margin: -4px 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 13px;
+}
+
+.route-visit-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.route-visit-modal__actions button:first-child {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.route-visit-modal__actions button:last-child {
+  background: #2563eb;
+  color: white;
+}
+
+.route-visit-modal__actions button:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+@media (max-width: 620px) {
+  .route-details-overlay,
+  .route-visit-modal {
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .route-details,
+  .route-visit-modal__content {
+    max-height: calc(100vh - 28px);
+    padding: 20px;
+  }
+
+  .route-details__summary,
+  .route-visit-modal__row {
+    grid-template-columns: 1fr;
+  }
+
+  .route-details__toolbar,
+  .route-visit {
+    grid-template-columns: 1fr;
+  }
+
+  .route-details__toolbar,
+  .route-visit-modal__actions {
+    flex-direction: column;
+  }
+
+  .route-details__toolbar select,
+  .route-visit__action,
+  .route-visit-modal__actions button {
+    width: 100%;
+  }
+}

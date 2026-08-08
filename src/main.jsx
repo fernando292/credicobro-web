@@ -11,6 +11,10 @@ import {
   NotificationProvider
 } from "./context/NotificationContext";
 
+import {
+  SearchProvider
+} from "./context/SearchContext";
+
 import "./styles/global.css";
 
 
@@ -31,7 +35,13 @@ ReactDOM.createRoot(
       <NotificationProvider>
 
 
-        <App />
+        <SearchProvider>
+
+
+          <App />
+
+
+        </SearchProvider>
 
 
       </NotificationProvider>
