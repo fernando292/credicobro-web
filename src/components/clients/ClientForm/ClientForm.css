@@ -1,115 +1,346 @@
+
 .client-form {
-
-  background:white;
-
-  padding:30px;
-
-  border-radius:22px;
-
-  border:1px solid #e2e8f0;
-
+  width: 100%;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  box-sizing: border-box;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
 
+/* ======================================================
+   GRID PRINCIPAL
+====================================================== */
 
 .client-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
 
-  display:grid;
 
-  grid-template-columns:repeat(2,1fr);
+/* ======================================================
+   CAMPOS
+====================================================== */
 
-  gap:20px;
+.client-form__grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.client-form__grid label {
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.client-form__grid input,
+.client-form__grid select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  padding: 12px 13px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  transition: 0.2s ease;
+}
+
+.client-form__grid input::placeholder {
+  color: #94a3b8;
+}
+
+.client-form__grid input:focus,
+.client-form__grid select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* ======================================================
+   CAMPOS DE DIRECCIÓN
+====================================================== */
+
+.client-form__address {
+  grid-column: 1 / -1;
+
+  padding: 18px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 15px;
+
+  background: #f8fafc;
+}
+
+.client-form__address-title {
+  margin-bottom: 16px;
+}
+
+.client-form__address-title strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.client-form__address-title span {
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+
+/* ======================================================
+   GRID DE DIRECCIÓN
+====================================================== */
+
+.client-form__address-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.1fr
+    1fr
+    0.8fr
+    1fr;
+
+  gap: 14px;
+}
+
+.client-form__address-grid > div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.client-form__address-grid label {
+  color: #334155;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.client-form__address-grid input,
+.client-form__address-grid select {
+  width: 100%;
+  min-width: 0;
+
+  box-sizing: border-box;
+
+  padding: 11px 12px;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #0f172a;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  transition: 0.2s ease;
+}
+
+.client-form__address-grid input::placeholder {
+  color: #94a3b8;
+}
+
+.client-form__address-grid input:focus,
+.client-form__address-grid select:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+
+/* ======================================================
+   DIRECCIÓN COMPLEMENTARIA
+====================================================== */
+
+.client-form__address-complement {
+  grid-column: 1 / -1;
+}
+
+.client-form__address-complement input {
+  width: 100%;
+}
+
+
+/* ======================================================
+   DIRECCIÓN GENERADA
+====================================================== */
+
+.client-form__address-preview {
+  grid-column: 1 / -1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin-top: 2px;
+
+  padding: 12px 14px;
+
+  border-radius: 10px;
+
+  background: #eff6ff;
+
+  border: 1px solid #bfdbfe;
+}
+
+.client-form__address-preview span {
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.client-form__address-preview strong {
+  color: #1e40af;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+
+/* ======================================================
+   BOTÓN GUARDAR
+====================================================== */
+
+.client-form > button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 22px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  padding: 12px 20px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.client-form > button:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+.client-form > button:active {
+  transform: translateY(0);
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 900px) {
+
+  .client-form__address-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
 
 }
 
 
+@media (max-width: 700px) {
 
-.client-form label {
+  .client-form {
+    padding: 20px;
+  }
 
-  display:block;
+  .client-form__grid {
+    grid-template-columns: 1fr;
+  }
 
-  margin-bottom:8px;
+  .client-form__address {
+    grid-column: auto;
+  }
 
-  color:#475569;
+  .client-form__address-grid {
+    grid-template-columns: 1fr;
+  }
 
-  font-size:14px;
+  .client-form__address-complement,
+  .client-form__address-preview {
+    grid-column: auto;
+  }
 
-  font-weight:700;
-
-}
-
-
-
-.client-form input {
-
-  width:100%;
-
-  padding:13px 15px;
-
-  border-radius:12px;
-
-  border:1px solid #cbd5e1;
-
-  outline:none;
-
-  font-size:14px;
+  .client-form > button {
+    width: 100%;
+  }
 
 }
 
 
+@media (max-width: 480px) {
 
-.client-form input:focus {
+  .client-form {
+    padding: 16px;
+    border-radius: 14px;
+  }
 
-  border-color:#2563eb;
+  .client-form__address {
+    padding: 14px;
+  }
 
-}
+  .client-form__grid {
+    gap: 14px;
+  }
 
-
-
-.client-form__full {
-
-  grid-column:1 / -1;
-
-}
-
-
-
-.client-form button {
-
-  margin-top:25px;
-
-  padding:13px 25px;
-
-  border:none;
-
-  border-radius:14px;
-
-  background:#2563eb;
-
-  color:white;
-
-  font-weight:700;
-
-  cursor:pointer;
-
-}
-
-
-
-.client-form button:hover {
-
-  background:#1d4ed8;
-
-}
-
-
-
-@media(max-width:700px){
-
-  .client-form__grid{
-
-    grid-template-columns:1fr;
-
+  .client-form__address-grid {
+    gap: 12px;
   }
 
 }

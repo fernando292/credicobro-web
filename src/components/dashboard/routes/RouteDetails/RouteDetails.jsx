@@ -18,6 +18,8 @@ import {
   registerRouteVisit
 } from "../../../../pages/modules/services/routes/routeVisitService";
 
+import RouteMap from "../RouteMap/RouteMap";
+
 import "./RouteDetails.css";
 
 
@@ -171,6 +173,24 @@ function RouteDetails({
       ),
 
     [route.clientIds]
+
+  );
+
+
+  const routeClients = useMemo(
+
+    () =>
+      clients.filter(
+        client =>
+          routeClientIds.has(
+            client.id
+          )
+      ),
+
+    [
+      clients,
+      routeClientIds
+    ]
 
   );
 
@@ -729,6 +749,44 @@ function RouteDetails({
 
           </div>
 
+
+        </div>
+
+
+        {/* ==================================================
+            MAPA
+        ================================================== */}
+
+        <div className="route-details__map">
+
+          <div className="route-details__map-header">
+
+            <div>
+
+              <h3>
+                Mapa de la ruta
+              </h3>
+
+              <p>
+                Ubicación de los clientes y estado de sus visitas.
+              </p>
+
+            </div>
+
+            <span>
+              {routeClients.length} clientes
+            </span>
+
+          </div>
+
+
+          <RouteMap
+
+            clients={routeClients}
+
+            visits={routeVisits}
+
+          />
 
         </div>
 

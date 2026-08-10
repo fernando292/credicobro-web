@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState
@@ -22,6 +23,11 @@ import {
 } from "../services/clients/clientService";
 
 
+import {
+  geocodeClientAddress
+} from "../services/maps/geocodingService";
+
+
 import ClientTable from "../../../components/clients/ClientTable/ClientTable";
 import ClientForm from "../../../components/clients/ClientForm/ClientForm";
 import ClientDetails from "../../../components/clients/ClientDetails/ClientDetails";
@@ -31,40 +37,38 @@ import "./Clients.css";
 
 
 
-function Clients(){
+function Clients() {
 
 
   const { user } = useAuth();
 
 
-
-  const [companyId,setCompanyId] = useState(null);
-
-
-  const [clients,setClients] = useState([]);
+  const [companyId, setCompanyId] = useState(null);
 
 
-  const [selectedClient,setSelectedClient] = useState(null);
+  const [clients, setClients] = useState([]);
 
 
-  const [editingClient,setEditingClient] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
 
 
-  const [showForm,setShowForm] = useState(false);
+  const [editingClient, setEditingClient] = useState(null);
 
 
-  const [search,setSearch] = useState("");
+  const [showForm, setShowForm] = useState(false);
+
+
+  const [search, setSearch] = useState("");
 
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
 
-    async function loadData(){
+    async function loadData() {
 
 
-      if(!user) return;
-
+      if (!user) return;
 
 
       const profile = await getUserProfile(
@@ -74,12 +78,10 @@ function Clients(){
       );
 
 
-
-      if(profile?.companyId){
+      if (profile?.companyId) {
 
 
         setCompanyId(profile.companyId);
-
 
 
         const data = await getClients(
@@ -91,32 +93,52 @@ function Clients(){
 
         setClients(data);
 
-
       }
 
-
     }
-
 
 
     loadData();
 
 
-
-  },[user]);
-
+  }, [user]);
 
 
 
+  async function handleSave(client) {
 
 
+    let clientWithLocation = {
 
-  async function handleSave(client){
+      ...client
+
+    };
 
 
+    const location =
 
-    if(editingClient){
+      await geocodeClientAddress(client);
 
+
+    if (location) {
+
+
+      clientWithLocation = {
+
+        ...clientWithLocation,
+
+        latitude:
+          location.latitude,
+
+        longitude:
+          location.longitude
+
+      };
+
+    }
+
+
+    if (editingClient) {
 
 
       await updateClient(
@@ -125,50 +147,50 @@ function Clients(){
 
         editingClient.id,
 
-        client
+        clientWithLocation
 
       );
 
 
+      setClients(prev =>
 
-      setClients(prev=>
+        prev.map(item =>
 
-        prev.map(item=>
+          item.id === editingClient.id
 
-          item.id===editingClient.id
+            ? {
 
-          ? {
-            ...item,
-            ...client
-          } 
-          
-          :item
+                ...item,
+
+                ...clientWithLocation
+
+              }
+
+            : item
 
         )
 
       );
 
 
-
       setEditingClient(null);
 
 
-
-    }else{
-
+    } else {
 
 
-      const newClient = await createClient(
+      const newClient =
 
-        companyId,
+        await createClient(
 
-        client
+          companyId,
 
-      );
+          clientWithLocation
+
+        );
 
 
-
-      setClients(prev=>[
+      setClients(prev => [
 
         ...prev,
 
@@ -176,55 +198,36 @@ function Clients(){
 
       ]);
 
-
-
     }
-
 
 
     setShowForm(false);
 
-
   }
 
 
 
-
-
-
-
-  function handleView(client){
+  function handleView(client) {
 
 
     setSelectedClient(client);
 
-
   }
 
 
 
-
-
-
-
-  function handleEdit(client){
+  function handleEdit(client) {
 
 
     setEditingClient(client);
 
     setShowForm(true);
 
-
   }
 
 
 
-
-
-
-
-  async function handleDelete(id){
-
+  async function handleDelete(id) {
 
 
     const confirmDelete = window.confirm(
@@ -234,9 +237,7 @@ function Clients(){
     );
 
 
-
-    if(!confirmDelete) return;
-
+    if (!confirmDelete) return;
 
 
     await removeClient(
@@ -248,36 +249,27 @@ function Clients(){
     );
 
 
-
-    setClients(prev=>
+    setClients(prev =>
 
       prev.filter(
 
-        item=>item.id!==id
+        item => item.id !== id
 
       )
 
     );
 
 
-
     setSelectedClient(null);
-
 
   }
 
 
 
-
-
-
-
-
-  const filteredClients = clients.filter(client=>{
+  const filteredClients = clients.filter(client => {
 
 
     const value = search.toLowerCase();
-
 
 
     return (
@@ -294,19 +286,13 @@ function Clients(){
 
     );
 
-
   });
-
-
-
-
 
 
 
   return (
 
     <section className="clients-page">
-
 
 
       <div className="clients-header">
@@ -327,44 +313,32 @@ function Clients(){
         </div>
 
 
-
-
         <button
 
-          onClick={()=>{
-
+          onClick={() => {
 
             setEditingClient(null);
 
-
             setShowForm(!showForm);
-
 
           }}
 
         >
 
           {
+
             showForm
 
-            ?
+              ? "Cerrar"
 
-            "Cerrar"
-
-            :
-
-            "Nuevo cliente"
+              : "Nuevo cliente"
 
           }
 
         </button>
 
 
-
       </div>
-
-
-
 
 
 
@@ -375,7 +349,11 @@ function Clients(){
 
           value={search}
 
-          onChange={(e)=>setSearch(e.target.value)}
+          onChange={(e) =>
+
+            setSearch(e.target.value)
+
+          }
 
           placeholder="Buscar cliente..."
 
@@ -386,10 +364,8 @@ function Clients(){
 
 
 
-
-
-
       {
+
         showForm && (
 
           <ClientForm
@@ -401,58 +377,43 @@ function Clients(){
           />
 
         )
+
       }
-
-
-
-
-
 
 
 
       <ClientTable
 
-
         clients={filteredClients}
-
 
         onView={handleView}
 
-
         onEdit={handleEdit}
-
-
         onDelete={handleDelete}
-
 
       />
 
 
 
-
-
-
-
       {
+
         selectedClient && (
 
           <ClientDetails
 
-
             client={selectedClient}
 
+            onClose={() =>
 
-            onClose={()=>setSelectedClient(null)}
+              setSelectedClient(null)
 
+            }
 
           />
 
         )
+
       }
-
-
-
-
 
 
     </section>
