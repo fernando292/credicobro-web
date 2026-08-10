@@ -1,10 +1,16 @@
-
 import {
   useEffect,
   useState
 } from "react";
 
-import { useAuth } from "../../../context/AuthContext";
+import {
+  useLocation,
+  useNavigate
+} from "react-router-dom";
+
+import {
+  useAuth
+} from "../../../context/AuthContext";
 
 import {
   getUserProfile
@@ -29,48 +35,133 @@ import "./Routes.css";
 
 function Routes() {
 
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
 
-  const [routes, setRoutes] = useState([]);
-  const [clients, setClients] = useState([]);
-  const [companyId, setCompanyId] = useState(null);
 
-  const [loading, setLoading] = useState(true);
+  const location =
+    useLocation();
 
-  const [showForm, setShowForm] = useState(false);
-  const [showClients, setShowClients] = useState(false);
 
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [detailRoute, setDetailRoute] = useState(null);
+  const navigate =
+    useNavigate();
 
-  const [selectedClients, setSelectedClients] = useState([]);
-  const [clientSearch, setClientSearch] = useState("");
 
-  const [savingClients, setSavingClients] = useState(false);
-  const [savingRoute, setSavingRoute] = useState(false);
-  const [deletingRoute, setDeletingRoute] = useState(false);
+  const [
+    routes,
+    setRoutes
+  ] = useState([]);
 
-  const [editingRoute, setEditingRoute] = useState(null);
 
-  const [form, setForm] = useState({
+  const [
+    clients,
+    setClients
+  ] = useState([]);
+
+
+  const [
+    companyId,
+    setCompanyId
+  ] = useState(null);
+
+
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+
+  const [
+    showForm,
+    setShowForm
+  ] = useState(false);
+
+
+  const [
+    showClients,
+    setShowClients
+  ] = useState(false);
+
+
+  const [
+    selectedRoute,
+    setSelectedRoute
+  ] = useState(null);
+
+
+  const [
+    detailRoute,
+    setDetailRoute
+  ] = useState(null);
+
+
+  const [
+    selectedClients,
+    setSelectedClients
+  ] = useState([]);
+
+
+  const [
+    clientSearch,
+    setClientSearch
+  ] = useState("");
+
+
+  const [
+    savingClients,
+    setSavingClients
+  ] = useState(false);
+
+
+  const [
+    savingRoute,
+    setSavingRoute
+  ] = useState(false);
+
+
+  const [
+    deletingRoute,
+    setDeletingRoute
+  ] = useState(false);
+
+
+  const [
+    editingRoute,
+    setEditingRoute
+  ] = useState(null);
+
+
+  const [
+    form,
+    setForm
+  ] = useState({
+
     name: "",
     date: "",
     zone: "",
     description: ""
+
   });
 
 
-  /* ======================================================
-     CARGAR RUTAS
-  ====================================================== */
-
-  async function loadRoutes(id) {
+  async function loadRoutes(
+    id
+  ) {
 
     try {
 
-      const data = await getRoutes(id);
+      const data =
+        await getRoutes(id);
 
-      setRoutes(data);
+
+      setRoutes(
+        data
+      );
+
+
+      return data;
+
 
     } catch (error) {
 
@@ -79,22 +170,28 @@ function Routes() {
         error
       );
 
+
+      return [];
+
     }
 
   }
 
 
-  /* ======================================================
-     CARGAR CLIENTES
-  ====================================================== */
-
-  async function loadClients(id) {
+  async function loadClients(
+    id
+  ) {
 
     try {
 
-      const data = await getClients(id);
+      const data =
+        await getClients(id);
 
-      setClients(data);
+
+      setClients(
+        data
+      );
+
 
     } catch (error) {
 
@@ -108,10 +205,6 @@ function Routes() {
   }
 
 
-  /* ======================================================
-     INICIALIZAR
-  ====================================================== */
-
   useEffect(() => {
 
     async function init() {
@@ -122,22 +215,35 @@ function Routes() {
           return;
         }
 
-        const profile = await getUserProfile(
-          user.uid
-        );
+
+        const profile =
+          await getUserProfile(
+            user.uid
+          );
+
 
         if (!profile?.companyId) {
           return;
         }
 
-        const id = profile.companyId;
 
-        setCompanyId(id);
+        const id =
+          profile.companyId;
+
+
+        setCompanyId(
+          id
+        );
+
 
         await Promise.all([
+
           loadRoutes(id),
+
           loadClients(id)
+
         ]);
+
 
       } catch (error) {
 
@@ -148,79 +254,147 @@ function Routes() {
 
       } finally {
 
-        setLoading(false);
+        setLoading(
+          false
+        );
 
       }
 
     }
+
 
     init();
 
   }, [user]);
 
 
-  /* ======================================================
-     CAMBIAR FORMULARIO
-  ====================================================== */
+  useEffect(() => {
 
-  function handleChange(event) {
+    const routeId =
+      location.state?.routeId;
+
+
+    if (
+      !routeId ||
+      routes.length === 0
+    ) {
+      return;
+    }
+
+
+    const route =
+      routes.find(
+        item =>
+          String(item.id) ===
+          String(routeId)
+      );
+
+
+    if (!route) {
+      return;
+    }
+
+
+    setDetailRoute(
+      route
+    );
+
+
+    navigate(
+      location.pathname,
+      {
+        replace: true,
+        state: {}
+      }
+    );
+
+  }, [
+    routes,
+    location.pathname,
+    location.state,
+    navigate
+  ]);
+
+
+  function handleChange(
+    event
+  ) {
 
     const {
       name,
       value
     } = event.target;
 
-    setForm(previous => ({
-      ...previous,
-      [name]: value
-    }));
+
+    setForm(
+      previous => ({
+
+        ...previous,
+
+        [name]: value
+
+      })
+    );
 
   }
 
 
-  /* ======================================================
-     ABRIR FORMULARIO NUEVA RUTA
-  ====================================================== */
-
   function handleOpenCreateForm() {
 
-    setEditingRoute(null);
+    setEditingRoute(
+      null
+    );
+
 
     setForm({
+
       name: "",
       date: "",
       zone: "",
       description: ""
+
     });
 
-    setShowForm(true);
+
+    setShowForm(
+      true
+    );
 
   }
 
 
-  /* ======================================================
-     ABRIR FORMULARIO EDITAR RUTA
-  ====================================================== */
+  function handleOpenEditForm(
+    route
+  ) {
 
-  function handleOpenEditForm(route) {
+    setEditingRoute(
+      route
+    );
 
-    setEditingRoute(route);
 
     setForm({
-      name: route.name || "",
-      date: route.date || "",
-      zone: route.zone || "",
-      description: route.description || ""
+
+      name:
+        route.name || "",
+
+      date:
+        route.date || "",
+
+      zone:
+        route.zone || "",
+
+      description:
+        route.description || ""
+
     });
 
-    setShowForm(true);
+
+    setShowForm(
+      true
+    );
 
   }
 
-
-  /* ======================================================
-     CERRAR FORMULARIO
-  ====================================================== */
 
   function handleCloseForm() {
 
@@ -228,26 +402,35 @@ function Routes() {
       return;
     }
 
-    setShowForm(false);
-    setEditingRoute(null);
+
+    setShowForm(
+      false
+    );
+
+
+    setEditingRoute(
+      null
+    );
+
 
     setForm({
+
       name: "",
       date: "",
       zone: "",
       description: ""
+
     });
 
   }
 
 
-  /* ======================================================
-     CREAR / EDITAR RUTA
-  ====================================================== */
-
-  async function handleSubmitRoute(event) {
+  async function handleSubmitRoute(
+    event
+  ) {
 
     event.preventDefault();
+
 
     if (!companyId) {
 
@@ -256,7 +439,9 @@ function Routes() {
       );
 
       return;
+
     }
+
 
     if (!form.name.trim()) {
 
@@ -265,7 +450,9 @@ function Routes() {
       );
 
       return;
+
     }
+
 
     if (!form.date) {
 
@@ -274,110 +461,180 @@ function Routes() {
       );
 
       return;
+
     }
+
 
     try {
 
-      setSavingRoute(true);
+      setSavingRoute(
+        true
+      );
+
+
+      const routeData = {
+
+        name:
+          form.name.trim(),
+
+        date:
+          form.date,
+
+        zone:
+          form.zone.trim(),
+
+        description:
+          form.description.trim()
+
+      };
+
 
       if (editingRoute) {
 
         await updateRoute(
+
           companyId,
+
           editingRoute.id,
-          {
-            name: form.name.trim(),
-            date: form.date,
-            zone: form.zone.trim(),
-            description: form.description.trim()
-          }
+
+          routeData
+
         );
 
       } else {
 
         await createRoute(
+
           companyId,
-          {
-            name: form.name.trim(),
-            date: form.date,
-            zone: form.zone.trim(),
-            description: form.description.trim()
-          }
+
+          routeData
+
         );
 
       }
 
-      await loadRoutes(companyId);
+
+      await loadRoutes(
+        companyId
+      );
+
 
       handleCloseForm();
+
 
     } catch (error) {
 
       console.error(
+
         editingRoute
           ? "Error editando ruta:"
           : "Error creando ruta:",
+
         error
+
       );
 
+
       alert(
+
         error.message ||
         "No fue posible guardar la ruta."
+
       );
+
 
     } finally {
 
-      setSavingRoute(false);
+      setSavingRoute(
+        false
+      );
 
     }
 
   }
 
 
-  /* ======================================================
-     ELIMINAR RUTA
-  ====================================================== */
+  async function handleDeleteRoute(
+    route
+  ) {
 
-  async function handleDeleteRoute(route) {
-
-    if (!companyId || !route?.id) {
+    if (
+      !companyId ||
+      !route?.id
+    ) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `¿Estás seguro de eliminar la ruta "${route.name}"?\n\nEsta acción eliminará la ruta y no se puede deshacer.`
-    );
+
+    const confirmed =
+      window.confirm(
+
+        `¿Estás seguro de eliminar la ruta "${route.name}"?\n\nEsta acción eliminará la ruta y no se puede deshacer.`
+
+      );
+
 
     if (!confirmed) {
       return;
     }
 
+
     try {
 
-      setDeletingRoute(true);
+      setDeletingRoute(
+        true
+      );
+
 
       await removeRoute(
+
         companyId,
+
         route.id
+
       );
 
-      setRoutes(previous =>
-        previous.filter(
-          item => item.id !== route.id
-        )
+
+      setRoutes(
+        previous =>
+          previous.filter(
+            item =>
+              item.id !== route.id
+          )
       );
 
-      if (selectedRoute?.id === route.id) {
+
+      if (
+        selectedRoute?.id ===
+        route.id
+      ) {
+
         handleCloseClients();
+
       }
 
-      if (detailRoute?.id === route.id) {
-        setDetailRoute(null);
+
+      if (
+        detailRoute?.id ===
+        route.id
+      ) {
+
+        setDetailRoute(
+          null
+        );
+
       }
 
-      if (editingRoute?.id === route.id) {
+
+      if (
+        editingRoute?.id ===
+        route.id
+      ) {
+
         handleCloseForm();
+
       }
+
 
     } catch (error) {
 
@@ -386,44 +643,59 @@ function Routes() {
         error
       );
 
+
       alert(
+
         error.message ||
         "No fue posible eliminar la ruta."
+
       );
+
 
     } finally {
 
-      setDeletingRoute(false);
+      setDeletingRoute(
+        false
+      );
 
     }
 
   }
 
 
-  /* ======================================================
-     ABRIR ASIGNACIÓN DE CLIENTES
-  ====================================================== */
+  function handleOpenClients(
+    route
+  ) {
 
-  function handleOpenClients(route) {
-
-    setSelectedRoute(route);
-
-    setSelectedClients(
-      Array.isArray(route.clientIds)
-        ? route.clientIds
-        : []
+    setSelectedRoute(
+      route
     );
 
-    setClientSearch("");
 
-    setShowClients(true);
+    setSelectedClients(
+
+      Array.isArray(
+        route.clientIds
+      )
+
+        ? route.clientIds
+
+        : []
+
+    );
+
+
+    setClientSearch(
+      ""
+    );
+
+
+    setShowClients(
+      true
+    );
 
   }
 
-
-  /* ======================================================
-     CERRAR ASIGNACIÓN DE CLIENTES
-  ====================================================== */
 
   function handleCloseClients() {
 
@@ -431,130 +703,211 @@ function Routes() {
       return;
     }
 
-    setShowClients(false);
-    setSelectedRoute(null);
-    setSelectedClients([]);
-    setClientSearch("");
+
+    setShowClients(
+      false
+    );
+
+
+    setSelectedRoute(
+      null
+    );
+
+
+    setSelectedClients(
+      []
+    );
+
+
+    setClientSearch(
+      ""
+    );
 
   }
 
 
-  /* ======================================================
-     SELECCIONAR / DESELECCIONAR CLIENTE
-  ====================================================== */
+  function handleToggleClient(
+    clientId
+  ) {
 
-  function handleToggleClient(clientId) {
+    setSelectedClients(
+      previous => {
 
-    setSelectedClients(previous => {
+        if (
+          previous.includes(
+            clientId
+          )
+        ) {
 
-      if (previous.includes(clientId)) {
+          return previous.filter(
+            id =>
+              id !== clientId
+          );
 
-        return previous.filter(
-          id => id !== clientId
-        );
+        }
+
+
+        return [
+
+          ...previous,
+
+          clientId
+
+        ];
 
       }
-
-      return [
-        ...previous,
-        clientId
-      ];
-
-    });
+    );
 
   }
 
-
-  /* ======================================================
-     SELECCIONAR TODOS LOS CLIENTES VISIBLES
-  ====================================================== */
 
   function handleSelectAll() {
 
-    const visibleIds = filteredClients.map(
-      client => client.id
-    );
-
-    setSelectedClients(previous => {
-
-      const allSelected = visibleIds.every(
-        id => previous.includes(id)
+    const visibleIds =
+      filteredClients.map(
+        client =>
+          client.id
       );
 
-      if (allSelected) {
 
-        return previous.filter(
-          id => !visibleIds.includes(id)
-        );
+    setSelectedClients(
+      previous => {
+
+        const allSelected =
+          visibleIds.every(
+            id =>
+              previous.includes(id)
+          );
+
+
+        if (allSelected) {
+
+          return previous.filter(
+            id =>
+              !visibleIds.includes(id)
+          );
+
+        }
+
+
+        return [
+
+          ...new Set([
+
+            ...previous,
+
+            ...visibleIds
+
+          ])
+
+        ];
 
       }
-
-      return [
-        ...new Set([
-          ...previous,
-          ...visibleIds
-        ])
-      ];
-
-    });
+    );
 
   }
 
 
-  /* ======================================================
-     GUARDAR CLIENTES EN RUTA
-  ====================================================== */
-
   async function handleSaveClients() {
 
-    if (!companyId || !selectedRoute) {
+    if (
+      !companyId ||
+      !selectedRoute
+    ) {
       return;
     }
 
+
     try {
 
-      setSavingClients(true);
+      setSavingClients(
+        true
+      );
+
 
       const result =
         await assignClientsToRoute(
+
           companyId,
+
           selectedRoute.id,
+
           selectedClients
+
         );
 
-      setRoutes(previous =>
-        previous.map(route =>
-          route.id === selectedRoute.id
+
+      setRoutes(
+        previous =>
+          previous.map(
+            route =>
+
+              route.id ===
+              selectedRoute.id
+
+                ? {
+
+                    ...route,
+
+                    clientIds:
+                      result.clientIds,
+
+                    totalVisits:
+                      result.totalVisits
+
+                  }
+
+                : route
+
+          )
+      );
+
+
+      setSelectedRoute(
+        previous =>
+
+          previous
+
             ? {
-                ...route,
-                clientIds: result.clientIds,
-                totalVisits: result.totalVisits
+
+                ...previous,
+
+                clientIds:
+                  result.clientIds,
+
+                totalVisits:
+                  result.totalVisits
+
               }
-            : route
-        )
+
+            : previous
       );
 
-      setSelectedRoute(previous =>
-        previous
-          ? {
-              ...previous,
-              clientIds: result.clientIds,
-              totalVisits: result.totalVisits
-            }
-          : previous
+
+      setDetailRoute(
+        previous =>
+
+          previous?.id ===
+          selectedRoute.id
+
+            ? {
+
+                ...previous,
+
+                clientIds:
+                  result.clientIds,
+
+                totalVisits:
+                  result.totalVisits
+
+              }
+
+            : previous
       );
 
-      setDetailRoute(previous =>
-        previous?.id === selectedRoute.id
-          ? {
-              ...previous,
-              clientIds: result.clientIds,
-              totalVisits: result.totalVisits
-            }
-          : previous
-      );
 
       handleCloseClients();
+
 
     } catch (error) {
 
@@ -563,63 +916,82 @@ function Routes() {
         error
       );
 
+
       alert(
+
         error.message ||
         "No fue posible guardar los clientes."
+
       );
+
 
     } finally {
 
-      setSavingClients(false);
+      setSavingClients(
+        false
+      );
 
     }
 
   }
 
 
-  /* ======================================================
-     DETALLES DE RUTA
-  ====================================================== */
+  function handleOpenRoute(
+    route
+  ) {
 
-  function handleOpenRoute(route) {
-
-    setDetailRoute(route);
+    setDetailRoute(
+      route
+    );
 
   }
 
 
-  /* ======================================================
-     RUTA ACTUALIZADA DESDE DETALLES
-  ====================================================== */
+  function handleRouteUpdated(
+    updatedRoute
+  ) {
 
-  function handleRouteUpdated(updatedRoute) {
+    setRoutes(
+      previous =>
+        previous.map(
+          route =>
 
-    setRoutes(previous =>
-      previous.map(route =>
-        route.id === updatedRoute.id
+            route.id ===
+            updatedRoute.id
+
+              ? {
+
+                  ...route,
+
+                  ...updatedRoute
+
+                }
+
+              : route
+
+        )
+    );
+
+
+    setDetailRoute(
+      previous =>
+
+        previous?.id ===
+        updatedRoute.id
+
           ? {
-              ...route,
-              ...updatedRoute
-            }
-          : route
-      )
-    );
 
-    setDetailRoute(previous =>
-      previous?.id === updatedRoute.id
-        ? {
-            ...previous,
-            ...updatedRoute
-          }
-        : previous
+              ...previous,
+
+              ...updatedRoute
+
+            }
+
+          : previous
     );
 
   }
 
-
-  /* ======================================================
-     LOADING
-  ====================================================== */
 
   if (loading) {
 
@@ -638,112 +1010,130 @@ function Routes() {
   }
 
 
-  /* ======================================================
-     ESTADÍSTICAS
-  ====================================================== */
-
-  const today = new Date()
-    .toISOString()
-    .split("T")[0];
-
-  const todayRoutes = routes.filter(
-    route =>
-      route.date === today
-  );
-
-  const clientsInRoutes = routes.reduce(
-    (total, route) =>
-      total +
-      Number(
-        route.totalVisits || 0
-      ),
-    0
-  );
-
-  const pendingVisits = routes.reduce(
-    (total, route) =>
-      total +
-      Math.max(
-        Number(route.totalVisits || 0) -
-        Number(route.completedVisits || 0),
-        0
-      ),
-    0
-  );
-
-  const collected = routes.reduce(
-    (total, route) =>
-      total +
-      Number(
-        route.collected || 0
-      ),
-    0
-  );
+  const today =
+    new Date()
+      .toISOString()
+      .split("T")[0];
 
 
-  /* ======================================================
-     CLIENTES FILTRADOS
-  ====================================================== */
+  const todayRoutes =
+    routes.filter(
+      route =>
+        route.date === today
+    );
 
-  const filteredClients = clients.filter(
-    client => {
 
-      const value =
-        clientSearch
-          .toLowerCase()
-          .trim();
+  const clientsInRoutes =
+    routes.reduce(
+      (total, route) =>
 
-      if (!value) {
-        return true;
+        total +
+
+        Number(
+          route.totalVisits || 0
+        ),
+
+      0
+    );
+
+
+  const pendingVisits =
+    routes.reduce(
+      (total, route) =>
+
+        total +
+
+        Math.max(
+
+          Number(
+            route.totalVisits || 0
+          ) -
+
+          Number(
+            route.completedVisits || 0
+          ),
+
+          0
+
+        ),
+
+      0
+    );
+
+
+  const collected =
+    routes.reduce(
+      (total, route) =>
+
+        total +
+
+        Number(
+          route.collected || 0
+        ),
+
+      0
+    );
+
+
+  const filteredClients =
+    clients.filter(
+      client => {
+
+        const value =
+          clientSearch
+            .toLowerCase()
+            .trim();
+
+
+        if (!value) {
+          return true;
+        }
+
+
+        return (
+
+          client.name
+            ?.toLowerCase()
+            .includes(value)
+
+          ||
+
+          client.document
+            ?.toLowerCase()
+            .includes(value)
+
+          ||
+
+          client.phone
+            ?.toLowerCase()
+            .includes(value)
+
+        );
+
       }
-
-      return (
-        client.name
-          ?.toLowerCase()
-          .includes(value)
-
-        ||
-
-        client.document
-          ?.toLowerCase()
-          .includes(value)
-
-        ||
-
-        client.phone
-          ?.toLowerCase()
-          .includes(value)
-      );
-
-    }
-  );
+    );
 
 
   const visibleClientIds =
     filteredClients.map(
-      client => client.id
+      client =>
+        client.id
     );
 
 
   const allVisibleSelected =
     visibleClientIds.length > 0 &&
+
     visibleClientIds.every(
-      id => selectedClients.includes(id)
+      id =>
+        selectedClients.includes(id)
     );
 
-
-  /* ======================================================
-     RENDER
-  ====================================================== */
 
   return (
 
     <section className="routes">
 
-
-      {/* ==================================================
-          ENCABEZADO
-      ================================================== */}
 
       <div className="routes__header">
 
@@ -753,35 +1143,45 @@ function Routes() {
             Rutas
           </h1>
 
+
           <p>
-            Organiza y controla las visitas de cobranza de tu operación.
+
+            Organiza y controla las visitas
+            de cobranza de tu operación.
+
           </p>
 
         </div>
 
 
         <button
+
           className="routes__add"
+
           type="button"
-          onClick={handleOpenCreateForm}
+
+          onClick={
+            handleOpenCreateForm
+          }
+
         >
+
           + Nueva ruta
+
         </button>
 
       </div>
 
 
-      {/* ==================================================
-          RESUMEN
-      ================================================== */}
-
       <div className="routes__summary">
+
 
         <div className="routes__card">
 
           <span>
             Rutas de hoy
           </span>
+
 
           <strong>
             {todayRoutes.length}
@@ -796,6 +1196,7 @@ function Routes() {
             Clientes en ruta
           </span>
 
+
           <strong>
             {clientsInRoutes}
           </strong>
@@ -808,6 +1209,7 @@ function Routes() {
           <span>
             Visitas pendientes
           </span>
+
 
           <strong>
             {pendingVisits}
@@ -822,6 +1224,7 @@ function Routes() {
             Recaudado
           </span>
 
+
           <strong>
             ${collected.toLocaleString()}
           </strong>
@@ -831,186 +1234,283 @@ function Routes() {
       </div>
 
 
-      {/* ==================================================
-          LISTA DE RUTAS
-      ================================================== */}
-
       {
-        routes.length === 0 ? (
+        routes.length === 0
 
-          <div className="routes__empty">
+          ? (
 
-            <h2>
-              No hay rutas creadas
-            </h2>
+            <div className="routes__empty">
 
-            <p>
-              Crea una ruta para comenzar a organizar
-              las visitas de cobranza de tus clientes.
-            </p>
-
-            <button
-              className="routes__empty-button"
-              type="button"
-              onClick={handleOpenCreateForm}
-            >
-              Crear primera ruta
-            </button>
-
-          </div>
-
-        ) : (
-
-          <div className="routes__list">
-
-            {
-              routes.map(route => (
-
-                <div
-                  className="routes__route-card"
-                  key={route.id}
-                >
-
-                  <div>
-
-                    <h3>
-                      {route.name}
-                    </h3>
-
-                    <p>
-                      {route.zone || "Sin zona"}
-                    </p>
-
-                  </div>
+              <h2>
+                No hay rutas creadas
+              </h2>
 
 
-                  <div>
+              <p>
 
-                    <span>
-                      Fecha
-                    </span>
+                Crea una ruta para comenzar
+                a organizar las visitas de
+                cobranza de tus clientes.
 
-                    <strong>
-                      {route.date || "-"}
-                    </strong>
-
-                  </div>
+              </p>
 
 
-                  <div>
+              <button
 
-                    <span>
-                      Visitas
-                    </span>
+                className="routes__empty-button"
 
-                    <strong>
-                      {route.completedVisits || 0}
-                      {" / "}
-                      {route.totalVisits || 0}
-                    </strong>
+                type="button"
 
-                  </div>
+                onClick={
+                  handleOpenCreateForm
+                }
 
+              >
 
-                  <div>
+                Crear primera ruta
 
-                    <span>
-                      Recaudado
-                    </span>
+              </button>
 
-                    <strong>
-                      $
-                      {Number(
-                        route.collected || 0
-                      ).toLocaleString()}
-                    </strong>
+            </div>
 
-                  </div>
+          )
 
+          : (
 
-                  <div>
+            <div className="routes__list">
 
-                    <span
-                      className={`route-status route-status--${
-                        route.status === "Completada"
-                          ? "completed"
-                          : route.status === "En progreso"
-                            ? "progress"
-                            : "pending"
-                      }`}
-                    >
-                      {route.status || "Pendiente"}
-                    </span>
+              {
+                routes.map(
+                  route => (
 
-                  </div>
+                    <div
 
+                      className="routes__route-card"
 
-                  <div className="routes__route-actions">
-
-                    <button
-                      type="button"
-                      className="routes__open-button"
-                      onClick={() =>
-                        handleOpenRoute(route)
+                      key={
+                        route.id
                       }
+
                     >
-                      Abrir ruta
-                    </button>
+
+                      <div>
+
+                        <h3>
+                          {route.name}
+                        </h3>
 
 
-                    <button
-                      type="button"
-                      className="routes__clients-button"
-                      onClick={() =>
-                        handleOpenClients(route)
-                      }
-                    >
-                      Clientes
+                        <p>
+                          {
+                            route.zone ||
+                            "Sin zona"
+                          }
+                        </p>
 
-                      <span>
-                        {route.totalVisits || 0}
-                      </span>
-                    </button>
+                      </div>
 
 
-                    <button
-                      type="button"
-                      className="routes__edit-button"
-                      onClick={() =>
-                        handleOpenEditForm(route)
-                      }
-                    >
-                      Editar
-                    </button>
+                      <div>
+
+                        <span>
+                          Fecha
+                        </span>
 
 
-                    <button
-                      type="button"
-                      className="routes__delete-button"
-                      onClick={() =>
-                        handleDeleteRoute(route)
-                      }
-                      disabled={deletingRoute}
-                    >
-                      Eliminar
-                    </button>
+                        <strong>
+                          {
+                            route.date ||
+                            "-"
+                          }
+                        </strong>
 
-                  </div>
+                      </div>
 
-                </div>
 
-              ))
-            }
+                      <div>
 
-          </div>
+                        <span>
+                          Visitas
+                        </span>
 
-        )
+
+                        <strong>
+
+                          {
+                            route.completedVisits ||
+                            0
+                          }
+
+                          {" / "}
+
+                          {
+                            route.totalVisits ||
+                            0
+                          }
+
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Recaudado
+                        </span>
+
+
+                        <strong>
+
+                          $
+
+                          {
+                            Number(
+                              route.collected ||
+                              0
+                            ).toLocaleString()
+                          }
+
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span
+
+                          className={
+                            `route-status route-status--${
+                              route.status ===
+                              "Completada"
+
+                                ? "completed"
+
+                                : route.status ===
+                                  "En progreso"
+
+                                  ? "progress"
+
+                                  : "pending"
+                            }`
+                          }
+
+                        >
+
+                          {
+                            route.status ||
+                            "Pendiente"
+                          }
+
+                        </span>
+
+                      </div>
+
+
+                      <div className="routes__route-actions">
+
+
+                        <button
+
+                          type="button"
+
+                          className="routes__open-button"
+
+                          onClick={() =>
+                            handleOpenRoute(
+                              route
+                            )
+                          }
+
+                        >
+
+                          Abrir ruta
+
+                        </button>
+
+
+                        <button
+
+                          type="button"
+
+                          className="routes__clients-button"
+
+                          onClick={() =>
+                            handleOpenClients(
+                              route
+                            )
+                          }
+
+                        >
+
+                          Clientes
+
+
+                          <span>
+                            {
+                              route.totalVisits ||
+                              0
+                            }
+                          </span>
+
+                        </button>
+
+
+                        <button
+
+                          type="button"
+
+                          className="routes__edit-button"
+
+                          onClick={() =>
+                            handleOpenEditForm(
+                              route
+                            )
+                          }
+
+                        >
+
+                          Editar
+
+                        </button>
+
+
+                        <button
+
+                          type="button"
+
+                          className="routes__delete-button"
+
+                          onClick={() =>
+                            handleDeleteRoute(
+                              route
+                            )
+                          }
+
+                          disabled={
+                            deletingRoute
+                          }
+
+                        >
+
+                          Eliminar
+
+                        </button>
+
+                      </div>
+
+                    </div>
+
+                  )
+                )
+              }
+
+            </div>
+
+          )
       }
 
-
-      {/* ==================================================
-          MODAL CREAR / EDITAR RUTA
-      ================================================== */}
 
       {
         showForm && (
@@ -1019,40 +1519,67 @@ function Routes() {
 
             <div className="route-modal__content">
 
+
               <div className="route-modal__header">
 
                 <div>
 
                   <h2>
-                    {editingRoute
-                      ? "Editar ruta"
-                      : "Nueva ruta"}
+
+                    {
+                      editingRoute
+                        ? "Editar ruta"
+                        : "Nueva ruta"
+                    }
+
                   </h2>
 
+
                   <p>
-                    {editingRoute
-                      ? "Modifica la información de la ruta."
-                      : "Configura una nueva ruta de cobranza."}
+
+                    {
+                      editingRoute
+
+                        ? "Modifica la información de la ruta."
+
+                        : "Configura una nueva ruta de cobranza."
+
+                    }
+
                   </p>
 
                 </div>
 
 
                 <button
+
                   type="button"
+
                   className="route-modal__close"
-                  onClick={handleCloseForm}
-                  disabled={savingRoute}
+
+                  onClick={
+                    handleCloseForm
+                  }
+
+                  disabled={
+                    savingRoute
+                  }
+
                 >
+
                   ×
+
                 </button>
 
               </div>
 
 
               <form
-                onSubmit={handleSubmitRoute}
+                onSubmit={
+                  handleSubmitRoute
+                }
               >
+
 
                 <div className="route-form__group">
 
@@ -1060,13 +1587,25 @@ function Routes() {
                     Nombre de la ruta
                   </label>
 
+
                   <input
+
                     type="text"
+
                     name="name"
-                    value={form.name}
-                    onChange={handleChange}
+
+                    value={
+                      form.name
+                    }
+
+                    onChange={
+                      handleChange
+                    }
+
                     placeholder="Ej. Ruta Rionegro"
+
                     required
+
                   />
 
                 </div>
@@ -1074,18 +1613,30 @@ function Routes() {
 
                 <div className="route-form__row">
 
+
                   <div className="route-form__group">
 
                     <label>
                       Fecha
                     </label>
 
+
                     <input
+
                       type="date"
+
                       name="date"
-                      value={form.date}
-                      onChange={handleChange}
+
+                      value={
+                        form.date
+                      }
+
+                      onChange={
+                        handleChange
+                      }
+
                       required
+
                     />
 
                   </div>
@@ -1097,12 +1648,23 @@ function Routes() {
                       Zona
                     </label>
 
+
                     <input
+
                       type="text"
+
                       name="zone"
-                      value={form.zone}
-                      onChange={handleChange}
+
+                      value={
+                        form.zone
+                      }
+
+                      onChange={
+                        handleChange
+                      }
+
                       placeholder="Ej. Rionegro"
+
                     />
 
                   </div>
@@ -1116,12 +1678,23 @@ function Routes() {
                     Descripción
                   </label>
 
+
                   <textarea
+
                     name="description"
-                    value={form.description}
-                    onChange={handleChange}
+
+                    value={
+                      form.description
+                    }
+
+                    onChange={
+                      handleChange
+                    }
+
                     placeholder="Información adicional de la ruta..."
+
                     rows="3"
+
                   />
 
                 </div>
@@ -1129,26 +1702,52 @@ function Routes() {
 
                 <div className="route-form__actions">
 
+
                   <button
+
                     type="button"
+
                     className="route-form__cancel"
-                    onClick={handleCloseForm}
-                    disabled={savingRoute}
+
+                    onClick={
+                      handleCloseForm
+                    }
+
+                    disabled={
+                      savingRoute
+                    }
+
                   >
+
                     Cancelar
+
                   </button>
 
 
                   <button
+
                     type="submit"
+
                     className="route-form__submit"
-                    disabled={savingRoute}
+
+                    disabled={
+                      savingRoute
+                    }
+
                   >
-                    {savingRoute
-                      ? "Guardando..."
-                      : editingRoute
-                        ? "Guardar cambios"
-                        : "Crear ruta"}
+
+                    {
+                      savingRoute
+
+                        ? "Guardando..."
+
+                        : editingRoute
+
+                          ? "Guardar cambios"
+
+                          : "Crear ruta"
+                    }
+
                   </button>
 
                 </div>
@@ -1163,16 +1762,14 @@ function Routes() {
       }
 
 
-      {/* ==================================================
-          MODAL ASIGNAR CLIENTES
-      ================================================== */}
-
       {
-        showClients && selectedRoute && (
+        showClients &&
+        selectedRoute && (
 
           <div className="route-modal">
 
             <div className="route-modal__content route-clients-modal">
+
 
               <div className="route-modal__header">
 
@@ -1182,6 +1779,7 @@ function Routes() {
                     Clientes de la ruta
                   </h2>
 
+
                   <p>
                     {selectedRoute.name}
                   </p>
@@ -1190,12 +1788,23 @@ function Routes() {
 
 
                 <button
+
                   type="button"
+
                   className="route-modal__close"
-                  onClick={handleCloseClients}
-                  disabled={savingClients}
+
+                  onClick={
+                    handleCloseClients
+                  }
+
+                  disabled={
+                    savingClients
+                  }
+
                 >
+
                   ×
+
                 </button>
 
               </div>
@@ -1203,27 +1812,44 @@ function Routes() {
 
               <div className="route-clients__toolbar">
 
+
                 <input
+
                   type="text"
-                  value={clientSearch}
+
+                  value={
+                    clientSearch
+                  }
+
                   onChange={event =>
                     setClientSearch(
                       event.target.value
                     )
                   }
+
                   placeholder="Buscar cliente..."
+
                 />
 
 
                 <button
+
                   type="button"
-                  onClick={handleSelectAll}
+
+                  onClick={
+                    handleSelectAll
+                  }
+
                 >
+
                   {
                     allVisibleSelected
+
                       ? "Deseleccionar todos"
+
                       : "Seleccionar todos"
                   }
+
                 </button>
 
               </div>
@@ -1232,8 +1858,13 @@ function Routes() {
               <div className="route-clients__count">
 
                 <strong>
-                  {selectedClients.length}
+                  {
+                    selectedClients.length
+                  }
                 </strong>
+
+
+                {" "}
 
                 clientes seleccionados
 
@@ -1242,75 +1873,112 @@ function Routes() {
 
               <div className="route-clients__list">
 
+
                 {
-                  filteredClients.length === 0 ? (
+                  filteredClients.length === 0
 
-                    <div className="route-clients__empty">
+                    ? (
 
-                      <h3>
-                        No hay clientes
-                      </h3>
+                      <div className="route-clients__empty">
 
-                      <p>
-                        No encontramos clientes con esa búsqueda.
-                      </p>
+                        <h3>
+                          No hay clientes
+                        </h3>
 
-                    </div>
 
-                  ) : (
+                        <p>
 
-                    filteredClients.map(client => {
+                          No encontramos clientes
+                          con esa búsqueda.
 
-                      const selected =
-                        selectedClients.includes(
-                          client.id
-                        );
+                        </p>
 
-                      return (
+                      </div>
 
-                        <label
-                          className={`route-client ${
-                            selected
-                              ? "route-client--selected"
-                              : ""
-                          }`}
-                          key={client.id}
-                        >
+                    )
 
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={() =>
-                              handleToggleClient(
+                    : (
+
+                      filteredClients.map(
+                        client => {
+
+                          const selected =
+                            selectedClients.includes(
+                              client.id
+                            );
+
+
+                          return (
+
+                            <label
+
+                              className={
+                                `route-client ${
+                                  selected
+                                    ? "route-client--selected"
+                                    : ""
+                                }`
+                              }
+
+                              key={
                                 client.id
-                              )
-                            }
-                          />
+                              }
+
+                            >
+
+                              <input
+
+                                type="checkbox"
+
+                                checked={
+                                  selected
+                                }
+
+                                onChange={() =>
+                                  handleToggleClient(
+                                    client.id
+                                  )
+                                }
+
+                              />
 
 
-                          <div>
+                              <div>
 
-                            <strong>
-                              {client.name}
-                            </strong>
+                                <strong>
+                                  {client.name}
+                                </strong>
 
-                            <span>
-                              {client.document || "Sin documento"}
-                            </span>
 
-                            <span>
-                              {client.phone || "Sin teléfono"}
-                            </span>
+                                <span>
 
-                          </div>
+                                  {
+                                    client.document ||
+                                    "Sin documento"
+                                  }
 
-                        </label>
+                                </span>
 
-                      );
 
-                    })
+                                <span>
 
-                  )
+                                  {
+                                    client.phone ||
+                                    "Sin teléfono"
+                                  }
+
+                                </span>
+
+                              </div>
+
+                            </label>
+
+                          );
+
+                        }
+                      )
+
+                    )
                 }
 
               </div>
@@ -1318,30 +1986,56 @@ function Routes() {
 
               <div className="route-form__actions">
 
+
                 <button
+
                   type="button"
+
                   className="route-form__cancel"
-                  onClick={handleCloseClients}
-                  disabled={savingClients}
+
+                  onClick={
+                    handleCloseClients
+                  }
+
+                  disabled={
+                    savingClients
+                  }
+
                 >
+
                   Cancelar
+
                 </button>
 
 
                 <button
+
                   type="button"
+
                   className="route-form__submit"
-                  onClick={handleSaveClients}
-                  disabled={savingClients}
+
+                  onClick={
+                    handleSaveClients
+                  }
+
+                  disabled={
+                    savingClients
+                  }
+
                 >
+
                   {
                     savingClients
+
                       ? "Guardando..."
+
                       : `Guardar clientes (${selectedClients.length})`
                   }
+
                 </button>
 
               </div>
+
 
             </div>
 
@@ -1351,26 +2045,34 @@ function Routes() {
       }
 
 
-      {/* ==================================================
-          DETALLES DE RUTA
-      ================================================== */}
-
       {
         detailRoute && (
 
           <RouteDetails
-            companyId={companyId}
-            route={detailRoute}
-            onClose={() =>
-              setDetailRoute(null)
+
+            companyId={
+              companyId
             }
+
+            route={
+              detailRoute
+            }
+
+            onClose={() =>
+              setDetailRoute(
+                null
+              )
+            }
+
             onRouteUpdated={
               handleRouteUpdated
             }
+
           />
 
         )
       }
+
 
     </section>
 

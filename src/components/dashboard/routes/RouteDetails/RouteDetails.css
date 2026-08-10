@@ -1,25 +1,56 @@
+
+/* ======================================================
+   OVERLAYS
+====================================================== */
+
 .route-details-overlay,
 .route-visit-modal {
   position: fixed;
   inset: 0;
-  z-index: 110;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
+
   background: rgba(15, 23, 42, .55);
+
   backdrop-filter: blur(5px);
 }
 
+
+/* ======================================================
+   DETALLES DE RUTA
+====================================================== */
+
+.route-details-overlay {
+  z-index: 1000;
+}
+
 .route-details {
+  position: relative;
+  z-index: 1001;
+
   width: min(100%, 900px);
   max-height: calc(100vh - 40px);
+
   overflow: auto;
+
   padding: 28px;
+
   border-radius: 20px;
+
   background: #fff;
-  box-shadow: 0 25px 60px rgba(15, 23, 42, .22);
+
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, .22);
 }
+
+
+/* ======================================================
+   HEADER
+====================================================== */
 
 .route-details__header,
 .route-visit-modal__header {
@@ -37,58 +68,94 @@
 .route-details__header span,
 .route-visit-modal__header p {
   margin: 0;
+
   color: #64748b;
+
   font-size: 13px;
 }
 
 .route-details__header h2,
 .route-visit-modal__header h3 {
   margin: 4px 0;
+
   color: #0f172a;
+
   font-size: 23px;
 }
+
+
+/* ======================================================
+   BOTONES DE CIERRE
+====================================================== */
 
 .route-details__close,
 .route-visit-modal__header button {
   width: 36px;
   height: 36px;
+
   border: 0;
   border-radius: 10px;
+
   background: #f1f5f9;
   color: #475569;
+
   font-size: 24px;
+
   cursor: pointer;
 }
 
+
+/* ======================================================
+   RESUMEN
+====================================================== */
+
 .route-details__summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
   gap: 14px;
+
   margin-bottom: 22px;
 }
 
 .route-details__summary > div {
   padding: 16px;
+
   border: 1px solid #e2e8f0;
+
   border-radius: 13px;
+
   background: #f8fafc;
 }
 
 .route-details__summary span {
   display: block;
+
   margin-bottom: 6px;
+
   color: #64748b;
+
   font-size: 12px;
 }
 
 .route-details__summary strong {
   color: #0f172a;
+
   font-size: 20px;
 }
 
+
+/* ======================================================
+   FILTROS
+====================================================== */
+
 .route-details__toolbar {
   display: flex;
+
   gap: 10px;
+
   margin-bottom: 16px;
 }
 
@@ -98,14 +165,23 @@
 .route-visit-modal label select,
 .route-visit-modal label textarea {
   width: 100%;
+
   box-sizing: border-box;
+
   padding: 11px 12px;
+
   border: 1px solid #cbd5e1;
+
   border-radius: 10px;
+
   outline: none;
+
   background: white;
+
   color: #0f172a;
+
   font: inherit;
+
   font-size: 14px;
 }
 
@@ -115,7 +191,9 @@
 .route-visit-modal label select:focus,
 .route-visit-modal label textarea:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, .08);
 }
 
 .route-details__toolbar input {
@@ -126,45 +204,74 @@
   width: 180px;
 }
 
+
+/* ======================================================
+   LISTA DE VISITAS
+====================================================== */
+
 .route-visit-list {
   display: grid;
+
   gap: 10px;
 }
 
 .route-visit {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) auto auto;
+
+  grid-template-columns:
+    minmax(180px, 1fr)
+    auto
+    auto;
+
   align-items: center;
+
   gap: 18px;
+
   padding: 16px;
+
   border: 1px solid #e2e8f0;
+
   border-radius: 13px;
 }
 
 .route-visit__client,
 .route-visit__result {
   display: grid;
+
   gap: 5px;
 }
 
 .route-visit__client strong,
 .route-visit__result strong {
   color: #1e293b;
+
   font-size: 14px;
 }
 
 .route-visit__client span {
   color: #64748b;
+
   font-size: 12px;
 }
 
+
+/* ======================================================
+   ESTADOS
+====================================================== */
+
 .route-visit__status {
   width: fit-content;
+
   padding: 5px 9px;
+
   border-radius: 999px;
+
   background: #f1f5f9;
+
   color: #475569;
+
   font-size: 11px;
+
   font-weight: 700;
 }
 
@@ -185,107 +292,207 @@
   color: #b45309;
 }
 
+
+/* ======================================================
+   BOTÓN VISITA
+====================================================== */
+
 .route-visit__action,
 .route-visit-modal__actions button {
   border: none;
+
   border-radius: 10px;
+
   padding: 10px 13px;
+
   background: #eff6ff;
+
   color: #2563eb;
+
   font: inherit;
+
   font-size: 13px;
+
   font-weight: 700;
+
   cursor: pointer;
 }
+
+
+/* ======================================================
+   ESTADOS VACÍOS / LOADING
+====================================================== */
 
 .route-details__loading,
 .route-details__empty {
   padding: 36px 20px;
+
   border: 1px dashed #cbd5e1;
+
   border-radius: 12px;
+
   color: #64748b;
+
   text-align: center;
 }
 
+
+/* ======================================================
+   MODAL DE REGISTRO DE VISITA
+====================================================== */
+
+/*
+   IMPORTANTE:
+   Este modal debe estar por encima de absolutamente
+   todo lo relacionado con Leaflet.
+*/
+
 .route-visit-modal {
-  z-index: 120;
+  z-index: 9999;
+
+  isolation: isolate;
 }
 
 .route-visit-modal__content {
+  position: relative;
+
+  z-index: 10000;
+
   width: min(100%, 520px);
+
   max-height: calc(100vh - 40px);
+
   overflow-y: auto;
+
   padding: 26px;
+
   border-radius: 18px;
+
   background: white;
-  box-shadow: 0 25px 60px rgba(15, 23, 42, .24);
+
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, .24);
 }
+
+
+/* ======================================================
+   HEADER MODAL VISITA
+====================================================== */
 
 .route-visit-modal__header {
   margin-bottom: 22px;
 }
 
+
+/* ======================================================
+   FORMULARIO
+====================================================== */
+
 .route-visit-modal label {
   display: grid;
+
   gap: 7px;
+
   margin-bottom: 15px;
+
   color: #334155;
+
   font-size: 13px;
+
   font-weight: 700;
 }
 
 .route-visit-modal label textarea {
   min-height: 84px;
+
   resize: vertical;
 }
 
+
+/* ======================================================
+   FILA DOBLE
+====================================================== */
+
 .route-visit-modal__row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
   gap: 14px;
 }
 
+
+/* ======================================================
+   ADVERTENCIA
+====================================================== */
+
 .route-visit-modal__warning {
   margin: -4px 0 16px;
+
   padding: 10px 12px;
+
   border-radius: 10px;
+
   background: #fef3c7;
+
   color: #92400e;
+
   font-size: 13px;
 }
 
+
+/* ======================================================
+   ACCIONES
+====================================================== */
+
 .route-visit-modal__actions {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
+
   margin-top: 22px;
 }
 
 .route-visit-modal__actions button:first-child {
   background: #f1f5f9;
+
   color: #334155;
 }
 
 .route-visit-modal__actions button:last-child {
   background: #2563eb;
+
   color: white;
 }
 
 .route-visit-modal__actions button:disabled {
   cursor: not-allowed;
+
   opacity: .65;
 }
 
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
 @media (max-width: 620px) {
+
   .route-details-overlay,
   .route-visit-modal {
     align-items: flex-start;
+
     padding: 14px;
   }
 
   .route-details,
   .route-visit-modal__content {
     max-height: calc(100vh - 28px);
+
     padding: 20px;
   }
 

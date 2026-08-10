@@ -188,7 +188,7 @@ function CreditTable({
 
                     >
 
-                      <Eye size={18}/>
+                      <Eye size={23}/>
 
                     </button>
 
@@ -202,7 +202,7 @@ function CreditTable({
 
                     >
 
-                      <Pencil size={18}/>
+                      <Pencil size={23}/>
 
                     </button>
 
@@ -216,7 +216,7 @@ function CreditTable({
 
                     >
 
-                      <Trash2 size={18}/>
+                      <Trash2 size={23}/>
 
                     </button>
 

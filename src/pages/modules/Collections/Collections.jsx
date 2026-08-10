@@ -1,816 +1,886 @@
 import {
   useEffect,
+  useMemo,
   useState
 } from "react";
 
+import {
+  useNavigate
+} from "react-router-dom";
 
 import {
-  Wallet,
-  Users,
   AlertTriangle,
-  Clock,
-  Plus
+  CalendarClock,
+  CheckCircle2,
+  Clock3,
+  DollarSign,
+  Phone,
+  Route,
+  Search,
+  UserRound
 } from "lucide-react";
-
 
 import {
   useAuth
 } from "../../../context/AuthContext";
 
-
 import {
   getUserProfile
 } from "../services/company/companyService";
-
-
-import {
-  getTodayCollections,
-  getPendingCollections,
-  getOverdueCollections
-} from "../services/collection/collectionService";
-
-
-import {
-  getFollowUps,
-  createFollowUp
-} from "../services/collection/collectionFollowUpService";
-
 
 import {
   getClients
 } from "../services/clients/clientService";
 
+import {
+  getCredits
+} from "../services/credit/creditService";
 
-import CollectionTable from "../../../components/dashboard/CollectionTable/CollectionTable";
+import {
+  getAllCompanyPayments
+} from "../services/payment/paymentGlobalService";
 
-import CollectionSummary from "../../../components/dashboard/CollectionSummary/CollectionSummary";
+import {
+  getRoutes
+} from "../services/routes/routeService";
 
-import CollectionFollowUp from "../../../components/dashboard/CollectionFollowUp/CollectionFollowUp";
-
-import CreateFollowUpModal from "../../../components/dashboard/CreateFollowUpModal/CreateFollowUpModal";
-
+import {
+  analyzeCollectionPortfolio
+} from "../services/collection/collectionIntelligenceService";
 
 import "./Collections.css";
 
 
+const PRIORITY_FILTERS = [
+  "Todos",
+  "Alta",
+  "Media",
+  "Baja"
+];
 
 
-function Collections() {
+function formatMoney(value) {
 
+  return `$${Number(
+    value || 0
+  ).toLocaleString("es-CO")}`;
 
-  const { user } = useAuth();
+}
 
 
+function formatDate(value) {
 
-  const [collections,setCollections] = useState([]);
-
-  const [today,setToday] = useState([]);
-
-  const [overdue,setOverdue] = useState([]);
-
-  const [followUps,setFollowUps] = useState([]);
-
-  const [clients,setClients] = useState([]);
-
-  const [companyId,setCompanyId] = useState(null);
-
-
-  const [loading,setLoading] = useState(true);
-
-  const [showModal,setShowModal] = useState(false);
-
-
-  const [search,setSearch] = useState("");
-
-  const [filter,setFilter] = useState("Todos");
-
-
-
-
-
-
-
-
-  async function loadCollections(id){
-
-
-    try{
-
-
-      const [
-
-        pendingData,
-
-        todayData,
-
-        overdueData,
-
-        followUpData,
-
-        clientsData
-
-
-      ] = await Promise.all([
-
-
-
-        getPendingCollections(id),
-
-
-
-        getTodayCollections(id),
-
-
-
-        getOverdueCollections(id),
-
-
-
-        getFollowUps(id),
-
-
-
-        getClients(id)
-
-
-
-      ]);
-
-
-
-
-      console.log(
-
-        "CLIENTES PARA MODAL:",
-
-        clientsData
-
-      );
-
-
-
-
-
-      setCollections(pendingData);
-
-      setToday(todayData);
-
-      setOverdue(overdueData);
-
-      setFollowUps(followUpData);
-
-      setClients(clientsData);
-
-
-
-    }catch(error){
-
-
-      console.error(
-
-        "Error cargando datos cobranza",
-
-        error
-
-      );
-
-
-    }
-
-
+  if (!value) {
+    return "Sin fecha";
   }
 
+  const date =
+    value?.toDate
+      ? value.toDate()
+      : new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "Sin fecha";
+  }
+
+  return date.toLocaleDateString(
+    "es-CO"
+  );
+
+}
 
 
+function Collection() {
+
+  const {
+    user
+  } = useAuth();
+
+  const navigate =
+    useNavigate();
 
 
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
 
+  const [
+    analysis,
+    setAnalysis
+  ] = useState(null);
 
 
-  useEffect(()=>{
+  const [
+    routes,
+    setRoutes
+  ] = useState([]);
 
 
-    async function init(){
+  const [
+    search,
+    setSearch
+  ] = useState("");
 
 
-      try{
+  const [
+    priority,
+    setPriority
+  ] = useState("Todos");
 
 
-        if(!user) return;
+  useEffect(() => {
+
+    async function loadCollection() {
+
+      if (!user) {
+        return;
+      }
+
+      try {
+
+        setLoading(true);
 
 
+        const profile =
+          await getUserProfile(
+            user.uid
+          );
 
-        const profile = await getUserProfile(
 
-          user.uid
+        if (!profile?.companyId) {
+          return;
+        }
 
+
+        const companyId =
+          profile.companyId;
+
+
+        const [
+          clients,
+          credits,
+          payments,
+          companyRoutes
+        ] = await Promise.all([
+
+          getClients(
+            companyId
+          ),
+
+          getCredits(
+            companyId
+          ),
+
+          getAllCompanyPayments(
+            companyId
+          ),
+
+          getRoutes(
+            companyId
+          )
+
+        ]);
+
+
+        const result =
+          analyzeCollectionPortfolio({
+
+            clients,
+            credits,
+            payments
+
+          });
+
+
+        setAnalysis(result);
+
+        setRoutes(
+          companyRoutes
         );
 
 
-
-        if(!profile?.companyId) return;
-
-
-
-        setCompanyId(
-
-          profile.companyId
-
-        );
-
-
-
-        await loadCollections(
-
-          profile.companyId
-
-        );
-
-
-
-      }catch(error){
-
+      } catch (error) {
 
         console.error(
-
+          "Error cargando motor de cobranza:",
           error
-
         );
 
-
-      }finally{
-
+      } finally {
 
         setLoading(false);
 
+      }
 
+    }
+
+
+    loadCollection();
+
+  }, [user]);
+
+
+  const filteredAnalysis =
+    useMemo(() => {
+
+      if (!analysis) {
+        return [];
       }
 
 
+      const value =
+        search
+          .toLowerCase()
+          .trim();
+
+
+      return analysis.analysis.filter(
+        item => {
+
+          const matchesPriority =
+            priority === "Todos" ||
+            item.priority === priority;
+
+
+          const matchesSearch =
+            !value ||
+            item.clientName
+              ?.toLowerCase()
+              .includes(value);
+
+
+          return (
+            matchesPriority &&
+            matchesSearch
+          );
+
+        }
+      );
+
+    }, [
+      analysis,
+      priority,
+      search
+    ]);
+
+
+  function getClientRoute(
+    clientId
+  ) {
+
+    if (!clientId) {
+      return null;
     }
 
 
+    return routes.find(
+      route =>
 
-    init();
+        Array.isArray(
+          route.clientIds
+        ) &&
 
+        route.clientIds.some(
+          id =>
+            String(id) ===
+            String(clientId)
+        )
 
-
-  },[user]);
-
-
-
-
-
-
-
-
-
-
-
-  async function handleCreateFollowUp(data){
-
-
-    try{
-
-
-      if(!companyId) return;
-
-
-
-      await createFollowUp({
-
-
-        ...data,
-
-
-        companyId
-
-
-
-      });
-
-
-
-      await loadCollections(
-
-        companyId
-
-      );
-
-
-
-      setShowModal(false);
-
-
-
-    }catch(error){
-
-
-      console.error(
-
-        "Error creando seguimiento",
-
-        error
-
-      );
-
-
-    }
-
+    ) || null;
 
   }
 
 
+  function handleOpenClient(
+    clientId
+  ) {
+
+    if (!clientId) {
+      return;
+    }
 
 
+    navigate(
+      "/clientes",
+      {
+        state: {
+          clientId
+        }
+      }
+    );
+
+  }
 
 
+  function handleOpenRoute(
+    clientId
+  ) {
+
+    const route =
+      getClientRoute(
+        clientId
+      );
 
 
+    if (!route) {
+      return;
+    }
 
-  if(loading){
 
+    navigate(
+      "/rutas",
+      {
+        state: {
+          routeId: route.id
+        }
+      }
+    );
+
+  }
+
+
+  if (loading) {
 
     return (
 
-      <section className="collections">
+      <section className="collection">
 
-        <h2>
+        <div className="collection__loading">
 
-          Cargando cobranza...
+          Analizando cartera...
 
-        </h2>
+        </div>
 
       </section>
 
     );
 
+  }
+
+
+  if (!analysis) {
+
+    return (
+
+      <section className="collection">
+
+        <div className="collection__empty">
+
+          No fue posible analizar la cartera.
+
+        </div>
+
+      </section>
+
+    );
 
   }
 
 
-
-
-
-
-
-
-
-
-
-  const filteredCollections = collections.filter((item)=>{
-
-
-    const clientName =
-
-      item.client
-
-      ?.toLowerCase()
-
-      || "";
-
-
-
-    const matchesSearch =
-
-      clientName.includes(
-
-        search.toLowerCase()
-
-      );
-
-
-
-    const matchesFilter =
-
-      filter === "Todos"
-
-      ||
-
-      item.status === filter;
-
-
-
-    return (
-
-      matchesSearch &&
-
-      matchesFilter
-
-    );
-
-
-  });
-
-
-
-
-
-
-
-
-
-
-
-  const totalToday = today.reduce(
-
-    (total,item)=>
-
-      total + Number(item.amount || 0),
-
-    0
-
-  );
-
-
-
-
-
-
-
-
-
-
-
-
-  const stats = [
-
-
-    {
-
-      title:"Cobros de hoy",
-
-      value:`$${totalToday.toLocaleString()}`,
-
-      icon:Wallet,
-
-      color:"green"
-
-    },
-
-
-    {
-
-      title:"Clientes pendientes",
-
-      value:collections.length,
-
-      icon:Users,
-
-      color:"blue"
-
-    },
-
-
-    {
-
-      title:"En mora",
-
-      value:overdue.length,
-
-      icon:AlertTriangle,
-
-      color:"orange"
-
-    },
-
-
-    {
-
-      title:"Promesas de pago",
-
-      value:collections.filter(
-
-        item =>
-
-        item.status === "Promesa de pago"
-
-      ).length,
-
-      icon:Clock,
-
-      color:"purple"
-
-    }
-
-
-  ];
-
-
-
-
-
-
-
-
-  const filters = [
-
-    "Todos",
-
-    "Pendiente",
-
-    "Contactado",
-
-    "Promesa de pago",
-
-    "Pagado",
-
-    "No localizado"
-
-  ];
-
-
-
-
-
-
-
+  const {
+    totals
+  } = analysis;
 
 
   return (
 
-
-    <section className="collections">
-
+    <section className="collection">
 
 
-
-
-      <div className="collections__header">
-
+      <header className="collection__header">
 
         <div>
+
+          <span className="collection__eyebrow">
+
+            INTELIGENCIA DE COBRANZA
+
+          </span>
 
 
           <h1>
 
-            Cobranza
+            Motor de Cobranza
 
           </h1>
 
 
           <p>
 
-            Gestiona los cobros pendientes y seguimiento de clientes.
+            Prioriza automáticamente los clientes
+            que requieren atención.
 
           </p>
-
 
         </div>
 
 
+        <div className="collection__header-icon">
+
+          <AlertTriangle size={28} />
+
+        </div>
+
+      </header>
 
 
-
-        <button
-
-          className="collections__add"
-
-          onClick={()=>setShowModal(true)}
-
-        >
-
-          <Plus size={20}/>
-
-          Nuevo seguimiento
+      <div className="collection__stats">
 
 
-        </button>
+        <article className="collection-stat collection-stat--danger">
 
+          <div className="collection-stat__icon">
+
+            <AlertTriangle size={21} />
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Cobranza prioritaria
+            </span>
+
+
+            <strong>
+              {totals.highPriority}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article className="collection-stat collection-stat--warning">
+
+          <div className="collection-stat__icon">
+
+            <Clock3 size={21} />
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Atención media
+            </span>
+
+
+            <strong>
+              {totals.mediumPriority}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article className="collection-stat collection-stat--money">
+
+          <div className="collection-stat__icon">
+
+            <DollarSign size={21} />
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Saldo vencido
+            </span>
+
+
+            <strong>
+
+              {formatMoney(
+                totals.overdue
+              )}
+
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article className="collection-stat collection-stat--info">
+
+          <div className="collection-stat__icon">
+
+            <CalendarClock size={21} />
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Próximos 3 días
+            </span>
+
+
+            <strong>
+              {totals.dueSoonCount}
+            </strong>
+
+          </div>
+
+        </article>
 
 
       </div>
 
 
+      <div className="collection__insight">
+
+        <div className="collection__insight-icon">
+
+          <CheckCircle2 size={22} />
+
+        </div>
 
 
+        <div>
+
+          <strong>
+            Recomendación del sistema
+          </strong>
 
 
+          <p>
 
+            {
+              totals.highPriority > 0
 
+                ? `Hay ${totals.highPriority} clientes que deberían ser atendidos primero.`
 
-      <CollectionSummary
+                : totals.dueSoonCount > 0
 
-        collections={collections}
+                  ? `No hay casos críticos. Hay ${totals.dueSoonCount} clientes próximos a vencer.`
 
-      />
+                  : "La cartera no presenta situaciones prioritarias en este momento."
 
+            }
 
+          </p>
 
-
-
-
-
-
-
-      <div className="collections__stats">
-
-
-        {
-
-          stats.map((item)=>{
-
-
-            const Icon = item.icon;
-
-
-
-            return (
-
-
-              <div
-
-                className="collection-stat"
-
-                key={item.title}
-
-              >
-
-
-                <div
-
-                  className={`collection-stat__icon ${item.color}`}
-
-                >
-
-                  <Icon size={24}/>
-
-
-                </div>
-
-
-
-                <div>
-
-
-                  <span>
-
-                    {item.title}
-
-                  </span>
-
-
-
-                  <h2>
-
-                    {item.value}
-
-                  </h2>
-
-
-                </div>
-
-
-
-              </div>
-
-
-            );
-
-
-          })
-
-
-        }
-
+        </div>
 
       </div>
 
 
+      <div className="collection__toolbar">
 
 
+        <div className="collection__search">
 
+          <Search size={18} />
 
 
+          <input
 
+            type="search"
 
-      <div className="collections__filters">
+            placeholder="Buscar cliente..."
 
+            value={search}
 
-        <input
-
-          type="text"
-
-          placeholder="Buscar cliente..."
-
-          value={search}
-
-          onChange={(e)=>
-
-            setSearch(e.target.value)
-
-          }
-
-        />
-
-
-
-        <select
-
-          value={filter}
-
-          onChange={(e)=>
-
-            setFilter(e.target.value)
-
-          }
-
-        >
-
-
-          {
-
-            filters.map(item=>(
-
-              <option
-
-                key={item}
-
-                value={item}
-
-              >
-
-                {item}
-
-              </option>
-
-            ))
-
-          }
-
-
-        </select>
-
-
-      </div>
-
-
-
-
-
-
-
-
-      <CollectionFollowUp
-
-        followUps={followUps}
-
-      />
-
-
-
-
-
-
-
-
-      <CollectionTable
-
-        collections={filteredCollections}
-
-      />
-
-
-
-
-
-
-
-
-      {
-
-        showModal && (
-
-
-          <CreateFollowUpModal
-
-            clients={clients}
-
-            onClose={()=>setShowModal(false)}
-
-            onSave={handleCreateFollowUp}
+            onChange={event =>
+              setSearch(
+                event.target.value
+              )
+            }
 
           />
 
-
-        )
-
-
-      }
+        </div>
 
 
+        <div className="collection__filters">
+
+          {
+            PRIORITY_FILTERS.map(
+              item => (
+
+                <button
+
+                  key={item}
+
+                  type="button"
+
+                  className={
+                    priority === item
+                      ? "active"
+                      : ""
+                  }
+
+                  onClick={() =>
+                    setPriority(
+                      item
+                    )
+                  }
+
+                >
+
+                  {item}
+
+                </button>
+
+              )
+            )
+          }
+
+        </div>
+
+      </div>
 
 
+      <div className="collection__content">
 
+
+        <div className="collection__content-header">
+
+          <div>
+
+            <h2>
+              Clientes a gestionar
+            </h2>
+
+
+            <span>
+
+              {filteredAnalysis.length}
+              {" "}
+              resultados
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {
+          filteredAnalysis.length === 0
+
+            ? (
+
+              <div className="collection__no-results">
+
+                <UserRound size={30} />
+
+                <p>
+
+                  No hay clientes que coincidan
+                  con los filtros.
+
+                </p>
+
+              </div>
+
+            )
+
+            : (
+
+              <div className="collection__list">
+
+                {
+                  filteredAnalysis.map(
+                    item => {
+
+                      const clientRoute =
+                        getClientRoute(
+                          item.clientId
+                        );
+
+
+                      return (
+
+                        <article
+
+                          key={item.creditId}
+
+                          className={
+                            `collection-card collection-card--${item.priority.toLowerCase()}`
+                          }
+
+                        >
+
+                          <div className="collection-card__priority">
+
+                            <span>
+                              {item.priority}
+                            </span>
+
+
+                            <strong>
+                              {item.score}
+                            </strong>
+
+                          </div>
+
+
+                          <div className="collection-card__client">
+
+                            <div className="collection-card__avatar">
+
+                              {item.clientName
+                                ?.charAt(0)
+                                ?.toUpperCase() || "C"}
+
+                            </div>
+
+
+                            <div>
+
+                              <h3>
+                                {item.clientName}
+                              </h3>
+
+
+                              <span>
+
+                                <Phone size={13} />
+
+                                {item.phone ||
+                                  "Sin teléfono"}
+
+                              </span>
+
+                            </div>
+
+                          </div>
+
+
+                          <div className="collection-card__balance">
+
+                            <span>
+                              Saldo pendiente
+                            </span>
+
+
+                            <strong>
+
+                              {formatMoney(
+                                item.balance
+                              )}
+
+                            </strong>
+
+                          </div>
+
+
+                          <div className="collection-card__date">
+
+                            <span>
+
+                              <CalendarClock size={15} />
+
+                              Próximo pago
+
+                            </span>
+
+
+                            <strong>
+
+                              {formatDate(
+                                item.nextPaymentDate
+                              )}
+
+                            </strong>
+
+                          </div>
+
+
+                          <div className="collection-card__reason">
+
+                            <span>
+                              {item.reason}
+                            </span>
+
+                          </div>
+
+
+                          <div className="collection-card__actions">
+
+                            <button
+
+                              type="button"
+
+                              onClick={() =>
+                                handleOpenClient(
+                                  item.clientId
+                                )
+                              }
+
+                              disabled={!item.clientId}
+
+                            >
+
+                              <UserRound size={16} />
+
+                              Cliente
+
+                            </button>
+
+
+                            <button
+
+                              type="button"
+
+                              onClick={() =>
+                                handleOpenRoute(
+                                  item.clientId
+                                )
+                              }
+
+                              disabled={!clientRoute}
+
+                              title={
+                                clientRoute
+                                  ? `Abrir ${clientRoute.name}`
+                                  : "Este cliente no pertenece a ninguna ruta"
+                              }
+
+                            >
+
+                              <Route size={16} />
+
+                              Ruta
+
+                            </button>
+
+                          </div>
+
+                        </article>
+
+                      );
+
+                    }
+                  )
+                }
+
+              </div>
+
+            )
+        }
+
+      </div>
 
     </section>
-
 
   );
 
 }
 
 
-
-export default Collections;
+export default Collection;

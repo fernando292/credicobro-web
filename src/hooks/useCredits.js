@@ -26,6 +26,10 @@ import {
   removeCredit
 } from "../pages/modules/services/credit/creditService";
 
+import {
+  notifyCreditCreated
+} from "../pages/modules/services/notifications/notificationEvents";
+
 
 
 
@@ -241,13 +245,16 @@ function useCredits(){
 
 
 
-        const newCredit = await createCredit(
+        await notifyCreditCreated({
 
           companyId,
 
-          credit
+          client: client?.name || "Cliente",
 
-        );
+          amount: credit.amount
+
+
+        });
 
 
 

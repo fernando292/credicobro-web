@@ -1,0 +1,269 @@
+.intelligence {
+  width: 100%;
+  padding: 28px;
+}
+
+
+.intelligence__header {
+  margin-bottom: 28px;
+}
+
+
+.intelligence__eyebrow {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  color: #2563eb;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.08em;
+}
+
+
+.intelligence__header h1 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 30px;
+
+  font-weight: 800;
+}
+
+
+.intelligence__header p {
+  max-width: 700px;
+
+  margin: 10px 0 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* ======================================================
+   SUMMARY
+====================================================== */
+
+.intelligence__summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 30px;
+}
+
+
+.intelligence__card {
+  padding: 22px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 4px 14px rgba(
+      15,
+      23,
+      42,
+      0.04
+    );
+}
+
+
+.intelligence__card span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.intelligence__card strong {
+  color: #0f172a;
+
+  font-size: 24px;
+
+  font-weight: 800;
+}
+
+
+/* ======================================================
+   SECTION
+====================================================== */
+
+.intelligence__section {
+  padding: 24px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 18px;
+
+  background: #ffffff;
+}
+
+
+.intelligence__section-header {
+  margin-bottom: 24px;
+}
+
+
+.intelligence__section-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+
+.intelligence__section-header p {
+  margin: 6px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+
+/* ======================================================
+   EMPTY / FUTURE ENGINE
+====================================================== */
+
+.intelligence__empty {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 260px;
+
+  padding: 30px;
+
+  border: 1px dashed #cbd5e1;
+
+  border-radius: 16px;
+
+  background: #f8fafc;
+
+  text-align: center;
+}
+
+
+.intelligence__empty-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 56px;
+
+  height: 56px;
+
+  margin-bottom: 14px;
+
+  border-radius: 14px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 15px;
+
+  font-weight: 800;
+}
+
+
+.intelligence__empty h3 {
+  margin: 0 0 8px;
+
+  color: #0f172a;
+
+  font-size: 17px;
+}
+
+
+.intelligence__empty p {
+  max-width: 560px;
+
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+
+/* ======================================================
+   LOADING
+====================================================== */
+
+.intelligence__loading {
+  padding: 40px;
+
+  color: #64748b;
+
+  text-align: center;
+
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 900px) {
+
+  .intelligence__summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .intelligence {
+    padding: 18px;
+  }
+
+
+  .intelligence__summary {
+    grid-template-columns: 1fr;
+  }
+
+
+  .intelligence__header h1 {
+    font-size: 24px;
+  }
+
+}

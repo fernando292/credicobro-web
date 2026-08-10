@@ -1,217 +1,312 @@
-.notification-center{
 
-    background:white;
-
-    border-radius:20px;
-
-    border:1px solid #e2e8f0;
-
-    padding:20px;
-
-    margin-bottom:25px;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.04);
-
+.notification-center {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 25px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
-.notification-center__header{
 
-    display:flex;
+/* ======================================================
+   ENCABEZADO
+====================================================== */
 
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:18px;
-
+.notification-center__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.notification-center__title{
 
-    display:flex;
-
-    align-items:center;
-
-    gap:12px;
-
+.notification-center__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: #2563eb;
 }
 
-.notification-center__title h3{
 
-    margin:0;
-
-    font-size:18px;
-
-    font-weight:600;
-
+.notification-center__title > div {
+  min-width: 0;
 }
 
-.notification-center__title span{
 
-    display:block;
-
-    margin-top:2px;
-
-    font-size:13px;
-
-    color:#64748b;
-
+.notification-center__title h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
 }
 
-.notification-center__toggle{
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:36px;
-
-    height:36px;
-
-    border:none;
-
-    border-radius:10px;
-
-    background:#f8fafc;
-
-    cursor:pointer;
-
-    transition:.2s;
-
+.notification-center__title span {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 13px;
 }
 
-.notification-center__toggle:hover{
 
-    background:#e2e8f0;
+/* ======================================================
+   BOTÓN MOSTRAR / OCULTAR
+====================================================== */
 
+.notification-center__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.notification-center__list{
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:12px;
-
-    max-height:420px;
-
-    overflow-y:auto;
-
-    padding-right:6px;
-
+.notification-center__toggle:hover {
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-.notification-center__list::-webkit-scrollbar{
 
-    width:6px;
+/* ======================================================
+   LISTA
+====================================================== */
 
+.notification-center__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  padding-right: 6px;
+  overflow-y: auto;
 }
 
-.notification-center__list::-webkit-scrollbar-thumb{
 
-    background:#cbd5e1;
-
-    border-radius:20px;
-
+.notification-center__list::-webkit-scrollbar {
+  width: 6px;
 }
 
-.notification-card{
 
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:flex-start;
-
-    gap:15px;
-
-    padding:14px;
-
-    border-radius:12px;
-
-    border:1px solid #e2e8f0;
-
-    transition:.2s;
-
+.notification-center__list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.notification-card:hover{
 
-    background:#f8fafc;
-
+.notification-center__list::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  background: #cbd5e1;
 }
 
-.notification-card.read{
 
-    opacity:.6;
-
+.notification-center__list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-.notification-card strong{
 
-    display:block;
+/* ======================================================
+   TARJETA
+====================================================== */
 
-    margin-bottom:5px;
-
+.notification-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
 }
 
-.notification-card p{
 
-    margin:0;
-
-    color:#64748b;
-
-    font-size:14px;
-
-    line-height:1.4;
-
+.notification-card:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
 }
 
-.notification-card button{
 
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    width:34px;
-
-    height:34px;
-
-    border:none;
-
-    border-radius:8px;
-
-    background:#ecfdf5;
-
-    color:#16a34a;
-
-    cursor:pointer;
-
-    transition:.2s;
-
-    flex-shrink:0;
-
+.notification-card.read {
+  opacity: 0.6;
 }
 
-.notification-card button:hover{
 
-    background:#16a34a;
-
-    color:white;
-
+.notification-card__content {
+  min-width: 0;
+  flex: 1;
 }
 
-.notification-center__empty{
 
-    text-align:center;
+.notification-card strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+}
 
-    color:#94a3b8;
 
-    padding:40px 0;
+.notification-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+
+/* ======================================================
+   MARCAR COMO LEÍDA
+====================================================== */
+
+.notification-card__read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #16a34a;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.notification-card__read:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+
+/* ======================================================
+   ESTADO VACÍO
+====================================================== */
+
+.notification-center__empty {
+  margin: 0;
+  padding: 40px 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   PIE / LIMPIAR HISTORIAL
+====================================================== */
+
+.notification-center__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+
+.notification-center__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid #ef4444;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #ef4444;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.notification-center__clear:hover {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 620px) {
+
+  .notification-center {
+    margin-bottom: 18px;
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+
+  .notification-center__header {
+    margin-bottom: 14px;
+  }
+
+
+  .notification-center__title h3 {
+    font-size: 16px;
+  }
+
+
+  .notification-center__list {
+    max-height: 350px;
+  }
+
+
+  .notification-card {
+    gap: 10px;
+    padding: 12px;
+  }
+
+
+  .notification-card p {
+    font-size: 13px;
+  }
+
+
+  .notification-center__footer {
+    justify-content: stretch;
+  }
+
+
+  .notification-center__clear {
+    width: 100%;
+  }
 
 }

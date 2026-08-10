@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import {
@@ -16,71 +17,113 @@ import {
 
 import "./NotificationCenter.css";
 
+
 function NotificationCenter({ companyId }) {
 
   const [notifications, setNotifications] = useState([]);
   const [collapsed, setCollapsed] = useState(false);
 
+
   useEffect(() => {
 
     async function loadNotifications() {
 
-      if (!companyId) return;
+      if (!companyId) {
+        return;
+      }
 
-      const data = await getNotifications(companyId);
+      try {
 
-      setNotifications(data);
+        const data =
+          await getNotifications(companyId);
+
+        setNotifications(data);
+
+      } catch (error) {
+
+        console.error(
+          "Error cargando notificaciones:",
+          error
+        );
+
+      }
 
     }
+
 
     loadNotifications();
 
   }, [companyId]);
 
 
-
   async function handleRead(notificationId) {
 
-    await markNotificationAsRead(notificationId);
+    try {
 
-    setNotifications(prev =>
+      await markNotificationAsRead(
+        notificationId
+      );
 
-      prev.map(item =>
+      setNotifications(
+        previous =>
+          previous.map(item =>
+            item.id === notificationId
+              ? {
+                  ...item,
+                  read: true
+                }
+              : item
+          )
+      );
 
-        item.id === notificationId
+    } catch (error) {
 
-          ? { ...item, read: true }
+      console.error(
+        "Error marcando notificación:",
+        error
+      );
 
-          : item
-
-      )
-
-    );
+    }
 
   }
-
 
 
   async function handleClearHistory() {
 
-    const confirmDelete = window.confirm(
+    const confirmDelete =
+      window.confirm(
+        "¿Deseas eliminar todo el historial de notificaciones?"
+      );
 
-      "¿Deseas eliminar todo el historial de notificaciones?"
+    if (!confirmDelete) {
+      return;
+    }
 
-    );
 
-    if (!confirmDelete) return;
+    try {
 
-    await clearNotifications(companyId);
+      await clearNotifications(
+        companyId
+      );
 
-    setNotifications([]);
+      setNotifications([]);
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando historial:",
+        error
+      );
+
+    }
 
   }
 
 
-
-  const unread = notifications.filter(item => !item.read).length;
-
+  const unread =
+    notifications.filter(
+      item => !item.read
+    ).length;
 
 
   return (
@@ -95,156 +138,173 @@ function NotificationCenter({ companyId }) {
 
           <div>
 
-            <h3>Notificaciones</h3>
+            <h3>
+              Notificaciones
+            </h3>
 
-            <span>{unread} pendientes</span>
+            <span>
+              {unread} pendientes
+            </span>
 
           </div>
 
         </div>
 
+
         <button
+
+          type="button"
 
           className="notification-center__toggle"
 
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() =>
+            setCollapsed(
+              previous => !previous
+            )
+          }
+
+          aria-label={
+            collapsed
+              ? "Mostrar notificaciones"
+              : "Ocultar notificaciones"
+          }
 
         >
 
           {
-
             collapsed
-
               ? <ChevronDown size={18} />
-
               : <ChevronUp size={18} />
-
           }
 
         </button>
 
       </div>
 
-      {
 
-        !collapsed && (
+      {!collapsed && (
 
-          <>
+        <>
 
-            <div className="notification-center__list">
+          <div className="notification-center__list">
 
-              {
+            {
+              notifications.length === 0
 
-                notifications.length === 0
+                ? (
 
-                  ? (
+                  <p className="notification-center__empty">
 
-                    <p className="notification-center__empty">
+                    No hay notificaciones.
 
-                      No hay notificaciones.
+                  </p>
 
-                    </p>
+                )
 
-                  )
+                : (
 
-                  : (
+                  notifications.map(item => (
 
-                    notifications.map(item => (
+                    <div
 
-                      <div
+                      key={item.id}
 
-                        key={item.id}
+                      className={
+                        `notification-card ${
+                          item.read
+                            ? "read"
+                            : ""
+                        }`
+                      }
 
-                        className={`notification-card ${item.read ? "read" : ""}`}
+                    >
 
-                      >
+                      <div className="notification-card__content">
 
-                        <div>
+                        <strong>
+                          {item.title}
+                        </strong>
 
-                          <strong>{item.title}</strong>
-
-                          <p>{item.message}</p>
-
-                        </div>
-
-                        {
-
-                          !item.read && (
-
-                            <button
-
-                              onClick={() => handleRead(item.id)}
-
-                            >
-
-                              <CheckCircle2 size={18} />
-
-                            </button>
-
-                          )
-
-                        }
+                        <p>
+                          {item.message}
+                        </p>
 
                       </div>
 
-                    ))
 
-                  )
+                      {!item.read && (
 
-              }
+                        <button
+
+                          type="button"
+
+                          className="notification-card__read"
+
+                          onClick={() =>
+                            handleRead(
+                              item.id
+                            )
+                          }
+
+                          aria-label="Marcar como leída"
+
+                        >
+
+                          <CheckCircle2
+                            size={18}
+                          />
+
+                        </button>
+
+                      )}
+
+                    </div>
+
+                  ))
+
+                )
+            }
+
+          </div>
+
+
+          {notifications.length > 0 && (
+
+            <div className="notification-center__footer">
+
+              <button
+
+                type="button"
+
+                className="notification-center__clear"
+
+                onClick={
+                  handleClearHistory
+                }
+
+              >
+
+                <Trash2 size={18} />
+
+                <span>
+                  Limpiar historial
+                </span>
+
+              </button>
 
             </div>
 
-            {
+          )}
 
-              notifications.length > 0 && (
+        </>
 
-                <div
-                  style={{
-                    marginTop: "18px",
-                    display: "flex",
-                    justifyContent: "flex-end"
-                  }}
-                >
-
-                  <button
-                    onClick={handleClearHistory}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                      padding: "10px 16px",
-                      borderRadius: "10px",
-                      border: "1px solid #ef4444",
-                      background: "white",
-                      color: "#ef4444",
-                      cursor: "pointer",
-                      fontWeight: 600
-                    }}
-                  >
-
-                    <Trash2 size={18} />
-
-                    Limpiar historial
-
-                  </button>
-
-                </div>
-
-              )
-
-            }
-
-          </>
-
-        )
-
-      }
+      )}
 
     </div>
 
   );
 
 }
+
 
 export default NotificationCenter;

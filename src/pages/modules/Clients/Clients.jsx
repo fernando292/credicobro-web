@@ -1,19 +1,20 @@
-
 import {
   useEffect,
   useState
 } from "react";
 
+import {
+  useLocation,
+  useNavigate
+} from "react-router-dom";
 
 import {
   useAuth
 } from "../../../context/AuthContext";
 
-
 import {
   getUserProfile
 } from "../services/company/companyService";
-
 
 import {
   getClients,
@@ -22,76 +23,110 @@ import {
   removeClient
 } from "../services/clients/clientService";
 
-
 import {
   geocodeClientAddress
 } from "../services/maps/geocodingService";
-
 
 import ClientTable from "../../../components/clients/ClientTable/ClientTable";
 import ClientForm from "../../../components/clients/ClientForm/ClientForm";
 import ClientDetails from "../../../components/clients/ClientDetails/ClientDetails";
 
-
 import "./Clients.css";
-
 
 
 function Clients() {
 
-
-  const { user } = useAuth();
-
-
-  const [companyId, setCompanyId] = useState(null);
+  const {
+    user
+  } = useAuth();
 
 
-  const [clients, setClients] = useState([]);
+  const location =
+    useLocation();
 
 
-  const [selectedClient, setSelectedClient] = useState(null);
+  const navigate =
+    useNavigate();
 
 
-  const [editingClient, setEditingClient] = useState(null);
+  const [
+    companyId,
+    setCompanyId
+  ] = useState(null);
 
 
-  const [showForm, setShowForm] = useState(false);
+  const [
+    clients,
+    setClients
+  ] = useState([]);
 
 
-  const [search, setSearch] = useState("");
+  const [
+    selectedClient,
+    setSelectedClient
+  ] = useState(null);
 
+
+  const [
+    editingClient,
+    setEditingClient
+  ] = useState(null);
+
+
+  const [
+    showForm,
+    setShowForm
+  ] = useState(false);
+
+
+  const [
+    search,
+    setSearch
+  ] = useState("");
 
 
   useEffect(() => {
 
-
     async function loadData() {
 
-
-      if (!user) return;
-
-
-      const profile = await getUserProfile(
-
-        user.uid
-
-      );
+      if (!user) {
+        return;
+      }
 
 
-      if (profile?.companyId) {
+      try {
+
+        const profile =
+          await getUserProfile(
+            user.uid
+          );
 
 
-        setCompanyId(profile.companyId);
+        if (!profile?.companyId) {
+          return;
+        }
 
 
-        const data = await getClients(
+        const id =
+          profile.companyId;
 
-          profile.companyId
 
-        );
+        setCompanyId(id);
+
+
+        const data =
+          await getClients(id);
 
 
         setClients(data);
+
+
+      } catch (error) {
+
+        console.error(
+          "Error cargando clientes:",
+          error
+        );
 
       }
 
@@ -100,194 +135,295 @@ function Clients() {
 
     loadData();
 
-
   }, [user]);
 
 
+  useEffect(() => {
 
-  async function handleSave(client) {
-
-
-    let clientWithLocation = {
-
-      ...client
-
-    };
+    const clientId =
+      location.state?.clientId;
 
 
-    const location =
-
-      await geocodeClientAddress(client);
-
-
-    if (location) {
-
-
-      clientWithLocation = {
-
-        ...clientWithLocation,
-
-        latitude:
-          location.latitude,
-
-        longitude:
-          location.longitude
-
-      };
-
+    if (
+      !clientId ||
+      clients.length === 0
+    ) {
+      return;
     }
 
 
-    if (editingClient) {
-
-
-      await updateClient(
-
-        companyId,
-
-        editingClient.id,
-
-        clientWithLocation
-
+    const client =
+      clients.find(
+        item =>
+          String(item.id) ===
+          String(clientId)
       );
 
 
-      setClients(prev =>
+    if (!client) {
+      return;
+    }
 
-        prev.map(item =>
 
-          item.id === editingClient.id
+    setSelectedClient(client);
 
-            ? {
 
-                ...item,
+    navigate(
+      location.pathname,
+      {
+        replace: true,
+        state: {}
+      }
+    );
 
-                ...clientWithLocation
+  }, [
+    clients,
+    location.pathname,
+    location.state,
+    navigate
+  ]);
 
-              }
 
-            : item
+  async function handleSave(
+    client
+  ) {
 
-        )
+    console.log(
+      "🔥 HANDLE SAVE CLIENTS EJECUTADO",
+      client
+    );
 
+
+    if (!companyId) {
+
+      alert(
+        "No se encontró la empresa del usuario."
       );
 
-
-      setEditingClient(null);
-
-
-    } else {
+      return;
+    }
 
 
-      const newClient =
+    let clientWithLocation = {
+      ...client
+    };
 
-        await createClient(
+
+    try {
+
+      const location =
+        await geocodeClientAddress(
+          client
+        );
+
+
+      if (location) {
+
+        clientWithLocation = {
+
+          ...clientWithLocation,
+
+          latitude:
+            location.latitude,
+
+          longitude:
+            location.longitude
+
+        };
+
+      }
+
+
+      if (editingClient) {
+
+        await updateClient(
 
           companyId,
+
+          editingClient.id,
 
           clientWithLocation
 
         );
 
 
-      setClients(prev => [
+        setClients(
+          previous =>
+            previous.map(
+              item =>
 
-        ...prev,
+                item.id ===
+                editingClient.id
 
-        newClient
+                  ? {
+                      ...item,
+                      ...clientWithLocation
+                    }
 
-      ]);
+                  : item
+            )
+        );
+
+
+        setEditingClient(null);
+
+
+      } else {
+
+        const newClient =
+          await createClient(
+
+            companyId,
+
+            clientWithLocation
+
+          );
+
+
+        setClients(
+          previous => [
+            ...previous,
+            newClient
+          ]
+        );
+
+      }
+
+
+      setShowForm(false);
+
+
+    } catch (error) {
+
+      console.error(
+        "Error guardando cliente:",
+        error
+      );
+
+
+      alert(
+        error.message ||
+        "No fue posible guardar el cliente."
+      );
 
     }
 
+  }
 
-    setShowForm(false);
+
+  function handleView(
+    client
+  ) {
+
+    setSelectedClient(
+      client
+    );
 
   }
 
 
+  function handleEdit(
+    client
+  ) {
 
-  function handleView(client) {
+    setEditingClient(
+      client
+    );
 
-
-    setSelectedClient(client);
+    setShowForm(
+      true
+    );
 
   }
 
 
+  async function handleDelete(
+    id
+  ) {
 
-  function handleEdit(client) {
+    const confirmDelete =
+      window.confirm(
+        "¿Deseas eliminar este cliente?"
+      );
 
 
-    setEditingClient(client);
+    if (!confirmDelete) {
+      return;
+    }
 
-    setShowForm(true);
+
+    try {
+
+      await removeClient(
+        companyId,
+        id
+      );
+
+
+      setClients(
+        previous =>
+          previous.filter(
+            item =>
+              item.id !== id
+          )
+      );
+
+
+      setSelectedClient(
+        null
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando cliente:",
+        error
+      );
+
+
+      alert(
+        error.message ||
+        "No fue posible eliminar el cliente."
+      );
+
+    }
 
   }
 
 
+  const filteredClients =
+    clients.filter(
+      client => {
 
-  async function handleDelete(id) {
+        const value =
+          search
+            .toLowerCase()
+            .trim();
 
 
-    const confirmDelete = window.confirm(
+        return (
 
-      "¿Deseas eliminar este cliente?"
+          client.name
+            ?.toLowerCase()
+            .includes(value)
 
+          ||
+
+          client.document
+            ?.toLowerCase()
+            .includes(value)
+
+          ||
+
+          client.phone
+            ?.toLowerCase()
+            .includes(value)
+
+        );
+
+      }
     );
-
-
-    if (!confirmDelete) return;
-
-
-    await removeClient(
-
-      companyId,
-
-      id
-
-    );
-
-
-    setClients(prev =>
-
-      prev.filter(
-
-        item => item.id !== id
-
-      )
-
-    );
-
-
-    setSelectedClient(null);
-
-  }
-
-
-
-  const filteredClients = clients.filter(client => {
-
-
-    const value = search.toLowerCase();
-
-
-    return (
-
-      client.name?.toLowerCase().includes(value)
-
-      ||
-
-      client.document?.includes(value)
-
-      ||
-
-      client.phone?.includes(value)
-
-    );
-
-  });
-
 
 
   return (
@@ -306,113 +442,122 @@ function Clients() {
 
 
           <p>
-            Gestiona tus clientes y su información financiera.
-          </p>
 
+            Gestiona tus clientes y su
+            información financiera.
+
+          </p>
 
         </div>
 
 
         <button
 
+          type="button"
+
           onClick={() => {
 
-            setEditingClient(null);
+            setEditingClient(
+              null
+            );
 
-            setShowForm(!showForm);
+            setShowForm(
+              previous =>
+                !previous
+            );
 
           }}
 
         >
 
           {
-
             showForm
-
               ? "Cerrar"
-
               : "Nuevo cliente"
-
           }
 
         </button>
 
-
       </div>
 
 
-
       <div className="clients-search">
-
 
         <input
 
           value={search}
 
-          onChange={(e) =>
-
-            setSearch(e.target.value)
-
+          onChange={event =>
+            setSearch(
+              event.target.value
+            )
           }
 
           placeholder="Buscar cliente..."
 
         />
 
-
       </div>
 
 
-
       {
-
         showForm && (
 
           <ClientForm
 
-            onSave={handleSave}
+            onSave={
+              handleSave
+            }
 
-            client={editingClient}
-
-          />
-
-        )
-
-      }
-
-
-
-      <ClientTable
-
-        clients={filteredClients}
-
-        onView={handleView}
-
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-
-      />
-
-
-
-      {
-
-        selectedClient && (
-
-          <ClientDetails
-
-            client={selectedClient}
-
-            onClose={() =>
-
-              setSelectedClient(null)
-
+            client={
+              editingClient
             }
 
           />
 
         )
+      }
 
+
+      <ClientTable
+
+        clients={
+          filteredClients
+        }
+
+        onView={
+          handleView
+        }
+
+        onEdit={
+          handleEdit
+        }
+
+        onDelete={
+          handleDelete
+        }
+
+      />
+
+
+      {
+        selectedClient && (
+
+          <ClientDetails
+
+            client={
+              selectedClient
+            }
+
+            onClose={() =>
+              setSelectedClient(
+                null
+              )
+            }
+
+          />
+
+        )
       }
 
 
@@ -421,7 +566,6 @@ function Clients() {
   );
 
 }
-
 
 
 export default Clients;
