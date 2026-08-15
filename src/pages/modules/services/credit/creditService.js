@@ -14,68 +14,70 @@ import {
   createNotification
 } from "../notifications/notificationService";
 
+import {
+  assignClientAutomaticallyToRoute
+} from "../routes/routeService";
 
 
 /* ======================================================
-   Obtener créditos
+   OBTENER CRÉDITOS
 ====================================================== */
 
-export async function getCredits(companyId) {
+export async function getCredits(
+  companyId
+) {
 
-  const creditsRef = collection(
-    db,
-    "companies",
-    companyId,
-    "credits"
+  const creditsRef =
+    collection(
+      db,
+      "companies",
+      companyId,
+      "credits"
+    );
+
+  const snapshot =
+    await getDocs(
+      creditsRef
+    );
+
+  return snapshot.docs.map(
+    item => ({
+
+      firestoreId:
+        item.id,
+
+      ...item.data(),
+
+      id:
+        item.id
+
+    })
   );
-
-  const snapshot = await getDocs(
-    creditsRef
-  );
-
-  return snapshot.docs.map(item => ({
-
-    firestoreId: item.id,
-
-    ...item.data(),
-
-    id: item.id
-
-  }));
-
 }
 
 
-
 /* ======================================================
-   Obtener crédito
+   OBTENER CRÉDITO
 ====================================================== */
 
 export async function getCreditById(
-
   companyId,
-
   creditId
-
 ) {
 
-  const creditRef = doc(
+  const creditRef =
+    doc(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      creditId
+    );
 
-    db,
-
-    "companies",
-
-    companyId,
-
-    "credits",
-
-    creditId
-
-  );
-
-  const snapshot = await getDoc(
-    creditRef
-  );
+  const snapshot =
+    await getDoc(
+      creditRef
+    );
 
   if (!snapshot.exists()) {
 
@@ -85,223 +87,322 @@ export async function getCreditById(
 
   return {
 
-    firestoreId: snapshot.id,
+    firestoreId:
+      snapshot.id,
 
     ...snapshot.data(),
 
-    id: snapshot.id
+    id:
+      snapshot.id
 
   };
-
 }
 
 
-
 /* ======================================================
-   Crear crédito
+   CREAR CRÉDITO
 ====================================================== */
 
 export async function createCredit(
-
   companyId,
-
   credit
-
 ) {
 
-  const creditsRef = collection(
-
-    db,
-
-    "companies",
-
-    companyId,
-
-    "credits"
-
-  );
-
-  const result = await addDoc(
-
-    creditsRef,
-
-    credit
-
-  );
+  const creditsRef =
+    collection(
+      db,
+      "companies",
+      companyId,
+      "credits"
+    );
 
 
+  /* ====================================================
+     CREAR CRÉDITO
+  ==================================================== */
 
-  /*----------------------------------
-      Crear notificación automática
-  -----------------------------------*/
+  const result =
+    await addDoc(
+      creditsRef,
+      credit
+    );
+
+
+  /* ====================================================
+     NOTIFICACIÓN DE CRÉDITO
+  ==================================================== */
 
   await createNotification({
 
     companyId,
 
-    title: "Nuevo crédito",
+    title:
+      "Nuevo crédito",
 
-    message: `${credit.client} recibió un crédito por $${Number(
+    message:
+      `${credit.client || "Cliente"} recibió un crédito por $${Number(
+        credit.amount || 0
+      ).toLocaleString()}`,
 
-      credit.amount || 0
+    type:
+      "success",
 
-    ).toLocaleString()}`,
+    module:
+      "credits",
 
-    type: "success",
-
-    module: "credits",
-
-    referenceId: result.id
+    referenceId:
+      result.id
 
   });
 
 
+  /* ====================================================
+     AUTOMATIZACIÓN DE RUTA
+  ==================================================== */
+
+  if (credit.clientId) {
+
+    const paymentDate =
+      credit.nextPaymentDate ||
+      credit.paymentDate ||
+      credit.firstPayment ||
+      null;
+
+
+    if (paymentDate) {
+
+      try {
+
+        console.log(
+          "Creando / actualizando ruta automática:",
+          {
+            clientId:
+              credit.clientId,
+
+            paymentDate
+
+          }
+        );
+
+
+        await assignClientAutomaticallyToRoute(
+
+          companyId,
+
+          credit.clientId,
+
+          paymentDate
+
+        );
+
+
+      } catch (error) {
+
+        console.error(
+
+          "Error asignando crédito a ruta automática:",
+
+          error
+
+        );
+
+      }
+
+    } else {
+
+      console.warn(
+
+        "El crédito no tiene fecha para crear la ruta automática.",
+
+        credit
+
+      );
+
+    }
+
+  }
+
 
   return {
 
-    firestoreId: result.id,
+    firestoreId:
+      result.id,
 
     ...credit,
 
-    id: result.id
+    id:
+      result.id
 
   };
 
 }
 
 
-
 /* ======================================================
-   Actualizar crédito
+   ACTUALIZAR CRÉDITO
 ====================================================== */
 
 export async function updateCredit(
-
   companyId,
-
   creditId,
-
   data
-
 ) {
 
-  const creditRef = doc(
+  const creditRef =
+    doc(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      creditId
+    );
 
-    db,
-
-    "companies",
-
-    companyId,
-
-    "credits",
-
-    creditId
-
-  );
 
   await updateDoc(
-
     creditRef,
-
     data
-
   );
+
+
+  /* ====================================================
+     AUTOMATIZACIÓN DE RUTA
+  ==================================================== */
+
+  if (data.clientId) {
+
+    const paymentDate =
+      data.nextPaymentDate ||
+      data.paymentDate ||
+      data.firstPayment ||
+      null;
+
+
+    if (paymentDate) {
+
+      try {
+
+        console.log(
+          "Actualizando ruta automática:",
+          {
+            clientId:
+              data.clientId,
+
+            paymentDate
+
+          }
+        );
+
+
+        await assignClientAutomaticallyToRoute(
+
+          companyId,
+
+          data.clientId,
+
+          paymentDate
+
+        );
+
+
+      } catch (error) {
+
+        console.error(
+
+          "Error actualizando ruta automática:",
+
+          error
+
+        );
+
+      }
+
+    }
+
+  }
 
 }
 
 
-
 /* ======================================================
-   Eliminar crédito
+   ELIMINAR CRÉDITO
 ====================================================== */
 
 export async function removeCredit(
-
   companyId,
-
   creditId
-
 ) {
 
-  const creditRef = doc(
-
-    db,
-
-    "companies",
-
-    companyId,
-
-    "credits",
-
-    creditId
-
-  );
+  const creditRef =
+    doc(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      creditId
+    );
 
   await deleteDoc(
-
     creditRef
-
   );
 
 }
 
 
-
 /* ======================================================
-   Aplicar pago
+   APLICAR PAGO
 ====================================================== */
 
 export async function applyPaymentToCredit(
-
   companyId,
-
   creditId,
-
   paymentValue
-
 ) {
 
-  const creditRef = doc(
+  const creditRef =
+    doc(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      creditId
+    );
 
-    db,
+  const snapshot =
+    await getDoc(
+      creditRef
+    );
 
-    "companies",
-
-    companyId,
-
-    "credits",
-
-    creditId
-
-  );
-
-  const snapshot = await getDoc(
-
-    creditRef
-
-  );
 
   if (!snapshot.exists()) {
 
     throw new Error(
-
       "Crédito no encontrado"
-
     );
 
   }
 
-  const credit = snapshot.data();
 
-  const newBalance = Math.max(
+  const credit =
+    snapshot.data();
 
-    Number(credit.balance || 0)
 
-    - Number(paymentValue),
+  const newBalance =
+    Math.max(
 
-    0
+      Number(
+        credit.balance || 0
+      )
 
-  );
+      -
+
+      Number(
+        paymentValue
+      ),
+
+      0
+
+    );
+
 
   await updateDoc(
 
@@ -309,25 +410,27 @@ export async function applyPaymentToCredit(
 
     {
 
-      balance: newBalance,
+      balance:
+        newBalance,
 
       paidAmount:
-
-        Number(credit.paidAmount || 0)
-
-        + Number(paymentValue),
+        Number(
+          credit.paidAmount || 0
+        )
+        +
+        Number(
+          paymentValue
+        ),
 
       status:
-
         newBalance === 0
-
           ? "Pagado"
-
           : "Activo"
 
     }
 
   );
+
 
   return await getCreditById(
 

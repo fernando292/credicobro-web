@@ -10,6 +10,9 @@ import {
 
 import { db } from "../../../../config/firebase";
 
+import {
+  assignClientAutomaticallyToRoute
+} from "../routes/routeService";
 
 
 // =======================================================
@@ -19,31 +22,26 @@ import { db } from "../../../../config/firebase";
 export async function getClients(companyId) {
 
   const clientsRef = collection(
-
     db,
-
     "companies",
-
     companyId,
-
     "clients"
-
   );
 
-  const snapshot = await getDocs(clientsRef);
+  const snapshot =
+    await getDocs(clientsRef);
 
   return snapshot.docs.map(item => {
 
-    const data = item.data();
+    const data = {
+      ...item.data()
+    };
 
     delete data.id;
 
     return {
-
       id: item.id,
-
       ...data
-
     };
 
   });
@@ -51,55 +49,42 @@ export async function getClients(companyId) {
 }
 
 
-
 // =======================================================
 // Obtener cliente por ID
 // =======================================================
 
 export async function getClientById(
-
   companyId,
-
   clientId
-
 ) {
 
   const clientRef = doc(
-
     db,
-
     "companies",
-
     companyId,
-
     "clients",
-
     String(clientId)
-
   );
 
-  const snapshot = await getDoc(clientRef);
+  const snapshot =
+    await getDoc(clientRef);
 
   if (!snapshot.exists()) {
-
     return null;
-
   }
 
-  const data = snapshot.data();
+  const data = {
+    ...snapshot.data()
+  };
 
   delete data.id;
 
   return {
-
     id: snapshot.id,
-
     ...data
-
   };
 
 }
-
 
 
 // =======================================================
@@ -107,45 +92,70 @@ export async function getClientById(
 // =======================================================
 
 export async function createClient(
-
   companyId,
-
   client
-
 ) {
 
-  const { id, ...clientData } = client;
+  const {
+    id,
+    ...clientData
+  } = client;
 
   const clientsRef = collection(
-
     db,
-
     "companies",
-
     companyId,
-
     "clients"
-
   );
 
-  const result = await addDoc(
+  const result =
+    await addDoc(
+      clientsRef,
+      clientData
+    );
 
-    clientsRef,
-
-    clientData
-
-  );
-
-  return {
-
+  const createdClient = {
     id: result.id,
-
     ...clientData
-
   };
 
-}
 
+  // =====================================================
+  // AUTOMATIZACIÓN DE RUTA
+  // =====================================================
+
+  if (
+    createdClient.city &&
+    createdClient.nextPaymentDate
+  ) {
+
+    try {
+
+      await assignClientAutomaticallyToRoute(
+
+        companyId,
+
+        result.id,
+
+        createdClient.nextPaymentDate
+
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error asignando cliente a ruta automática:",
+        error
+      );
+
+    }
+
+  }
+
+
+  return createdClient;
+
+}
 
 
 // =======================================================
@@ -153,41 +163,63 @@ export async function createClient(
 // =======================================================
 
 export async function updateClient(
-
   companyId,
-
   clientId,
-
   data
-
 ) {
 
-  const { id, ...clientData } = data;
+  const {
+    id,
+    ...clientData
+  } = data;
 
   const clientRef = doc(
-
     db,
-
     "companies",
-
     String(companyId),
-
     "clients",
-
     String(clientId)
-
   );
 
   await updateDoc(
-
     clientRef,
-
     clientData
-
   );
 
-}
 
+  // =====================================================
+  // AUTOMATIZACIÓN DE RUTA
+  // =====================================================
+
+  if (
+    clientData.city &&
+    clientData.nextPaymentDate
+  ) {
+
+    try {
+
+      await assignClientAutomaticallyToRoute(
+
+        companyId,
+
+        String(clientId),
+
+        clientData.nextPaymentDate
+
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error actualizando ruta automática del cliente:",
+        error
+      );
+
+    }
+
+  }
+
+}
 
 
 // =======================================================
@@ -195,31 +227,20 @@ export async function updateClient(
 // =======================================================
 
 export async function removeClient(
-
   companyId,
-
   clientId
-
 ) {
 
   const clientRef = doc(
-
     db,
-
     "companies",
-
     String(companyId),
-
     "clients",
-
     String(clientId)
-
   );
 
   await deleteDoc(
-
     clientRef
-
   );
 
 }

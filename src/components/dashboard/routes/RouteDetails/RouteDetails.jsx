@@ -1,4 +1,3 @@
-
 import {
   useEffect,
   useMemo,
@@ -34,9 +33,39 @@ const VISIT_STATUS = [
 
 
 function getToday() {
+
   return new Date()
     .toISOString()
     .split("T")[0];
+
+}
+
+
+function normalizeDate(value) {
+
+  if (!value) {
+    return "";
+  }
+
+  return String(value)
+    .trim()
+    .split("T")[0];
+
+}
+
+
+function normalizeId(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "";
+  }
+
+  return String(value).trim();
+
 }
 
 
@@ -47,43 +76,168 @@ function RouteDetails({
   onRouteUpdated
 }) {
 
-  const [visits, setVisits] = useState([]);
+  const [
+    currentRoute,
+    setCurrentRoute
+  ] = useState(route);
 
-  const [clients, setClients] = useState([]);
+  const [
+    visits,
+    setVisits
+  ] = useState([]);
 
-  const [credits, setCredits] = useState([]);
+  const [
+    clients,
+    setClients
+  ] = useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [
+    credits,
+    setCredits
+  ] = useState([]);
 
-  const [search, setSearch] = useState("");
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
-  const [filter, setFilter] = useState("Todos");
+  const [
+    search,
+    setSearch
+  ] = useState("");
 
-  const [selectedVisit, setSelectedVisit] = useState(null);
+  const [
+    filter,
+    setFilter
+  ] = useState("Todos");
 
-  const [saving, setSaving] = useState(false);
+  const [
+    selectedVisit,
+    setSelectedVisit
+  ] = useState(null);
 
-  const [form, setForm] = useState({
-    status: "Pendiente",
-    value: "",
-    creditId: "",
-    method: "Efectivo",
-    date: getToday(),
-    notes: ""
+  const [
+    saving,
+    setSaving
+  ] = useState(false);
+
+  const [
+    form,
+    setForm
+  ] = useState({
+
+    status:
+      "Pendiente",
+
+    value:
+      "",
+
+    creditId:
+      "",
+
+    method:
+      "Efectivo",
+
+    date:
+      getToday(),
+
+    notes:
+      ""
+
   });
 
 
+  const routeId =
+    currentRoute?.id;
+
+
+  const routeDate =
+    normalizeDate(
+      currentRoute?.date
+    );
+
+
+  const routeClientIdsKey =
+    useMemo(
+
+      () =>
+
+        JSON.stringify(
+
+          Array.isArray(
+            currentRoute?.clientIds
+          )
+
+            ? currentRoute.clientIds
+
+            : []
+
+        ),
+
+      [
+        currentRoute?.clientIds
+      ]
+
+    );
+
+
+  const routeClientIdsList =
+    useMemo(
+
+      () => {
+
+        try {
+
+          return JSON.parse(
+            routeClientIdsKey
+          );
+
+        } catch {
+
+          return [];
+
+        }
+
+      },
+
+      [
+        routeClientIdsKey
+      ]
+
+    );
+
+
   /* ======================================================
-     CARGAR DETALLE DE RUTA
+     ACTUALIZAR RUTA
   ====================================================== */
 
   useEffect(() => {
+
+    setCurrentRoute(
+      route
+    );
+
+  }, [route]);
+
+
+  /* ======================================================
+     CARGAR DETALLE
+  ====================================================== */
+
+  useEffect(() => {
+
+    let isMounted =
+      true;
+
 
     async function loadRoute() {
 
       try {
 
-        setLoading(true);
+        setLoading(
+          true
+        );
+
 
         const [
           visitData,
@@ -93,21 +247,40 @@ function RouteDetails({
 
           ensureRouteVisits(
             companyId,
-            route.id,
-            route.clientIds || []
+            routeId,
+            routeClientIdsList
           ),
 
-          getClients(companyId),
+          getClients(
+            companyId
+          ),
 
-          getCredits(companyId)
+          getCredits(
+            companyId
+          )
 
         ]);
 
-        setVisits(visitData);
 
-        setClients(clientsData);
+        if (!isMounted) {
+          return;
+        }
 
-        setCredits(creditsData);
+
+        setVisits(
+          visitData
+        );
+
+
+        setClients(
+          clientsData
+        );
+
+
+        setCredits(
+          creditsData
+        );
+
 
       } catch (error) {
 
@@ -118,7 +291,13 @@ function RouteDetails({
 
       } finally {
 
-        setLoading(false);
+        if (isMounted) {
+
+          setLoading(
+            false
+          );
+
+        }
 
       }
 
@@ -127,16 +306,25 @@ function RouteDetails({
 
     if (
       companyId &&
-      route?.id
+      routeId
     ) {
 
       loadRoute();
 
     }
 
+
+    return () => {
+
+      isMounted =
+        false;
+
+    };
+
   }, [
     companyId,
-    route
+    routeId,
+    routeClientIdsKey
   ]);
 
 
@@ -144,173 +332,547 @@ function RouteDetails({
      CLIENTES POR ID
   ====================================================== */
 
-  const clientsById = useMemo(
+  const clientsById =
+    useMemo(
 
-    () =>
-      new Map(
-        clients.map(
-          client => [
-            client.id,
-            client
-          ]
-        )
-      ),
+      () =>
 
-    [clients]
+        new Map(
 
-  );
+          clients.map(
+            client => [
+
+              normalizeId(
+                client.id
+              ),
+
+              client
+
+            ]
+          )
+
+        ),
+
+      [clients]
+
+    );
 
 
   /* ======================================================
-     CLIENTES DE LA RUTA
+     CRÃ‰DITOS POR ID
   ====================================================== */
 
-  const routeClientIds = useMemo(
+  const creditsById =
+    useMemo(
 
-    () =>
-      new Set(
-        route.clientIds || []
-      ),
+      () =>
 
-    [route.clientIds]
+        new Map(
 
-  );
+          credits.flatMap(
+            credit =>
 
+              [
+                credit.id,
+                credit.firestoreId,
+                credit.creditId
+              ]
+                .map(
+                  normalizeId
+                )
+                .filter(Boolean)
+                .map(
+                  creditId => [
 
-  const routeClients = useMemo(
+                    creditId,
 
-    () =>
-      clients.filter(
-        client =>
-          routeClientIds.has(
-            client.id
+                    credit
+
+                  ]
+                )
           )
-      ),
 
-    [
-      clients,
-      routeClientIds
-    ]
+        ),
 
-  );
+      [credits]
+
+    );
 
 
   /* ======================================================
-     VISITAS DE LA RUTA
+     CLIENTES DE RUTA
   ====================================================== */
 
-  const routeVisits = useMemo(
+  const routeClientIds =
+    useMemo(
 
-    () =>
-      visits.filter(
-        visit =>
-          routeClientIds.has(
-            visit.clientId
+      () =>
+
+        new Set(
+
+          routeClientIdsList.map(
+            normalizeId
           )
-      ),
 
-    [
-      visits,
-      routeClientIds
-    ]
+        ),
 
-  );
+      [routeClientIdsList]
+
+    );
+
+
+  const routeClients =
+    useMemo(
+
+      () =>
+
+        clients.filter(
+
+          client =>
+
+            routeClientIds.has(
+
+              normalizeId(
+                client.id
+              )
+
+            )
+
+        ),
+
+      [
+        clients,
+        routeClientIds
+      ]
+
+    );
+
+
+  /* ======================================================
+     VISITAS
+  ====================================================== */
+
+  const routeVisits =
+    useMemo(
+
+      () =>
+
+        visits.filter(
+
+          visit =>
+
+            routeClientIds.has(
+
+              normalizeId(
+                visit.clientId
+              )
+
+            )
+
+        ),
+
+      [
+        visits,
+        routeClientIds
+      ]
+
+    );
 
 
   /* ======================================================
      VISITAS MOSTRADAS
   ====================================================== */
 
-  const displayedVisits = useMemo(() => {
+  const displayedVisits =
+    useMemo(() => {
 
-    const value = search
-      .toLowerCase()
-      .trim();
+      const value =
+        search
+          .toLowerCase()
+          .trim();
 
 
-    return routeVisits.filter(
-      visit => {
+      return routeVisits.filter(
+        visit => {
 
-        const client =
-          clientsById.get(
-            visit.clientId
+          const client =
+            clientsById.get(
+
+              normalizeId(
+                visit.clientId
+              )
+
+            );
+
+
+          const matchesFilter =
+            filter === "Todos" ||
+            visit.status === filter;
+
+
+          const matchesSearch =
+            !value ||
+
+            [
+              client?.name,
+              client?.document,
+              client?.phone
+            ].some(
+
+              item =>
+
+                String(
+                  item || ""
+                )
+                  .toLowerCase()
+                  .includes(
+                    value
+                  )
+
+            );
+
+
+          return (
+            matchesFilter &&
+            matchesSearch
           );
 
+        }
 
-        const matchesFilter =
-          filter === "Todos" ||
-          visit.status === filter;
+      );
 
-
-        const matchesSearch =
-          !value ||
-          [
-            client?.name,
-            client?.document,
-            client?.phone
-          ].some(
-            item =>
-              item
-                ?.toLowerCase()
-                .includes(value)
-          );
-
-
-        return (
-          matchesFilter &&
-          matchesSearch
-        );
-
-      }
-    );
-
-  }, [
-    clientsById,
-    filter,
-    routeVisits,
-    search
-  ]);
+    }, [
+      clientsById,
+      filter,
+      routeVisits,
+      search
+    ]);
 
 
   /* ======================================================
-     ESTADÍSTICAS
+     ESTADÃSTICAS
   ====================================================== */
 
   const completedVisits =
     routeVisits.filter(
+
       visit =>
-        visit.status !== "Pendiente"
+        visit.status !==
+        "Pendiente"
+
     ).length;
 
 
   const collected =
     routeVisits.reduce(
+
       (
         total,
         visit
       ) =>
+
         total +
+
         Number(
-          visit.collectedAmount || 0
+          visit.collectedAmount ||
+          0
         ),
 
       0
+
     );
 
 
   /* ======================================================
-     CRÉDITOS DEL CLIENTE
+     CRÃ‰DITOS DEL CLIENTE
   ====================================================== */
 
   function getClientCredits(clientId) {
 
+    const normalizedClientId =
+      normalizeId(
+        clientId
+      );
+
+
     return credits.filter(
+
       credit =>
-        String(
+
+        normalizeId(
           credit.clientId
-        ) === String(clientId) &&
-        credit.status === "Activo"
+        ) ===
+          normalizedClientId &&
+
+        String(
+          credit.status || ""
+        ).trim() ===
+          "Activo"
+
     );
+
+  }
+
+
+  /* ======================================================
+     CRÃ‰DITO DIRECTO DE LA RUTA
+  ====================================================== */
+
+  function getRouteCreditId(
+    clientId
+  ) {
+
+    const normalizedClientId =
+      normalizeId(
+        clientId
+      );
+
+
+    const creditByClient =
+      currentRoute?.creditByClient &&
+      typeof currentRoute.creditByClient === "object"
+        ? currentRoute.creditByClient
+        : {};
+
+
+    const mappedCreditId =
+      normalizeId(
+        creditByClient[
+          normalizedClientId
+        ]
+      );
+
+
+    if (
+      mappedCreditId
+    ) {
+
+      return mappedCreditId;
+
+    }
+
+    const directCreditId =
+      normalizeId(
+        currentRoute?.creditId
+      );
+
+
+    if (
+      directCreditId
+    ) {
+
+      return directCreditId;
+
+    }
+
+
+    const routeCreditIds =
+      Array.isArray(
+        currentRoute?.creditIds
+      )
+
+        ? currentRoute.creditIds
+            .map(normalizeId)
+            .filter(Boolean)
+
+        : [];
+
+
+    if (
+      routeCreditIds.length === 1
+    ) {
+
+      return routeCreditIds[0];
+
+    }
+
+
+    return "";
+
+  }
+
+
+  /* ======================================================
+     BUSCAR CRÃ‰DITO DE LA RUTA
+  ====================================================== */
+
+  function getCreditForRoute(clientId) {
+
+    const normalizedClientId =
+      normalizeId(
+        clientId
+      );
+
+
+    if (!normalizedClientId) {
+      return null;
+    }
+
+
+    const routeCreditId =
+      getRouteCreditId(
+        normalizedClientId
+      );
+
+
+    if (
+      routeCreditId
+    ) {
+
+      const directCredit =
+        creditsById.get(
+          routeCreditId
+        );
+
+
+      if (
+        directCredit &&
+        normalizeId(
+          directCredit.clientId
+        ) ===
+          normalizedClientId
+      ) {
+
+        return directCredit;
+
+      }
+
+    }
+
+
+    if (
+      routeDate
+    ) {
+
+      const creditByDate =
+        credits.find(
+
+          credit =>
+
+            normalizeId(
+              credit.clientId
+            ) ===
+              normalizedClientId &&
+
+            normalizeDate(
+              credit.nextPaymentDate
+            ) ===
+              routeDate &&
+
+            String(
+              credit.status || ""
+            ).trim() !==
+              "Pagado"
+
+        );
+
+
+      if (
+        creditByDate
+      ) {
+
+        return creditByDate;
+
+      }
+
+    }
+
+
+    const clientCredits =
+      getClientCredits(
+        normalizedClientId
+      );
+
+
+    if (
+      clientCredits.length === 1
+    ) {
+
+      return clientCredits[0];
+
+    }
+
+
+    return null;
+
+  }
+
+
+  /* ======================================================
+     CRÃ‰DITO DEFINITIVO DE LA VISITA
+  ====================================================== */
+
+  function getCreditForVisit(visit) {
+
+    if (!visit) {
+      return null;
+    }
+
+
+    const visitCreditId =
+      normalizeId(
+        visit.creditId
+      );
+
+
+    if (
+      visitCreditId
+    ) {
+
+      const visitCredit =
+        creditsById.get(
+          visitCreditId
+        );
+
+
+      if (
+        visitCredit &&
+        normalizeId(
+          visitCredit.clientId
+        ) ===
+        normalizeId(
+          visit.clientId
+        )
+      ) {
+
+        return visitCredit;
+
+      }
+
+    }
+
+
+    return getCreditForRoute(
+      visit.clientId
+    );
+
+  }
+
+
+  /* ======================================================
+     CRÃ‰DITO INICIAL DE LA VISITA
+  ====================================================== */
+
+  function getInitialCreditId(visit) {
+
+    const credit =
+      getCreditForVisit(
+        visit
+      );
+
+
+    if (
+      credit?.id
+    ) {
+
+      return normalizeId(
+        credit.id
+      );
+
+    }
+
+
+    return "";
 
   }
 
@@ -321,13 +883,15 @@ function RouteDetails({
 
   function handleOpenVisit(visit) {
 
-    const clientCredits =
-      getClientCredits(
-        visit.clientId
+    const selectedCreditId =
+      getInitialCreditId(
+        visit
       );
 
 
-    setSelectedVisit(visit);
+    setSelectedVisit(
+      visit
+    );
 
 
     setForm({
@@ -336,21 +900,22 @@ function RouteDetails({
         visit.status ||
         "Pendiente",
 
-      value: "",
+      value:
+        "",
 
       creditId:
-        clientCredits.length === 1
-          ? clientCredits[0].id
-          : "",
+        selectedCreditId,
 
       method:
         "Efectivo",
 
       date:
+        routeDate ||
         getToday(),
 
       notes:
-        visit.notes || ""
+        visit.notes ||
+        ""
 
     });
 
@@ -363,7 +928,9 @@ function RouteDetails({
 
   function handleCloseVisit() {
 
-    setSelectedVisit(null);
+    setSelectedVisit(
+      null
+    );
 
 
     setForm({
@@ -371,7 +938,8 @@ function RouteDetails({
       status:
         "Pendiente",
 
-      value: "",
+      value:
+        "",
 
       creditId:
         "",
@@ -380,6 +948,7 @@ function RouteDetails({
         "Efectivo",
 
       date:
+        routeDate ||
         getToday(),
 
       notes:
@@ -402,7 +971,17 @@ function RouteDetails({
     } = event.target;
 
 
+    if (
+      name === "creditId"
+    ) {
+
+      return;
+
+    }
+
+
     setForm(
+
       previous => ({
 
         ...previous,
@@ -411,6 +990,7 @@ function RouteDetails({
           value
 
       })
+
     );
 
   }
@@ -425,7 +1005,10 @@ function RouteDetails({
     event.preventDefault();
 
 
-    if (!selectedVisit) {
+    if (
+      !selectedVisit ||
+      !routeId
+    ) {
 
       return;
 
@@ -461,13 +1044,25 @@ function RouteDetails({
     }
 
 
+    const credit =
+      getCreditForVisit(
+        selectedVisit
+      );
+
+
+    const creditId =
+      normalizeId(
+        credit?.id
+      );
+
+
     if (
       paymentStatus &&
-      !form.creditId
+      !creditId
     ) {
 
       alert(
-        "Selecciona el crédito al que aplicar el pago."
+        "Esta visita no tiene un crédito asociado a la ruta."
       );
 
       return;
@@ -475,19 +1070,33 @@ function RouteDetails({
     }
 
 
-    const credit =
-      credits.find(
-        item =>
-          item.id ===
-          form.creditId
+    const currentCredit =
+      creditId
+        ? creditsById.get(
+            creditId
+          )
+        : null;
+
+
+    if (
+      paymentStatus &&
+      !currentCredit
+    ) {
+
+      alert(
+        "El crédito asociado a esta ruta no existe."
       );
+
+      return;
+
+    }
 
 
     if (
       paymentStatus &&
       value >
         Number(
-          credit?.balance || 0
+          currentCredit.balance || 0
         )
     ) {
 
@@ -502,12 +1111,18 @@ function RouteDetails({
 
     try {
 
-      setSaving(true);
+      setSaving(
+        true
+      );
 
 
       const client =
         clientsById.get(
-          selectedVisit.clientId
+
+          normalizeId(
+            selectedVisit.clientId
+          )
+
         );
 
 
@@ -516,7 +1131,7 @@ function RouteDetails({
 
           companyId,
 
-          route.id,
+          routeId,
 
           selectedVisit.id,
 
@@ -524,15 +1139,20 @@ function RouteDetails({
 
             ...form,
 
+            creditId:
+              paymentStatus
+                ? creditId
+                : null,
+
             value:
               paymentStatus
                 ? value
                 : 0,
 
-            creditId:
+            date:
               paymentStatus
-                ? form.creditId
-                : null,
+                ? form.date
+                : routeDate,
 
             clientName:
               client?.name ||
@@ -543,10 +1163,16 @@ function RouteDetails({
         );
 
 
+      /* ==================================================
+         ACTUALIZAR VISITA
+      ================================================== */
+
       setVisits(
+
         previous =>
 
           previous.map(
+
             visit =>
 
               visit.id ===
@@ -557,41 +1183,72 @@ function RouteDetails({
                 : visit
 
           )
+
       );
 
+
+      /* ==================================================
+         ACTUALIZAR CRÃ‰DITO
+      ================================================== */
 
       if (
         result.updatedCredit
       ) {
 
         setCredits(
+
           previous =>
 
             previous.map(
-              credit =>
 
-                credit.id ===
-                result.updatedCredit.id
+              item =>
+
+                normalizeId(
+                  item.id
+                ) ===
+                normalizeId(
+                  result.updatedCredit.id
+                )
 
                   ? {
-                      ...credit,
+
+                      ...item,
+
                       ...result.updatedCredit
+
                     }
 
-                  : credit
+                  : item
 
             )
+
         );
 
       }
 
 
-      onRouteUpdated?.(
+      /* ==================================================
+         ACTUALIZAR RUTA
+      ================================================== */
+
+      if (
         result.updatedRoute
-      );
+      ) {
+
+        setCurrentRoute(
+          result.updatedRoute
+        );
+
+
+        onRouteUpdated?.(
+          result.updatedRoute
+        );
+
+      }
 
 
       handleCloseVisit();
+
 
     } catch (error) {
 
@@ -600,14 +1257,20 @@ function RouteDetails({
         error
       );
 
+
       alert(
+
         error.message ||
+
         "No fue posible guardar la visita."
+
       );
 
     } finally {
 
-      setSaving(false);
+      setSaving(
+        false
+      );
 
     }
 
@@ -622,20 +1285,38 @@ function RouteDetails({
     selectedVisit
 
       ? clientsById.get(
-          selectedVisit.clientId
+
+          normalizeId(
+            selectedVisit.clientId
+          )
+
         )
 
       : null;
 
 
-  const selectedClientCredits =
+  /* ======================================================
+     CRÃ‰DITO SELECCIONADO
+  ====================================================== */
+
+  const selectedVisitCredit =
     selectedVisit
-
-      ? getClientCredits(
-          selectedVisit.clientId
+      ? getCreditForVisit(
+          selectedVisit
         )
+      : null;
 
-      : [];
+
+  const selectedVisitCreditId =
+    normalizeId(
+      selectedVisitCredit?.id
+    );
+
+
+  const hasFixedRouteCredit =
+    Boolean(
+      selectedVisitCreditId
+    );
 
 
   const requiresPayment =
@@ -648,6 +1329,21 @@ function RouteDetails({
 
 
   /* ======================================================
+     FORMATEAR DINERO
+  ====================================================== */
+
+  function formatMoney(value) {
+
+    return Number(
+      value || 0
+    ).toLocaleString(
+      "es-CO"
+    );
+
+  }
+
+
+  /* ======================================================
      RENDER
   ====================================================== */
 
@@ -657,9 +1353,8 @@ function RouteDetails({
 
       <section className="route-details">
 
-
         {/* ==================================================
-            ENCABEZADO
+            HEADER
         ================================================== */}
 
         <div className="route-details__header">
@@ -667,32 +1362,35 @@ function RouteDetails({
           <div>
 
             <p>
-              {route.zone || "Sin zona"}
+              {
+                currentRoute?.zone ||
+                "Sin zona"
+              }
             </p>
 
             <h2>
-              {route.name}
+              {
+                currentRoute?.name
+              }
             </h2>
 
             <span>
-              Fecha: {route.date || "-"}
+              Fecha:{" "}
+              {
+                currentRoute?.date ||
+                "-"
+              }
             </span>
 
           </div>
 
 
           <button
-
             type="button"
-
             className="route-details__close"
-
             onClick={onClose}
-
           >
-
             ×
-
           </button>
 
         </div>
@@ -704,7 +1402,6 @@ function RouteDetails({
 
         <div className="route-details__summary">
 
-
           <div>
 
             <span>
@@ -712,9 +1409,13 @@ function RouteDetails({
             </span>
 
             <strong>
-              {completedVisits}
+              {
+                completedVisits
+              }
               {" / "}
-              {routeVisits.length}
+              {
+                routeVisits.length
+              }
             </strong>
 
           </div>
@@ -728,7 +1429,11 @@ function RouteDetails({
 
             <strong>
               $
-              {collected.toLocaleString()}
+              {
+                collected.toLocaleString(
+                  "es-CO"
+                )
+              }
             </strong>
 
           </div>
@@ -749,7 +1454,6 @@ function RouteDetails({
 
           </div>
 
-
         </div>
 
 
@@ -757,38 +1461,11 @@ function RouteDetails({
             MAPA
         ================================================== */}
 
-        <div className="route-details__map">
-
-          <div className="route-details__map-header">
-
-            <div>
-
-              <h3>
-                Mapa de la ruta
-              </h3>
-
-              <p>
-                Ubicación de los clientes y estado de sus visitas.
-              </p>
-
-            </div>
-
-            <span>
-              {routeClients.length} clientes
-            </span>
-
-          </div>
-
-
-          <RouteMap
-
-            clients={routeClients}
-
-            visits={routeVisits}
-
-          />
-
-        </div>
+        <RouteMap
+          route={currentRoute}
+          clients={routeClients}
+          visits={routeVisits}
+        />
 
 
         {/* ==================================================
@@ -797,36 +1474,25 @@ function RouteDetails({
 
         <div className="route-details__toolbar">
 
-
           <input
-
             type="search"
-
             value={search}
-
-            onChange={
-              event =>
-                setSearch(
-                  event.target.value
-                )
+            onChange={event =>
+              setSearch(
+                event.target.value
+              )
             }
-
             placeholder="Buscar cliente..."
-
           />
 
 
           <select
-
             value={filter}
-
-            onChange={
-              event =>
-                setFilter(
-                  event.target.value
-                )
+            onChange={event =>
+              setFilter(
+                event.target.value
+              )
             }
-
           >
 
             <option value="Todos">
@@ -859,170 +1525,167 @@ function RouteDetails({
         ================================================== */}
 
         {
-          loading ? (
+          loading
 
-            <div className="route-details__loading">
+            ? (
 
-              Cargando visitas...
+              <div className="route-details__loading">
+                Cargando visitas...
+              </div>
 
-            </div>
+            )
 
-          ) : displayedVisits.length === 0 ? (
+            : displayedVisits.length === 0
 
-            <div className="route-details__empty">
+              ? (
 
-              No hay visitas que coincidan
-              con el filtro.
+                <div className="route-details__empty">
+                  No hay visitas que coincidan con el filtro.
+                </div>
 
-            </div>
+              )
 
-          ) : (
+              : (
 
-            <div className="route-visit-list">
+                <div className="route-visit-list">
 
-              {
-                displayedVisits.map(
-                  visit => {
+                  {
+                    displayedVisits.map(
+                      visit => {
 
-                    const client =
-                      clientsById.get(
-                        visit.clientId
-                      );
+                        const client =
+                          clientsById.get(
 
+                            normalizeId(
+                              visit.clientId
+                            )
 
-                    return (
-
-                      <article
-                        className="route-visit"
-                        key={visit.id}
-                      >
-
-
-                        <div className="route-visit__client">
-
-                          <strong>
-                            {
-                              client?.name ||
-                              "Cliente eliminado"
-                            }
-                          </strong>
-
-                          <span>
-                            {
-                              client?.phone ||
-                              "Sin teléfono"
-                            }
-                          </span>
-
-                        </div>
+                          );
 
 
-                        <div className="route-visit__result">
+                        const statusClass =
+                          (
+                            visit.status ||
+                            "Pendiente"
+                          )
+                            .toLowerCase()
+                            .replace(
+                              /\s/g,
+                              "-"
+                            );
 
 
-                          <span
-                            className={`route-visit__status route-visit__status--${
-                              (
-                                visit.status ||
-                                "Pendiente"
-                              )
-                                .toLowerCase()
-                                .replace(
-                                  /\s/g,
-                                  "-"
-                                )
-                            }`}
+                        return (
+
+                          <article
+                            className="route-visit"
+                            key={visit.id}
                           >
 
-                            {
-                              visit.status ||
-                              "Pendiente"
-                            }
+                            <div className="route-visit__client">
 
-                          </span>
+                              <strong>
+                                {
+                                  client?.name ||
+                                  "Cliente eliminado"
+                                }
+                              </strong>
 
+                              <span>
+                                {
+                                  client?.phone ||
+                                  "Sin teléfono"
+                                }
+                              </span>
 
-                          <strong>
-
-                            $
-                            {
-                              Number(
-                                visit.collectedAmount ||
-                                0
-                              ).toLocaleString()
-                            }
-
-                          </strong>
-
-                        </div>
+                            </div>
 
 
-                        <button
+                            <div className="route-visit__result">
 
-                          type="button"
+                              <span
+                                className={
+                                  `route-visit__status route-visit__status--${statusClass}`
+                                }
+                              >
+                                {
+                                  visit.status ||
+                                  "Pendiente"
+                                }
+                              </span>
 
-                          className="route-visit__action"
+                              <strong>
+                                $
+                                {
+                                  Number(
+                                    visit.collectedAmount ||
+                                    0
+                                  ).toLocaleString(
+                                    "es-CO"
+                                  )
+                                }
+                              </strong>
 
-                          onClick={() =>
-                            handleOpenVisit(
-                              visit
-                            )
-                          }
-
-                        >
-
-                          {
-                            visit.status ===
-                            "Pendiente"
-
-                              ? "Registrar visita"
-
-                              : "Ver visita"
-                          }
-
-                        </button>
+                            </div>
 
 
-                      </article>
+                            <button
+                              type="button"
+                              className="route-visit__action"
+                              onClick={() =>
+                                handleOpenVisit(
+                                  visit
+                                )
+                              }
+                            >
+                              {
+                                visit.status ===
+                                "Pendiente"
 
-                    );
+                                  ? "Registrar visita"
+
+                                  : "Ver visita"
+                              }
+                            </button>
+
+                          </article>
+
+                        );
+
+                      }
+
+                    )
 
                   }
-                )
-              }
 
-            </div>
+                </div>
 
-          )
+              )
+
         }
-
 
       </section>
 
 
-      {/* ==================================================
-          MODAL DE VISITA
-      ================================================== */}
+      {/* ====================================================
+          MODAL VISITA
+      ==================================================== */}
 
       {
         selectedVisit && (
 
           <div className="route-visit-modal">
 
-
             <form
-
               className="route-visit-modal__content"
-
-              onSubmit={
-                handleSaveVisit
-              }
-
+              onSubmit={handleSaveVisit}
             >
 
+              {/* ==================================================
+                  HEADER VISITA
+              ================================================== */}
 
               <div className="route-visit-modal__header">
-
 
                 <div>
 
@@ -1044,39 +1707,27 @@ function RouteDetails({
 
 
                 <button
-
                   type="button"
-
-                  onClick={
-                    handleCloseVisit
-                  }
-
+                  onClick={handleCloseVisit}
                 >
-
                   ×
-
                 </button>
 
               </div>
 
 
-              {/* RESULTADO */}
+              {/* ==================================================
+                  RESULTADO
+              ================================================== */}
 
               <label>
 
                 Resultado de la visita
 
-
                 <select
-
                   name="status"
-
                   value={form.status}
-
-                  onChange={
-                    handleFormChange
-                  }
-
+                  onChange={handleFormChange}
                 >
 
                   {
@@ -1087,9 +1738,7 @@ function RouteDetails({
                           key={status}
                           value={status}
                         >
-
                           {status}
-
                         </option>
 
                       )
@@ -1101,74 +1750,136 @@ function RouteDetails({
               </label>
 
 
-              {/* PAGO */}
+              {/* ==================================================
+                  INFORMACIÓN DE PAGO
+              ================================================== */}
 
               {
                 requiresPayment && (
 
                   <>
 
-                    <label>
+                    {/* ==========================================
+                        CRÉDITO ASOCIADO
+                    ========================================== */}
 
-                      Crédito
+                    <div className="route-visit-modal__credit">
 
+                      {
+                        hasFixedRouteCredit
 
-                      <select
+                          ? (
 
-                        name="creditId"
+                            <div className="route-credit-card">
 
-                        value={
-                          form.creditId
-                        }
+                              <div className="route-credit-card__header">
 
-                        onChange={
-                          handleFormChange
-                        }
-
-                        required
-
-                      >
-
-                        <option value="">
-                          Selecciona un crédito
-                        </option>
+                                <div className="route-credit-card__icon">
+                                  $
+                                </div>
 
 
-                        {
-                          selectedClientCredits.map(
-                            credit => (
+                                <div className="route-credit-card__heading">
 
-                              <option
-                                key={credit.id}
-                                value={credit.id}
-                              >
+                                  <strong>
+                                    Crédito asociado a esta ruta
+                                  </strong>
 
-                                Saldo: $
-                                {
-                                  Number(
-                                    credit.balance ||
-                                    0
-                                  ).toLocaleString()
-                                }
+                                  <span>
+                                    Este crédito está vinculado a esta
+                                    visita y no puede modificarse.
+                                  </span>
 
-                              </option>
+                                </div>
 
-                            )
+                              </div>
+
+
+                              <div className="route-credit-card__body">
+
+                                <div className="route-credit-card__balance">
+
+                                  <span>
+                                    Saldo actual
+                                  </span>
+
+                                  <strong>
+                                    $
+                                    {
+                                      formatMoney(
+                                        selectedVisitCredit.balance
+                                      )
+                                    }
+                                  </strong>
+
+                                </div>
+
+
+                                <div className="route-credit-card__reference">
+
+                                  Crédito #
+
+                                  {
+                                    selectedVisitCreditId.slice(
+                                      0,
+                                      8
+                                    )
+                                  }
+
+                                </div>
+
+                              </div>
+
+                            </div>
+
                           )
-                        }
 
-                      </select>
+                          : (
 
-                    </label>
+                            <div className="route-credit-card route-credit-card--warning">
 
+                              <div className="route-credit-card__header">
+
+                                <div className="route-credit-card__icon">
+                                  !
+                                </div>
+
+
+                                <div className="route-credit-card__heading">
+
+                                  <strong>
+                                    Crédito no asociado
+                                  </strong>
+
+                                  <span>
+                                    Esta visita todavía no tiene un
+                                    crédito correspondiente a la ruta.
+                                  </span>
+
+                                </div>
+
+                              </div>
+
+                            </div>
+
+                          )
+
+                      }
+
+                    </div>
+
+
+                    {/* ==========================================
+                        AVISO SIN CRÉDITO
+                    ========================================== */}
 
                     {
-                      selectedClientCredits.length === 0 && (
+                      !hasFixedRouteCredit && (
 
                         <p className="route-visit-modal__warning">
 
-                          Este cliente no tiene créditos activos
-                          para recibir un pago.
+                          No se puede registrar el pago hasta que la
+                          visita tenga el crédito correspondiente a la ruta.
 
                         </p>
 
@@ -1176,32 +1887,23 @@ function RouteDetails({
                     }
 
 
-                    <div className="route-visit-modal__row">
+                    {/* ==========================================
+                        VALOR Y MÉTODO
+                    ========================================== */}
 
+                    <div className="route-visit-modal__row">
 
                       <label>
 
                         Valor recaudado
 
-
                         <input
-
                           type="number"
-
                           min="1"
-
                           name="value"
-
-                          value={
-                            form.value
-                          }
-
-                          onChange={
-                            handleFormChange
-                          }
-
+                          value={form.value}
+                          onChange={handleFormChange}
                           required
-
                         />
 
                       </label>
@@ -1211,19 +1913,10 @@ function RouteDetails({
 
                         Método de pago
 
-
                         <select
-
                           name="method"
-
-                          value={
-                            form.method
-                          }
-
-                          onChange={
-                            handleFormChange
-                          }
-
+                          value={form.method}
+                          onChange={handleFormChange}
                         >
 
                           <option>
@@ -1242,31 +1935,23 @@ function RouteDetails({
 
                       </label>
 
-
                     </div>
 
+
+                    {/* ==========================================
+                        FECHA
+                    ========================================== */}
 
                     <label>
 
                       Fecha del pago
 
-
                       <input
-
                         type="date"
-
                         name="date"
-
-                        value={
-                          form.date
-                        }
-
-                        onChange={
-                          handleFormChange
-                        }
-
+                        value={form.date}
+                        onChange={handleFormChange}
                         required
-
                       />
 
                     </label>
@@ -1277,60 +1962,48 @@ function RouteDetails({
               }
 
 
-              {/* OBSERVACIÓN */}
+              {/* ==================================================
+                  OBSERVACIÓN
+              ================================================== */}
 
               <label>
 
                 Observación
 
-
                 <textarea
-
                   name="notes"
-
-                  value={
-                    form.notes
-                  }
-
-                  onChange={
-                    handleFormChange
-                  }
-
+                  value={form.notes}
+                  onChange={handleFormChange}
                   rows="3"
-
                   placeholder="Ej. Cliente solicita visita el viernes."
-
                 />
 
               </label>
 
 
-              {/* ACCIONES */}
+              {/* ==================================================
+                  ACCIONES
+              ================================================== */}
 
               <div className="route-visit-modal__actions">
 
-
                 <button
-
                   type="button"
-
-                  onClick={
-                    handleCloseVisit
-                  }
-
+                  onClick={handleCloseVisit}
                 >
-
                   Cancelar
-
                 </button>
 
 
                 <button
-
                   type="submit"
-
-                  disabled={saving}
-
+                  disabled={
+                    saving ||
+                    (
+                      requiresPayment &&
+                      !hasFixedRouteCredit
+                    )
+                  }
                 >
 
                   {
@@ -1341,17 +2014,15 @@ function RouteDetails({
 
                 </button>
 
-
               </div>
-
 
             </form>
 
           </div>
 
         )
-      }
 
+      }
 
     </div>
 

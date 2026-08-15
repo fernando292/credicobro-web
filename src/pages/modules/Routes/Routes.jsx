@@ -145,9 +145,18 @@ function Routes() {
   });
 
 
+  /* ======================================================
+     CARGAR RUTAS
+  ====================================================== */
+
   async function loadRoutes(
     id
   ) {
+
+    if (!id) {
+      return [];
+    }
+
 
     try {
 
@@ -178,9 +187,18 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     CARGAR CLIENTES
+  ====================================================== */
+
   async function loadClients(
     id
   ) {
+
+    if (!id) {
+      return;
+    }
+
 
     try {
 
@@ -204,6 +222,10 @@ function Routes() {
 
   }
 
+
+  /* ======================================================
+     INICIALIZAR
+  ====================================================== */
 
   useEffect(() => {
 
@@ -268,6 +290,10 @@ function Routes() {
   }, [user]);
 
 
+  /* ======================================================
+     ABRIR RUTA DESDE OTRA PÁGINA
+  ====================================================== */
+
   useEffect(() => {
 
     const routeId =
@@ -278,7 +304,9 @@ function Routes() {
       !routeId ||
       routes.length === 0
     ) {
+
       return;
+
     }
 
 
@@ -316,6 +344,10 @@ function Routes() {
   ]);
 
 
+  /* ======================================================
+     CAMBIAR FORMULARIO
+  ====================================================== */
+
   function handleChange(
     event
   ) {
@@ -331,13 +363,18 @@ function Routes() {
 
         ...previous,
 
-        [name]: value
+        [name]:
+          value
 
       })
     );
 
   }
 
+
+  /* ======================================================
+     CREAR RUTA
+  ====================================================== */
 
   function handleOpenCreateForm() {
 
@@ -362,6 +399,10 @@ function Routes() {
 
   }
 
+
+  /* ======================================================
+     EDITAR RUTA
+  ====================================================== */
 
   function handleOpenEditForm(
     route
@@ -396,6 +437,10 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     CERRAR FORMULARIO
+  ====================================================== */
+
   function handleCloseForm() {
 
     if (savingRoute) {
@@ -424,6 +469,10 @@ function Routes() {
 
   }
 
+
+  /* ======================================================
+     GUARDAR RUTA
+  ====================================================== */
 
   async function handleSubmitRoute(
     event
@@ -554,6 +603,10 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     ELIMINAR RUTA
+  ====================================================== */
+
   async function handleDeleteRoute(
     route
   ) {
@@ -562,7 +615,9 @@ function Routes() {
       !companyId ||
       !route?.id
     ) {
+
       return;
+
     }
 
 
@@ -663,6 +718,10 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     ABRIR CLIENTES
+  ====================================================== */
+
   function handleOpenClients(
     route
   ) {
@@ -697,6 +756,10 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     CERRAR CLIENTES
+  ====================================================== */
+
   function handleCloseClients() {
 
     if (savingClients) {
@@ -725,6 +788,10 @@ function Routes() {
 
   }
 
+
+  /* ======================================================
+     SELECCIONAR / DESELECCIONAR CLIENTE
+  ====================================================== */
 
   function handleToggleClient(
     clientId
@@ -760,6 +827,10 @@ function Routes() {
 
   }
 
+
+  /* ======================================================
+     SELECCIONAR TODOS
+  ====================================================== */
 
   function handleSelectAll() {
 
@@ -808,13 +879,19 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     GUARDAR CLIENTES DE RUTA
+  ====================================================== */
+
   async function handleSaveClients() {
 
     if (
       !companyId ||
       !selectedRoute
     ) {
+
       return;
+
     }
 
 
@@ -837,6 +914,19 @@ function Routes() {
         );
 
 
+      const updatedRoute = {
+
+        ...selectedRoute,
+
+        clientIds:
+          result.clientIds,
+
+        totalVisits:
+          result.totalVisits
+
+      };
+
+
       setRoutes(
         previous =>
           previous.map(
@@ -849,11 +939,7 @@ function Routes() {
 
                     ...route,
 
-                    clientIds:
-                      result.clientIds,
-
-                    totalVisits:
-                      result.totalVisits
+                    ...updatedRoute
 
                   }
 
@@ -864,23 +950,7 @@ function Routes() {
 
 
       setSelectedRoute(
-        previous =>
-
-          previous
-
-            ? {
-
-                ...previous,
-
-                clientIds:
-                  result.clientIds,
-
-                totalVisits:
-                  result.totalVisits
-
-              }
-
-            : previous
+        updatedRoute
       );
 
 
@@ -894,15 +964,12 @@ function Routes() {
 
                 ...previous,
 
-                clientIds:
-                  result.clientIds,
-
-                totalVisits:
-                  result.totalVisits
+                ...updatedRoute
 
               }
 
             : previous
+
       );
 
 
@@ -936,6 +1003,10 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     ABRIR DETALLE DE RUTA
+  ====================================================== */
+
   function handleOpenRoute(
     route
   ) {
@@ -947,17 +1018,45 @@ function Routes() {
   }
 
 
-  function handleRouteUpdated(
+  /* ======================================================
+     ACTUALIZAR RUTA DESDE ROUTEDETAILS
+     
+     IMPORTANTE:
+     RouteDetails puede mandar un updatedRoute
+     parcial. Primero actualizamos localmente.
+     
+     Después volvemos a consultar Firestore para
+     obtener los valores reales y completos.
+  ====================================================== */
+
+  async function handleRouteUpdated(
     updatedRoute
   ) {
+
+    if (
+      !updatedRoute?.id
+    ) {
+
+      return;
+
+    }
+
+
+    const routeId =
+      updatedRoute.id;
+
+
+    /* ==================================================
+       ACTUALIZACIÓN INMEDIATA DE LA INTERFAZ
+    ================================================== */
 
     setRoutes(
       previous =>
         previous.map(
           route =>
 
-            route.id ===
-            updatedRoute.id
+            String(route.id) ===
+            String(routeId)
 
               ? {
 
@@ -976,8 +1075,9 @@ function Routes() {
     setDetailRoute(
       previous =>
 
-        previous?.id ===
-        updatedRoute.id
+        previous &&
+        String(previous.id) ===
+        String(routeId)
 
           ? {
 
@@ -988,10 +1088,82 @@ function Routes() {
             }
 
           : previous
+
     );
+
+
+    /* ==================================================
+       SINCRONIZAR CON FIRESTORE
+       
+       Esto es lo importante.
+       Después del pago volvemos a traer las rutas.
+    ================================================== */
+
+    if (!companyId) {
+      return;
+    }
+
+
+    try {
+
+      const freshRoutes =
+        await loadRoutes(
+          companyId
+        );
+
+
+      const freshRoute =
+        freshRoutes.find(
+          route =>
+            String(route.id) ===
+            String(routeId)
+        );
+
+
+      if (!freshRoute) {
+        return;
+      }
+
+
+      /* ================================================
+         ACTUALIZAR ROUTE DETAILS CON DATOS REALES
+      ================================================ */
+
+      setDetailRoute(
+        previous =>
+
+          previous &&
+          String(previous.id) ===
+          String(routeId)
+
+            ? {
+
+                ...previous,
+
+                ...freshRoute
+
+              }
+
+            : previous
+
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Error sincronizando ruta después del cambio:",
+        error
+      );
+
+    }
 
   }
 
+
+  /* ======================================================
+     LOADING
+  ====================================================== */
 
   if (loading) {
 
@@ -1010,11 +1182,19 @@ function Routes() {
   }
 
 
+  /* ======================================================
+     FECHA ACTUAL
+  ====================================================== */
+
   const today =
     new Date()
       .toISOString()
       .split("T")[0];
 
+
+  /* ======================================================
+     RUTAS DE HOY
+  ====================================================== */
 
   const todayRoutes =
     routes.filter(
@@ -1023,9 +1203,16 @@ function Routes() {
     );
 
 
+  /* ======================================================
+     CLIENTES EN RUTA
+  ====================================================== */
+
   const clientsInRoutes =
     routes.reduce(
-      (total, route) =>
+      (
+        total,
+        route
+      ) =>
 
         total +
 
@@ -1034,12 +1221,20 @@ function Routes() {
         ),
 
       0
+
     );
 
 
+  /* ======================================================
+     VISITAS PENDIENTES
+  ====================================================== */
+
   const pendingVisits =
     routes.reduce(
-      (total, route) =>
+      (
+        total,
+        route
+      ) =>
 
         total +
 
@@ -1058,12 +1253,20 @@ function Routes() {
         ),
 
       0
+
     );
 
 
+  /* ======================================================
+     RECAUDADO
+  ====================================================== */
+
   const collected =
     routes.reduce(
-      (total, route) =>
+      (
+        total,
+        route
+      ) =>
 
         total +
 
@@ -1072,8 +1275,13 @@ function Routes() {
         ),
 
       0
+
     );
 
+
+  /* ======================================================
+     FILTRAR CLIENTES
+  ====================================================== */
 
   const filteredClients =
     clients.filter(
@@ -1114,12 +1322,20 @@ function Routes() {
     );
 
 
+  /* ======================================================
+     IDS VISIBLES
+  ====================================================== */
+
   const visibleClientIds =
     filteredClients.map(
       client =>
         client.id
     );
 
+
+  /* ======================================================
+     TODOS SELECCIONADOS
+  ====================================================== */
 
   const allVisibleSelected =
     visibleClientIds.length > 0 &&
@@ -1130,10 +1346,18 @@ function Routes() {
     );
 
 
+  /* ======================================================
+     RENDER
+  ====================================================== */
+
   return (
 
     <section className="routes">
 
+
+      {/* ==================================================
+          HEADER
+      ================================================== */}
 
       <div className="routes__header">
 
@@ -1172,6 +1396,10 @@ function Routes() {
 
       </div>
 
+
+      {/* ==================================================
+          RESUMEN
+      ================================================== */}
 
       <div className="routes__summary">
 
@@ -1233,6 +1461,10 @@ function Routes() {
 
       </div>
 
+
+      {/* ==================================================
+          LISTA / EMPTY
+      ================================================== */}
 
       {
         routes.length === 0
@@ -1301,10 +1533,12 @@ function Routes() {
 
 
                         <p>
+
                           {
                             route.zone ||
                             "Sin zona"
                           }
+
                         </p>
 
                       </div>
@@ -1318,10 +1552,12 @@ function Routes() {
 
 
                         <strong>
+
                           {
                             route.date ||
                             "-"
                           }
+
                         </strong>
 
                       </div>
@@ -1446,12 +1682,13 @@ function Routes() {
 
                           Clientes
 
-
                           <span>
+
                             {
                               route.totalVisits ||
                               0
                             }
+
                           </span>
 
                         </button>
@@ -1511,6 +1748,10 @@ function Routes() {
           )
       }
 
+
+      {/* ==================================================
+          MODAL CREAR / EDITAR RUTA
+      ================================================== */}
 
       {
         showForm && (
@@ -1761,6 +2002,10 @@ function Routes() {
         )
       }
 
+
+      {/* ==================================================
+          MODAL CLIENTES
+      ================================================== */}
 
       {
         showClients &&
@@ -2044,6 +2289,10 @@ function Routes() {
         )
       }
 
+
+      {/* ==================================================
+          DETALLE DE RUTA
+      ================================================== */}
 
       {
         detailRoute && (
