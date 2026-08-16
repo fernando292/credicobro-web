@@ -1,0 +1,266 @@
+
+/* ======================================================
+   TABLA FINANCIERA
+====================================================== */
+
+.finance-table {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+
+/* ======================================================
+   TABLA
+====================================================== */
+
+.finance-table table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+
+/* ======================================================
+   ENCABEZADOS
+====================================================== */
+
+.finance-table th {
+  padding: 14px 16px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+/* ======================================================
+   CELDAS
+====================================================== */
+
+.finance-table td {
+  padding: 15px 16px;
+  border-top: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   HOVER FILA
+====================================================== */
+
+.finance-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+
+.finance-table tbody tr:hover {
+  background: #fafafa;
+}
+
+
+/* ======================================================
+   TIPO DE MOVIMIENTO
+====================================================== */
+
+.finance-table__type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+.finance-table__type.income {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+
+.finance-table__type.expense {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
+/* ======================================================
+   VALOR
+====================================================== */
+
+.finance-table__amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+.finance-table__amount.income {
+  color: #15803d;
+}
+
+
+.finance-table__amount.expense {
+  color: #dc2626;
+}
+
+
+/* ======================================================
+   ACCIONES
+====================================================== */
+
+.finance-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+
+/* ======================================================
+   BOTÓN DE ACCIÓN
+====================================================== */
+
+.finance-table__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 7px;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+
+.finance-table__action:hover {
+  transform: translateY(-1px);
+}
+
+
+.finance-table__action:active {
+  transform: translateY(0);
+}
+
+
+/* ======================================================
+   VER
+====================================================== */
+
+.finance-table__view {
+  color: #2563eb;
+}
+
+
+.finance-table__view:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+
+/* ======================================================
+   EDITAR
+====================================================== */
+
+.finance-table__edit {
+  color: #d97706;
+}
+
+
+.finance-table__edit:hover {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+
+/* ======================================================
+   ELIMINAR
+====================================================== */
+
+.finance-table__delete {
+  color: #dc2626;
+}
+
+
+.finance-table__delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+
+/* ======================================================
+   ESTADO VACÍO
+====================================================== */
+
+.finance-table-empty {
+  padding: 45px 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+
+.finance-table-empty h3 {
+  margin: 0 0 7px;
+
+  color: #374151;
+
+  font-size: 16px;
+}
+
+
+.finance-table-empty p {
+  margin: 0;
+
+  color: #9ca3af;
+
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 700px) {
+
+  .finance-table th,
+  .finance-table td {
+    padding: 13px 14px;
+  }
+
+
+  .finance-table__actions {
+    gap: 5px;
+  }
+
+
+  .finance-table__action {
+    width: 32px;
+    height: 32px;
+  }
+
+}

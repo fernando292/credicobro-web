@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -22,6 +21,7 @@ import Credits from "../pages/modules/Credits/Credits";
 import Collections from "../pages/modules/Collections/Collections";
 import RoutesPage from "../pages/modules/Routes/Routes";
 import Payments from "../pages/modules/payments/Payments";
+import Finances from "../pages/modules/Finances/Finances";
 import Reports from "../pages/modules/Reports/Reports";
 import Settings from "../pages/modules/Settings/Settings";
 
@@ -63,11 +63,13 @@ function AppRouter() {
         ================================= */}
 
         <Route
+
           element={
             <ProtectedRoute>
               <DashboardLayout />
             </ProtectedRoute>
           }
+
         >
 
           <Route
@@ -98,6 +100,11 @@ function AppRouter() {
           <Route
             path="/pagos"
             element={<Payments />}
+          />
+
+          <Route
+            path="/finanzas"
+            element={<Finances />}
           />
 
           <Route

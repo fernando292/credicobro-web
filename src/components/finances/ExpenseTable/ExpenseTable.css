@@ -1,0 +1,86 @@
+.expense-table {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+
+.expense-table table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+
+.expense-table th {
+  padding: 14px 16px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+.expense-table td {
+  padding: 15px 16px;
+  border-top: 1px solid #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+}
+
+
+.expense-table tbody tr:hover {
+  background: #fafafa;
+}
+
+
+.expense-table__amount {
+  color: #dc2626 !important;
+  font-weight: 700;
+}
+
+
+.expense-table__delete {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+
+.expense-table__delete:hover {
+  background: #fee2e2;
+}
+
+
+.expense-table-empty {
+  padding: 45px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  text-align: center;
+}
+
+
+.expense-table-empty h3 {
+  margin: 0 0 7px;
+  color: #374151;
+  font-size: 16px;
+}
+
+
+.expense-table-empty p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 14px;
+}

@@ -10,77 +10,255 @@ export function buildCredit({
 
 }) {
 
-  const installments = Number(
-    form.installments
-  );
+  const installments =
+    Number(
+      form.installments || 0
+    );
 
-  return {
 
-    id: creditToEdit
+  const capital =
+    Number(
+      summary.capital || 0
+    );
+
+
+  const totalInterest =
+    Number(
+      summary.interest || 0
+    );
+
+
+  const total =
+    Number(
+      summary.total || 0
+    );
+
+
+  const installmentValue =
+    Number(
+      summary.installment || 0
+    );
+
+
+  /*
+   * ======================================================
+   * IDENTIFICACIÓN
+   * ======================================================
+   */
+
+  const creditId =
+    creditToEdit
       ? creditToEdit.id
-      : Date.now(),
+      : Date.now();
 
-    clientId: form.clientId,
 
-    client: selectedClient
-      ? selectedClient.name
-      : "",
+  /*
+   * ======================================================
+   * DATOS BASE DEL CRÉDITO
+   * ======================================================
+   */
 
-    amount: Number(
-      form.amount
-    ),
+  const credit = {
 
-    interest: Number(
-      form.interest
-    ),
+    id:
+      creditId,
+
+    clientId:
+      form.clientId,
+
+    client:
+      selectedClient
+        ? selectedClient.name
+        : "",
+
+
+    /*
+     * ====================================================
+     * INFORMACIÓN FINANCIERA ORIGINAL
+     * ====================================================
+     */
+
+    amount:
+      Number(
+        form.amount || 0
+      ),
+
+    interest:
+      Number(
+        form.interest || 0
+      ),
+
+    capital,
+
+    totalInterest,
+
+    total,
+
+    installmentValue,
+
+
+    /*
+     * ====================================================
+     * CONCEPTOS FINANCIEROS
+     *
+     * Estos valores permiten que Finanzas pueda
+     * diferenciar posteriormente:
+     *
+     * capital recuperado
+     * vs.
+     * interés ganado
+     * ====================================================
+     */
+
+    capitalPaid:
+      creditToEdit
+        ? Number(
+            creditToEdit.capitalPaid || 0
+          )
+        : 0,
+
+
+    interestPaid:
+      creditToEdit
+        ? Number(
+            creditToEdit.interestPaid || 0
+          )
+        : 0,
+
+
+    capitalBalance:
+      creditToEdit
+        ? Number(
+            creditToEdit.capitalBalance ??
+            capital
+          )
+        : capital,
+
+
+    interestBalance:
+      creditToEdit
+        ? Number(
+            creditToEdit.interestBalance ??
+            totalInterest
+          )
+        : totalInterest,
+
+
+    /*
+     * ====================================================
+     * PLAN DE PAGOS
+     * ====================================================
+     */
 
     installments,
 
-    frequency: form.frequency,
+    frequency:
+      form.frequency,
 
-    startDate: form.startDate,
+    startDate:
+      form.startDate,
 
-    firstPayment: form.firstPayment,
+    firstPayment:
+      form.firstPayment,
 
-    // NUEVO
-    nextPaymentDate: creditToEdit
-      ? creditToEdit.nextPaymentDate
-      : form.firstPayment,
 
-    notes: form.notes,
+    /*
+     * ====================================================
+     * PRÓXIMO PAGO
+     * ====================================================
+     */
 
-    capital: summary.capital,
+    nextPaymentDate:
+      creditToEdit
+        ? (
+            creditToEdit.nextPaymentDate ||
+            form.firstPayment
+          )
+        : form.firstPayment,
 
-    totalInterest: summary.interest,
 
-    total: summary.total,
+    /*
+     * ====================================================
+     * SALDO GENERAL
+     * ====================================================
+     */
 
-    installmentValue: summary.installment,
+    balance:
+      creditToEdit
+        ? Number(
+            creditToEdit.balance ??
+            total
+          )
+        : total,
 
-    balance: creditToEdit
-      ? creditToEdit.balance
-      : summary.total,
 
-    paidAmount: creditToEdit
-      ? creditToEdit.paidAmount || 0
-      : 0,
+    /*
+     * ====================================================
+     * PAGOS
+     * ====================================================
+     */
 
-    paidInstallments: creditToEdit
-      ? creditToEdit.paidInstallments || 0
-      : 0,
+    paidAmount:
+      creditToEdit
+        ? Number(
+            creditToEdit.paidAmount || 0
+          )
+        : 0,
 
-    pendingInstallments: creditToEdit
-      ? creditToEdit.pendingInstallments
-      : installments,
 
-    status: creditToEdit
-      ? creditToEdit.status
-      : "Activo",
+    paidInstallments:
+      creditToEdit
+        ? Number(
+            creditToEdit.paidInstallments || 0
+          )
+        : 0,
 
-    createdAt: creditToEdit
-      ? creditToEdit.createdAt
-      : new Date()
+
+    pendingInstallments:
+      creditToEdit
+        ? Number(
+            creditToEdit.pendingInstallments ??
+            installments
+          )
+        : installments,
+
+
+    /*
+     * ====================================================
+     * ESTADO
+     * ====================================================
+     */
+
+    status:
+      creditToEdit
+        ? creditToEdit.status
+        : "Activo",
+
+
+    /*
+     * ====================================================
+     * NOTAS
+     * ====================================================
+     */
+
+    notes:
+      form.notes || "",
+
+
+    /*
+     * ====================================================
+     * FECHA DE CREACIÓN
+     * ====================================================
+     */
+
+    createdAt:
+      creditToEdit
+        ? creditToEdit.createdAt
+        : new Date()
 
   };
+
+
+  return credit;
 
 }

@@ -1,0 +1,571 @@
+/* ======================================================
+   FINANCES PAGE
+====================================================== */
+
+.finance-page {
+  width: 100%;
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.finance-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+
+.finance-header h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+
+.finance-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   ACCIONES DEL HEADER
+====================================================== */
+
+.finance-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+
+.finance-header__actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 18px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.15s ease;
+}
+
+
+.finance-header__actions button:hover {
+  opacity: 0.9;
+}
+
+
+.finance-header__actions button:active {
+  transform: translateY(1px);
+}
+
+
+/* ======================================================
+   FORMULARIOS
+====================================================== */
+
+.finance-capital-form {
+  margin-bottom: 28px;
+}
+
+
+.finance-expense-form {
+  margin-bottom: 28px;
+}
+
+
+.finance-saving {
+  margin-top: 12px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* ======================================================
+   DETALLE DEL MOVIMIENTO
+====================================================== */
+
+.finance-detail {
+  margin-bottom: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 12px rgba(17, 24, 39, 0.04);
+}
+
+
+/* ======================================================
+   CABECERA DEL DETALLE
+====================================================== */
+
+.finance-detail__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.finance-detail__header > div {
+  min-width: 0;
+}
+
+
+.finance-detail__header h2 {
+  margin: 0 0 7px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+
+.finance-detail__header p {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+.finance-detail__header > button {
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 9px 15px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+.finance-detail__header > button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+
+/* ======================================================
+   CONTENIDO DEL DETALLE
+====================================================== */
+
+.finance-detail__content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin: 0;
+  background: #e5e7eb;
+}
+
+
+/* Cada dato funciona como una pequeña tarjeta */
+
+.finance-detail__content p {
+  margin: 0;
+  padding: 18px 20px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+
+.finance-detail__content p strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+
+/* Valor destacado */
+
+.finance-detail__content p:nth-child(2) {
+  background: #f8fafc;
+}
+
+
+.finance-detail__content p:nth-child(2) {
+  color: #b91c1c;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.finance-detail__content p:nth-child(2) strong {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+
+/* Notas ocupan todo el ancho */
+
+.finance-detail__content p:nth-child(6) {
+  grid-column: 1 / -1;
+}
+
+
+/* ======================================================
+   ACCIONES DEL DETALLE
+====================================================== */
+
+.finance-detail__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 18px 24px;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+}
+
+
+.finance-detail__actions button {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+
+.finance-detail__actions button:active {
+  transform: translateY(1px);
+}
+
+
+/* Editar */
+
+.finance-detail__actions button:first-child {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+
+.finance-detail__actions button:first-child:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+
+/* Eliminar */
+
+.finance-detail__actions button:last-child {
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  color: #dc2626;
+}
+
+
+.finance-detail__actions button:last-child:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+
+/* ======================================================
+   ESTADÍSTICAS
+====================================================== */
+
+.finance-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+
+.finance-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+
+.finance-card span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+.finance-card strong {
+  color: #111827;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+
+/* ======================================================
+   MOVIMIENTOS
+====================================================== */
+
+.finance-movements {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+
+.finance-movements__header {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+.finance-movements__header h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+
+.finance-movements__header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* ======================================================
+   TABLA
+====================================================== */
+
+.finance-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+
+.finance-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.finance-table th {
+  padding: 14px 20px;
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+
+.finance-table td {
+  padding: 16px 20px;
+  border-top: 1px solid #f0f1f3;
+  color: #374151;
+  font-size: 14px;
+}
+
+
+.finance-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+
+.finance-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+
+/* ======================================================
+   ESTADO VACÍO
+====================================================== */
+
+.finance-empty {
+  padding: 50px 20px;
+  text-align: center;
+}
+
+
+.finance-empty h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 16px;
+}
+
+
+.finance-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* ======================================================
+   LOADING
+====================================================== */
+
+.finance-loading {
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+}
+
+
+/* ======================================================
+   ERROR
+====================================================== */
+
+.finance-error {
+  padding: 40px 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  text-align: center;
+}
+
+
+.finance-error h2 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 18px;
+}
+
+
+.finance-error p {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+.finance-error button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1100px) {
+
+  .finance-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .finance-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+
+  .finance-header__actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+
+  .finance-header__actions button {
+    width: 100%;
+  }
+
+
+  .finance-detail__header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+
+  .finance-detail__header > button {
+    width: 100%;
+  }
+
+
+  .finance-detail__content {
+    grid-template-columns: 1fr;
+  }
+
+
+  .finance-detail__content p:nth-child(6) {
+    grid-column: auto;
+  }
+
+
+  .finance-detail__actions {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px 20px;
+  }
+
+
+  .finance-detail__actions button {
+    width: 100%;
+  }
+
+
+  .finance-stats {
+    grid-template-columns: 1fr;
+  }
+
+
+  .finance-card {
+    padding: 18px;
+  }
+
+
+  .finance-table th,
+  .finance-table td {
+    padding: 13px 14px;
+  }
+
+}

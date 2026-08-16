@@ -1,4 +1,3 @@
-
 import {
   LayoutDashboard,
   Users,
@@ -8,7 +7,8 @@ import {
   Settings,
   LogOut,
   HandCoins,
-  Map
+  Map,
+  DollarSign
 } from "lucide-react";
 
 import {
@@ -67,6 +67,12 @@ function Sidebar() {
     },
 
     {
+      name: "Finanzas",
+      icon: DollarSign,
+      path: "/finanzas"
+    },
+
+    {
       name: "Reportes",
       icon: BarChart3,
       path: "/reportes"
@@ -115,6 +121,7 @@ function Sidebar() {
       <nav className="sidebar__menu">
 
         {
+
           menu.map((item) => {
 
             const Icon = item.icon;
@@ -146,6 +153,7 @@ function Sidebar() {
             );
 
           })
+
         }
 
       </nav>
