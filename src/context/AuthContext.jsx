@@ -5,57 +5,58 @@ import {
   useState
 } from "react";
 
-
 import {
   onAuthStateChanged
 } from "firebase/auth";
 
-
 import {
   auth
 } from "../config/firebase";
-
 
 import {
   getUserProfile
 } from "../pages/modules/services/company/companyService";
 
 
-
 const AuthContext = createContext();
-
-
-
 
 
 export function AuthProvider({ children }) {
 
-
   const [user, setUser] = useState(null);
 
-
   const [profile, setProfile] = useState(null);
-
 
   const [loading, setLoading] = useState(true);
 
 
-
-
-
   useEffect(() => {
-
 
     const unsubscribe = onAuthStateChanged(
 
       auth,
 
-      async(currentUser)=>{
+      async (currentUser) => {
+
+        if (!currentUser) {
+
+          setUser(null);
+
+          setProfile(null);
+
+          setLoading(false);
+
+          return;
+
+        }
 
 
+        // Firebase ya confirmó la sesión.
+        // El usuario se establece inmediatamente.
+        setUser(currentUser);
 
-        if(currentUser){
 
+        try {
 
           const userProfile = await getUserProfile(
 
@@ -63,55 +64,38 @@ export function AuthProvider({ children }) {
 
           );
 
-
-
-          setUser(currentUser);
-
-
           setProfile(userProfile);
 
+        } catch (error) {
 
+          console.error(
 
-        }else{
+            "Error obteniendo perfil del usuario:",
 
+            error
 
-          setUser(null);
-
+          );
 
           setProfile(null);
-
 
         }
 
 
-
         setLoading(false);
-
-
 
       }
 
     );
 
 
-
     return unsubscribe;
-
-
 
   }, []);
 
 
-
-
-
-
-
   return (
 
-
     <AuthContext.Provider
-
 
       value={{
 
@@ -121,32 +105,21 @@ export function AuthProvider({ children }) {
 
         loading
 
-
       }}
-
 
     >
 
-
       {children}
 
-
     </AuthContext.Provider>
-
 
   );
 
 }
 
 
-
-
-
-
-export function useAuth(){
-
+export function useAuth() {
 
   return useContext(AuthContext);
-
 
 }

@@ -8,7 +8,8 @@ import {
   LogOut,
   HandCoins,
   Map,
-  DollarSign
+  DollarSign,
+  X
 } from "lucide-react";
 
 import {
@@ -23,7 +24,10 @@ import {
 import "./Sidebar.css";
 
 
-function Sidebar() {
+function Sidebar({
+  mobileOpen = false,
+  onClose
+}) {
 
   const navigate = useNavigate();
 
@@ -93,6 +97,10 @@ function Sidebar() {
 
       await logoutUser();
 
+      if (onClose) {
+        onClose();
+      }
+
       navigate("/login");
 
     } catch (error) {
@@ -104,79 +112,103 @@ function Sidebar() {
   }
 
 
+  function handleNavigation() {
+
+    if (onClose) {
+      onClose();
+    }
+
+  }
+
+
   return (
 
-    <aside className="sidebar">
+    <>
 
-
-      <div className="sidebar__logo">
-
-        <h2>
-          Credi<span>Cobro</span>
-        </h2>
-
-      </div>
-
-
-      <nav className="sidebar__menu">
-
-        {
-
-          menu.map((item) => {
-
-            const Icon = item.icon;
-
-            return (
-
-              <NavLink
-
-                key={item.name}
-
-                to={item.path}
-
-                className={({ isActive }) =>
-                  isActive
-                    ? "sidebar__item active"
-                    : "sidebar__item"
-                }
-
-              >
-
-                <Icon size={20} />
-
-                <span>
-                  {item.name}
-                </span>
-
-              </NavLink>
-
-            );
-
-          })
-
+      <aside
+        className={
+          mobileOpen
+            ? "sidebar sidebar--mobile-open"
+            : "sidebar"
         }
+      >
 
-      </nav>
+        <div className="sidebar__logo">
+
+          <h2>
+            Credi<span>Cobro</span>
+          </h2>
+
+          <button
+            type="button"
+            className="sidebar__close"
+            onClick={onClose}
+            aria-label="Cerrar menú"
+          >
+            <X size={22} />
+          </button>
+
+        </div>
 
 
-      <div className="sidebar__footer">
+        <nav className="sidebar__menu">
 
-        <button
-          onClick={handleLogout}
-        >
+          {
+            menu.map((item) => {
 
-          <LogOut size={20} />
+              const Icon = item.icon;
 
-          <span>
-            Cerrar sesión
-          </span>
+              return (
 
-        </button>
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  onClick={handleNavigation}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "sidebar__item active"
+                      : "sidebar__item"
+                  }
+                >
 
-      </div>
+                  <Icon size={20} />
+
+                  <span>
+                    {item.name}
+                  </span>
+
+                </NavLink>
+
+              );
+
+            })
+
+          }
+
+        </nav>
 
 
-    </aside>
+        <div className="sidebar__footer">
+
+          <button
+            type="button"
+            onClick={handleLogout}
+          >
+
+            <LogOut size={20} />
+
+            <span>
+              Cerrar sesión
+            </span>
+
+          </button>
+
+        </div>
+
+
+      </aside>
+
+    </>
 
   );
 

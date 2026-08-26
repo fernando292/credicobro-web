@@ -1,22 +1,26 @@
 import {
   collection,
-  addDoc,
   getDocs,
   updateDoc,
   deleteDoc,
   doc,
   query,
   where,
-  orderBy,
-  serverTimestamp
+  orderBy
 } from "firebase/firestore";
 
-import { db } from "../../../../config/firebase";
+import {
+  db
+} from "../../../../config/firebase";
+
+import {
+  sendNotification
+} from "./dispatcher/notificationDispatcher";
 
 
-/* =======================================================
-   Crear notificación
-======================================================= */
+/* ======================================================
+   CREAR NOTIFICACIÓN
+====================================================== */
 
 export async function createNotification({
 
@@ -30,133 +34,190 @@ export async function createNotification({
 
   module = "general",
 
-  referenceId = null
+  referenceId = null,
+
+  channels = ["internal"],
+
+  phone = null
 
 }) {
 
-  try {
+  if (!companyId) {
 
-    const notificationsRef = collection(
-
-      db,
-
-      "notifications"
-
+    throw new Error(
+      "companyId es obligatorio."
     );
-
-    const result = await addDoc(
-
-      notificationsRef,
-
-      {
-
-        companyId,
-
-        title,
-
-        message,
-
-        type,
-
-        module,
-
-        referenceId,
-
-        read: false,
-
-        createdAt: serverTimestamp()
-
-      }
-
-    );
-
-    return result.id;
-
-  } catch (error) {
-
-    console.error(
-
-      "Error creando notificación",
-
-      error
-
-    );
-
-    return null;
 
   }
+
+  if (!title) {
+
+    throw new Error(
+      "El título de la notificación es obligatorio."
+    );
+
+  }
+
+  if (!message) {
+
+    throw new Error(
+      "El mensaje de la notificación es obligatorio."
+    );
+
+  }
+
+
+  /*
+   * Normalizamos los canales para evitar
+   * valores duplicados o inválidos.
+   */
+
+  const allowedChannels = [
+    "internal",
+    "sms",
+    "email",
+    "whatsapp"
+  ];
+
+
+  const normalizedChannels =
+    Array.from(
+      new Set(
+        (
+          Array.isArray(channels)
+            ? channels
+            : ["internal"]
+        )
+          .map(channel =>
+            String(channel)
+              .trim()
+              .toLowerCase()
+          )
+          .filter(
+            channel =>
+              allowedChannels.includes(
+                channel
+              )
+          )
+      )
+    );
+
+
+  /*
+   * Internal siempre debe existir.
+   *
+   * Esto garantiza que una notificación
+   * importante nunca desaparezca del
+   * sistema aunque no haya canales externos.
+   */
+
+  if (
+    !normalizedChannels.includes(
+      "internal"
+    )
+  ) {
+
+    normalizedChannels.unshift(
+      "internal"
+    );
+
+  }
+
+
+  return await sendNotification({
+
+    companyId,
+
+    title,
+
+    message,
+
+    type,
+
+    module,
+
+    referenceId,
+
+    channels:
+      normalizedChannels,
+
+    phone
+
+  });
 
 }
 
 
-
-/* =======================================================
-   Obtener notificaciones
-======================================================= */
+/* ======================================================
+   OBTENER NOTIFICACIONES
+====================================================== */
 
 export async function getNotifications(
-
   companyId
-
 ) {
 
   try {
 
-    const notificationsRef = collection(
+    if (!companyId) {
 
-      db,
+      throw new Error(
+        "companyId es obligatorio."
+      );
 
-      "notifications"
+    }
 
+
+    const notificationsRef =
+      collection(
+        db,
+        "notifications"
+      );
+
+
+    const notificationsQuery =
+      query(
+
+        notificationsRef,
+
+        where(
+          "companyId",
+          "==",
+          companyId
+        ),
+
+        orderBy(
+          "createdAt",
+          "desc"
+        )
+
+      );
+
+
+    const snapshot =
+      await getDocs(
+        notificationsQuery
+      );
+
+
+    return snapshot.docs.map(
+      item => ({
+
+        id:
+          item.id,
+
+        ...item.data()
+
+      })
     );
 
-    const notificationsQuery = query(
-
-      notificationsRef,
-
-      where(
-
-        "companyId",
-
-        "==",
-
-        companyId
-
-      ),
-
-      orderBy(
-
-        "createdAt",
-
-        "desc"
-
-      )
-
-    );
-
-    const snapshot = await getDocs(
-
-      notificationsQuery
-
-    );
-
-    return snapshot.docs.map(item => ({
-
-      id: item.id,
-
-      ...item.data()
-
-    }));
 
   } catch (error) {
 
     console.error(
-
-      "Error obteniendo notificaciones",
-
+      "Error obteniendo notificaciones:",
       error
-
     );
+
 
     return [];
 
@@ -165,28 +226,36 @@ export async function getNotifications(
 }
 
 
-
-/* =======================================================
-   Marcar una notificación como leída
-======================================================= */
+/* ======================================================
+   MARCAR UNA NOTIFICACIÓN COMO LEÍDA
+====================================================== */
 
 export async function markNotificationAsRead(
-
   notificationId
-
 ) {
 
   try {
 
-    const notificationRef = doc(
+    if (!notificationId) {
 
-      db,
+      throw new Error(
+        "notificationId es obligatorio."
+      );
 
-      "notifications",
+    }
 
-      notificationId
 
-    );
+    const notificationRef =
+      doc(
+
+        db,
+
+        "notifications",
+
+        notificationId
+
+      );
+
 
     await updateDoc(
 
@@ -194,163 +263,197 @@ export async function markNotificationAsRead(
 
       {
 
-        read: true
+        read:
+          true
 
       }
 
     );
 
+
+    return true;
+
+
   } catch (error) {
 
     console.error(
-
-      "Error actualizando notificación",
-
+      "Error actualizando notificación:",
       error
-
     );
+
+
+    return false;
 
   }
 
 }
 
 
-
-/* =======================================================
-   Marcar todas como leídas
-======================================================= */
+/* ======================================================
+   MARCAR TODAS COMO LEÍDAS
+====================================================== */
 
 export async function markAllNotificationsAsRead(
-
   companyId
-
 ) {
 
   try {
 
-    const notifications = await getNotifications(
+    if (!companyId) {
 
-      companyId
+      throw new Error(
+        "companyId es obligatorio."
+      );
 
-    );
+    }
 
-    const unreadNotifications = notifications.filter(
 
-      item => !item.read
+    const notifications =
+      await getNotifications(
+        companyId
+      );
 
-    );
+
+    const unreadNotifications =
+      notifications.filter(
+        item =>
+          !item.read
+      );
+
 
     await Promise.all(
 
-      unreadNotifications.map(item =>
-
-        markNotificationAsRead(item.id)
-
+      unreadNotifications.map(
+        item =>
+          markNotificationAsRead(
+            item.id
+          )
       )
 
     );
 
+
+    return true;
+
+
   } catch (error) {
 
     console.error(
-
-      "Error marcando notificaciones",
-
+      "Error marcando notificaciones:",
       error
-
     );
+
+
+    return false;
 
   }
 
 }
 
 
-
-/* =======================================================
-   Eliminar notificación
-======================================================= */
+/* ======================================================
+   ELIMINAR NOTIFICACIÓN
+====================================================== */
 
 export async function deleteNotification(
-
   notificationId
-
 ) {
 
   try {
 
-    const notificationRef = doc(
+    if (!notificationId) {
 
-      db,
+      throw new Error(
+        "notificationId es obligatorio."
+      );
 
-      "notifications",
+    }
 
-      notificationId
 
-    );
+    const notificationRef =
+      doc(
+
+        db,
+
+        "notifications",
+
+        notificationId
+
+      );
+
 
     await deleteDoc(
-
       notificationRef
-
     );
+
+
+    return true;
+
 
   } catch (error) {
 
     console.error(
-
-      "Error eliminando notificación",
-
+      "Error eliminando notificación:",
       error
-
     );
+
+
+    return false;
 
   }
 
 }
 
 
-
-/* =======================================================
-   Limpiar historial de notificaciones
-======================================================= */
+/* ======================================================
+   LIMPIAR HISTORIAL DE NOTIFICACIONES
+====================================================== */
 
 export async function clearNotifications(
-
   companyId
-
 ) {
 
   try {
 
-    const notifications = await getNotifications(
+    if (!companyId) {
 
-      companyId
+      throw new Error(
+        "companyId es obligatorio."
+      );
 
-    );
+    }
+
+
+    const notifications =
+      await getNotifications(
+        companyId
+      );
+
 
     await Promise.all(
 
-      notifications.map(notification =>
-
-        deleteNotification(
-
-          notification.id
-
-        )
-
+      notifications.map(
+        notification =>
+          deleteNotification(
+            notification.id
+          )
       )
 
     );
 
+
+    return true;
+
+
   } catch (error) {
 
     console.error(
-
-      "Error limpiando historial",
-
+      "Error limpiando historial:",
       error
-
     );
+
+
+    return false;
 
   }
 

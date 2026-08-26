@@ -1,342 +1,532 @@
+
 .client-details {
-
   position: fixed;
-
   top: 90px;
-
   right: 30px;
 
-  width: 380px;
-
-  max-width: 90%;
-
+  width: 420px;
+  max-width: calc(100vw - 60px);
   max-height: calc(100vh - 120px);
 
   overflow-y: auto;
 
-  background: white;
+  padding: 28px;
 
+  background: #ffffff;
   border: 1px solid #e2e8f0;
+  border-radius: 22px;
+
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.18),
+    0 4px 16px rgba(15, 23, 42, 0.06);
+
+  z-index: 1000;
+  box-sizing: border-box;
+
+  animation: clientDetailsIn 0.22s ease;
+}
+
+
+/* ======================================================
+   ANIMACIÓN
+====================================================== */
+
+@keyframes clientDetailsIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+/* ======================================================
+   SCROLL
+====================================================== */
+
+.client-details {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.client-details::-webkit-scrollbar {
+  width: 6px;
+}
+
+.client-details::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.client-details::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.client-details::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
+/* ======================================================
+   BOTÓN CERRAR
+====================================================== */
+
+.client-details__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 11px;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.client-details__close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: rotate(3deg);
+}
+
+
+/* ======================================================
+   CABECERA
+====================================================== */
+
+.client-details__header {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 24px;
+  padding: 4px 52px 20px 0;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.client-avatar {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 17px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+
+  color: #ffffff;
+
+  font-size: 23px;
+  font-weight: 800;
+
+  box-shadow:
+    0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+.client-details__header h2 {
+  margin: 0 0 7px;
+
+  color: #0f172a;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  line-height: 1.25;
+
+  word-break: break-word;
+}
+
+.client-details__header span {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 26px;
+
+  padding: 0 10px;
 
   border-radius: 20px;
 
-  padding: 28px;
+  background: #dcfce7;
+  color: #166534;
 
-  box-shadow: 0 20px 50px rgba(15,23,42,.18);
-
-  z-index:1000;
-
-  box-sizing:border-box;
-
+  font-size: 12px;
+  font-weight: 700;
 }
 
 
-
-/* SCROLL */
-
-.client-details::-webkit-scrollbar {
-
-  width:6px;
-
-}
-
-
-.client-details::-webkit-scrollbar-thumb {
-
-  background:#cbd5e1;
-
-  border-radius:10px;
-
-}
-
-
-
-/* BOTON CERRAR */
-
-.client-details__close {
-
-  position:absolute;
-
-  top:18px;
-
-  right:18px;
-
-  width:38px;
-
-  height:38px;
-
-  border:none;
-
-  border-radius:12px;
-
-  background:#f1f5f9;
-
-  color:#64748b;
-
-  cursor:pointer;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  transition:.2s;
-
-}
-
-
-
-.client-details__close:hover {
-
-  background:#fee2e2;
-
-  color:#dc2626;
-
-}
-
-
-
-/* CABECERA */
-
-.client-details__header {
-
-  display:flex;
-
-  align-items:center;
-
-  gap:16px;
-
-  margin-bottom:25px;
-
-  padding-bottom:20px;
-
-  border-bottom:1px solid #e2e8f0;
-
-}
-
-
-
-.client-avatar {
-
-  width:60px;
-
-  height:60px;
-
-  border-radius:50%;
-
-  background:#2563eb;
-
-  color:white;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  font-size:25px;
-
-  font-weight:700;
-
-}
-
-
-
-.client-details__header h2 {
-
-  margin:0 0 8px;
-
-  font-size:22px;
-
-  color:#0f172a;
-
-}
-
-
-
-.client-details__header span {
-
-  display:inline-flex;
-
-  padding:5px 12px;
-
-  border-radius:20px;
-
-  background:#dcfce7;
-
-  color:#166534;
-
-  font-size:13px;
-
-  font-weight:600;
-
-}
-
-
-
-/* INFORMACION CLIENTE */
+/* ======================================================
+   INFORMACIÓN DEL CLIENTE
+====================================================== */
 
 .client-details__info {
+  display: grid;
 
-  display:flex;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
-  flex-direction:column;
-
-  gap:14px;
-
+  gap: 12px;
 }
-
-
 
 .client-details__info > div {
+  min-width: 0;
 
-  background:#f8fafc;
+  padding: 14px;
 
-  padding:15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
 
-  border-radius:14px;
+  background: #f8fafc;
 
-  border:1px solid #e2e8f0;
+  box-sizing: border-box;
 
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
 }
 
-
+.client-details__info > div:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
 
 .client-details__info label {
+  display: block;
 
-  display:block;
+  margin-bottom: 6px;
 
-  font-size:12px;
+  color: #64748b;
 
-  color:#64748b;
+  font-size: 10px;
+  font-weight: 750;
 
-  font-weight:600;
-
-  margin-bottom:6px;
-
-  text-transform:uppercase;
-
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
 }
-
-
 
 .client-details__info p {
+  margin: 0;
 
-  margin:0;
+  color: #0f172a;
 
-  color:#0f172a;
+  font-size: 13px;
+  font-weight: 600;
 
-  font-size:15px;
+  line-height: 1.45;
 
-  line-height:1.4;
-
-  word-break:break-word;
-
+  word-break: break-word;
 }
 
 
+/* ======================================================
+   PREFERENCIAS DE COMUNICACIÓN
+====================================================== */
 
-/* RESUMEN FINANCIERO */
+.client-details__communication {
+  margin-top: 24px;
+  padding-top: 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.client-details__communication h3 {
+  margin: 0 0 14px;
+
+  color: #0f172a;
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.client-details__communication-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.client-details__communication-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #f8fafc;
+}
+
+.client-details__communication-item span {
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.client-details__communication-item strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
+  padding: 0 9px;
+
+  border-radius: 20px;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.client-details__communication-item strong.enabled {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.client-details__communication-item strong.disabled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+
+/* ======================================================
+   RESUMEN FINANCIERO
+====================================================== */
 
 .client-details__finance {
+  margin-top: 25px;
+  padding-top: 20px;
 
-  margin-top:25px;
-
-  padding-top:20px;
-
-  border-top:1px solid #e2e8f0;
-
+  border-top: 1px solid #e2e8f0;
 }
-
-
 
 .client-details__finance h3 {
+  margin: 0 0 15px;
 
-  margin:0 0 15px;
+  color: #0f172a;
 
-  font-size:18px;
-
-  color:#0f172a;
-
+  font-size: 18px;
+  font-weight: 800;
 }
-
-
 
 .client-details__finance > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  display:flex;
+  gap: 12px;
 
-  justify-content:space-between;
+  margin-bottom: 10px;
+  padding: 14px;
 
-  align-items:center;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
 
-  background:#f8fafc;
-
-  border:1px solid #e2e8f0;
-
-  padding:14px;
-
-  border-radius:14px;
-
-  margin-bottom:12px;
-
+  background: #f8fafc;
 }
-
-
 
 .client-details__finance span {
+  color: #64748b;
 
-  color:#64748b;
-
-  font-size:13px;
-
-  font-weight:600;
-
+  font-size: 12px;
+  font-weight: 650;
 }
-
-
 
 .client-details__finance strong {
+  color: #0f172a;
 
-  color:#0f172a;
+  font-size: 15px;
+  font-weight: 800;
 
-  font-size:16px;
-
+  text-align: right;
 }
 
 
-
-/* VACIO */
+/* ======================================================
+   VACÍO
+====================================================== */
 
 .client-details.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  text-align:center;
+  min-height: 160px;
 
-  color:#64748b;
+  text-align: center;
 
+  color: #64748b;
+  font-size: 14px;
 }
 
 
+/* ======================================================
+   TABLET
+====================================================== */
 
-/* RESPONSIVE */
-
-@media(max-width:768px){
-
-
+@media (max-width: 900px) {
   .client-details {
+    top: 80px;
+    right: 20px;
 
-    top:70px;
+    width: 400px;
+    max-width: calc(100vw - 40px);
+  }
+}
 
-    right:15px;
 
-    left:15px;
+/* ======================================================
+   MÓVIL
+====================================================== */
 
-    width:auto;
+@media (max-width: 768px) {
+  .client-details {
+    top: 70px;
+    right: 15px;
+    left: 15px;
 
-    max-height:calc(100vh - 90px);
+    width: auto;
+    max-width: none;
 
+    max-height: calc(100vh - 85px);
+
+    padding: 22px;
+
+    border-radius: 19px;
   }
 
+  .client-details__header {
+    padding-right: 48px;
+  }
 
+  .client-avatar {
+    width: 54px;
+    height: 54px;
+
+    border-radius: 15px;
+
+    font-size: 21px;
+  }
+
+  .client-details__header h2 {
+    font-size: 19px;
+  }
+}
+
+
+/* ======================================================
+   CELULARES PEQUEÑOS
+====================================================== */
+
+@media (max-width: 520px) {
+  .client-details {
+    top: 65px;
+    right: 10px;
+    left: 10px;
+
+    max-height: calc(100vh - 75px);
+
+    padding: 18px;
+
+    border-radius: 17px;
+  }
+
+  .client-details__close {
+    top: 14px;
+    right: 14px;
+
+    width: 36px;
+    height: 36px;
+  }
+
+  .client-details__header {
+    gap: 12px;
+
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+  }
+
+  .client-avatar {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 14px;
+
+    font-size: 19px;
+  }
+
+  .client-details__header h2 {
+    font-size: 17px;
+  }
+
+  .client-details__header span {
+    min-height: 24px;
+    padding: 0 9px;
+
+    font-size: 11px;
+  }
+
+  .client-details__info {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .client-details__info > div {
+    padding: 12px;
+  }
+
+  .client-details__communication {
+    margin-top: 20px;
+    padding-top: 17px;
+  }
+
+  .client-details__communication h3 {
+    font-size: 15px;
+  }
+
+  .client-details__communication-item {
+    padding: 11px 12px;
+  }
+
+  .client-details__communication-item span {
+    font-size: 12px;
+  }
+
+  .client-details__finance {
+    margin-top: 20px;
+    padding-top: 17px;
+  }
 }

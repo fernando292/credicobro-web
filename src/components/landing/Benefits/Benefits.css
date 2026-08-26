@@ -208,3 +208,102 @@
   color: #64748b;
 
 }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .benefits {
+    padding: 60px 0;
+  }
+
+
+  .benefits__header {
+    margin-bottom: 40px;
+  }
+
+
+  .benefits__header h2 {
+    font-size: 34px;
+    line-height: 1.15;
+  }
+
+
+  .benefits__header p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+
+  .benefits__content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+
+  .benefit-card {
+    gap: 20px;
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+
+  .benefit-number {
+    min-width: 58px;
+    height: 58px;
+    font-size: 18px;
+    border-radius: 16px;
+  }
+
+
+  .benefit-card h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+
+  .benefit-card p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .benefits {
+    padding: 50px 0;
+  }
+
+
+  .benefits__header h2 {
+    font-size: 30px;
+  }
+
+
+  .benefits__header p {
+    font-size: 15px;
+  }
+
+
+  .benefit-card {
+    gap: 16px;
+    padding: 22px;
+  }
+
+
+  .benefit-number {
+    min-width: 52px;
+    height: 52px;
+    font-size: 17px;
+  }
+
+
+  .benefit-card h3 {
+    font-size: 19px;
+  }
+
+}

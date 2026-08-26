@@ -186,3 +186,114 @@
   color: #64748b;
 
 }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1000px) {
+
+  .features {
+    padding: 80px 0;
+  }
+
+
+  .features__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+
+  .feature-card {
+    padding: 28px;
+    min-height: 250px;
+  }
+
+
+  .features__header h2 {
+    font-size: 38px;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .features {
+    padding: 60px 0;
+  }
+
+
+  .features__header {
+    margin-bottom: 40px;
+  }
+
+
+  .features__header h2 {
+    font-size: 34px;
+    line-height: 1.15;
+  }
+
+
+  .features__header p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+
+  .features__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+
+  .feature-card {
+    min-height: auto;
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+
+  .feature-card__icon {
+    width: 56px;
+    height: 56px;
+    font-size: 25px;
+    margin-bottom: 20px;
+  }
+
+
+  .feature-card h3 {
+    font-size: 20px;
+  }
+
+
+  .feature-card p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .features {
+    padding: 50px 0;
+  }
+
+
+  .features__header h2 {
+    font-size: 30px;
+  }
+
+
+  .features__header p {
+    font-size: 15px;
+  }
+
+
+  .feature-card {
+    padding: 22px;
+  }
+
+}

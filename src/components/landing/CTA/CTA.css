@@ -82,3 +82,67 @@
 
   border: 1px solid rgba(255,255,255,.4);
 }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .cta {
+    padding: 60px 0;
+  }
+
+  .cta__box {
+    padding: 45px 22px;
+    border-radius: 20px;
+  }
+
+  .cta__box h2 {
+    font-size: 32px;
+    line-height: 1.2;
+  }
+
+  .cta__box p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .cta__actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .cta__actions button {
+    width: 100%;
+    max-width: 300px;
+    padding: 13px 20px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .cta {
+    padding: 50px 0;
+  }
+
+  .cta__box {
+    padding: 38px 18px;
+    border-radius: 18px;
+  }
+
+  .cta__box h2 {
+    font-size: 29px;
+  }
+
+  .cta__box p {
+    font-size: 15px;
+  }
+
+  .cta__actions button {
+    max-width: 100%;
+  }
+
+}

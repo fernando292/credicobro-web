@@ -17,6 +17,11 @@ function PaymentForm({ onSave }) {
   });
 
 
+  const [
+    isSaving,
+    setIsSaving
+  ] = useState(false);
+
 
   function handleChange(e){
 
@@ -34,43 +39,61 @@ function PaymentForm({ onSave }) {
   }
 
 
-
-  function handleSubmit(e){
+  async function handleSubmit(e){
 
     e.preventDefault();
 
 
-    const newPayment={
+    if (isSaving) {
 
-      id:Date.now(),
+      return;
 
-      amount:Number(payment.amount),
-
-      method:payment.method,
-
-      date:payment.date,
-
-      status:"Completado"
-
-    };
+    }
 
 
-    onSave(newPayment);
+    setIsSaving(true);
 
 
-    setPayment({
+    try {
 
-      amount:"",
+      const newPayment={
 
-      method:"Efectivo",
+        id:Date.now(),
 
-      date:""
+        amount:Number(payment.amount),
 
-    });
+        method:payment.method,
 
+        date:payment.date,
+
+        status:"Completado"
+
+      };
+
+
+      await onSave(newPayment);
+
+
+      setPayment({
+
+        amount:"",
+
+        method:"Efectivo",
+
+        date:""
+
+      });
+
+
+    } catch (error) {
+
+      setIsSaving(false);
+
+      throw error;
+
+    }
 
   }
-
 
 
   return (
@@ -87,7 +110,6 @@ function PaymentForm({ onSave }) {
       <h3>
         Registrar pago
       </h3>
-
 
 
       <div className="payment-form__grid">
@@ -112,10 +134,11 @@ function PaymentForm({ onSave }) {
 
             placeholder="0"
 
+            disabled={isSaving}
+
           />
 
         </div>
-
 
 
         <div>
@@ -135,10 +158,11 @@ function PaymentForm({ onSave }) {
 
             onChange={handleChange}
 
+            disabled={isSaving}
+
           />
 
         </div>
-
 
 
         <div>
@@ -155,6 +179,8 @@ function PaymentForm({ onSave }) {
             value={payment.method}
 
             onChange={handleChange}
+
+            disabled={isSaving}
 
           >
 
@@ -184,10 +210,23 @@ function PaymentForm({ onSave }) {
       </div>
 
 
+      <button
 
-      <button type="submit">
+        type="submit"
 
-        Guardar pago
+        disabled={isSaving}
+
+      >
+
+        {
+
+          isSaving
+
+            ? "Guardando..."
+
+            : "Guardar pago"
+
+        }
 
       </button>
 

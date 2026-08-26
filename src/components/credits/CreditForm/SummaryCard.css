@@ -1,155 +1,119 @@
-.credit-summary{
-
-  display:block !important;
-
-  width:100%;
-
-  background:#ffffff;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:20px;
-
-  padding:24px;
-
-  box-sizing:border-box;
-
-  box-shadow:0 10px 25px rgba(15,23,42,.06);
-
+.credit-summary {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  box-sizing: border-box;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
 }
 
-
-
-.credit-summary h3{
-
-  margin:0 0 22px;
-
-  font-size:18px;
-
-  font-weight:700;
-
-  color:#0f172a;
-
+.credit-summary h3 {
+  margin: 0 0 22px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-
-
-.credit-summary__item{
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  gap:20px;
-
-  padding:14px 0;
-
-  border-bottom:1px solid #eef2f7;
-
+.credit-summary__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef2f7;
 }
 
-
-
-.credit-summary__item:last-of-type{
-
-  border-bottom:none;
-
+.credit-summary__item span {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
 }
 
-
-
-.credit-summary__item span{
-
-  color:#64748b;
-
-  font-size:14px;
-
-  font-weight:500;
-
+.credit-summary__item strong {
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
 }
 
-
-
-.credit-summary__item strong{
-
-  color:#0f172a;
-
-  font-size:16px;
-
-  font-weight:700;
-
-  text-align:right;
-
+.credit-summary__divider {
+  height: 1px;
+  margin: 8px 0;
+  background: #e2e8f0;
 }
 
-
-
-.credit-summary__divider{
-
-  height:1px;
-
-  background:#e2e8f0;
-
-  margin:8px 0;
-
+.credit-summary__item.total {
+  padding-top: 18px;
+  border-bottom: none;
 }
 
-
-
-.credit-summary__item.total{
-
-  padding-top:18px;
-
+.credit-summary__item.total span {
+  color: #475569;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-
-
-.credit-summary__item.total span{
-
-  font-size:15px;
-
-  font-weight:600;
-
+.credit-summary__item.total strong {
+  color: #2563eb;
+  font-size: 20px;
+  font-weight: 800;
 }
 
+@media (max-width: 1100px) {
 
-
-.credit-summary__item.total strong{
-
-  color:#2563eb;
-
-  font-size:20px;
-
-  font-weight:800;
-
-}
-
-
-
-@media (max-width:700px){
-
-  .credit-summary{
-
-    padding:18px;
-
+  .credit-summary {
+    max-width: none;
   }
 
-  .credit-summary__item{
+}
 
-    flex-direction:column;
+@media (max-width: 700px) {
 
-    align-items:flex-start;
-
-    gap:6px;
-
+  .credit-summary {
+    padding: 20px;
+    border-radius: 18px;
   }
 
-  .credit-summary__item strong{
+  .credit-summary h3 {
+    margin-bottom: 18px;
+    font-size: 17px;
+  }
 
-    text-align:left;
+  .credit-summary__item {
+    gap: 8px;
+  }
 
+}
+
+@media (max-width: 480px) {
+
+  .credit-summary {
+    padding: 18px;
+  }
+
+  .credit-summary__item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 12px 0;
+  }
+
+  .credit-summary__item strong {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .credit-summary__item.total {
+    padding-top: 16px;
+  }
+
+  .credit-summary__item.total strong {
+    font-size: 19px;
   }
 
 }

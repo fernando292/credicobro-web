@@ -1,11 +1,9 @@
 import {
   collection,
-  addDoc,
   getDocs,
   getDoc,
   doc,
   updateDoc,
-  deleteDoc,
   runTransaction
 } from "firebase/firestore";
 
@@ -24,9 +22,7 @@ import {
    REFERENCIAS
 ====================================================== */
 
-function getCreditsRef(
-  companyId
-) {
+function getCreditsRef(companyId) {
 
   return collection(
     db,
@@ -54,9 +50,7 @@ function getCreditRef(
 }
 
 
-function getFinanceRef(
-  companyId
-) {
+function getFinanceRef(companyId) {
 
   return doc(
     db,
@@ -73,9 +67,7 @@ function getFinanceRef(
    OBTENER CRÉDITOS
 ====================================================== */
 
-export async function getCredits(
-  companyId
-) {
+export async function getCredits(companyId) {
 
   if (!companyId) {
 
@@ -88,25 +80,21 @@ export async function getCredits(
 
   const snapshot =
     await getDocs(
-      getCreditsRef(
-        companyId
-      )
+      getCreditsRef(companyId)
     );
 
 
-  return snapshot.docs.map(
-    item => ({
+  return snapshot.docs.map(item => ({
 
-      firestoreId:
-        item.id,
+    firestoreId:
+      item.id,
 
-      ...item.data(),
+    ...item.data(),
 
-      id:
-        item.id
+    id:
+      item.id
 
-    })
-  );
+  }));
 
 }
 
@@ -207,26 +195,16 @@ export async function createCredit(
 
   const creditRef =
     doc(
-      getCreditsRef(
-        companyId
-      )
+      getCreditsRef(companyId)
     );
 
 
   const financeRef =
-    getFinanceRef(
-      companyId
-    );
+    getFinanceRef(companyId);
 
-
-  /* ====================================================
-     TRANSACCIÓN FINANCIERA
-  ==================================================== */
 
   await runTransaction(
-
     db,
-
     async transaction => {
 
       const financeSnapshot =
@@ -247,41 +225,20 @@ export async function createCredit(
         );
 
 
-      /*
-        Si no existe capital configurado,
-        no se puede prestar.
-      */
-
-      if (
-        initialCapital <= 0
-      ) {
+      if (initialCapital <= 0) {
 
         throw new Error(
-
           "No existe capital disponible para prestar. Registra primero el capital inicial en Finanzas."
-
         );
 
       }
 
 
-      /*
-        Capital disponible.
-
-        Si todavía no existe el campo,
-        usamos el capital inicial.
-      */
-
       const capitalAvailable =
         Number(
-
-          finance.capitalAvailable !==
-          undefined
-
+          finance.capitalAvailable !== undefined
             ? finance.capitalAvailable
-
             : initialCapital
-
         );
 
 
@@ -303,31 +260,21 @@ export async function createCredit(
         );
 
 
-      /* ================================================
-         VALIDAR CAPITAL
-      ================================================ */
-
       if (
         creditAmount >
         capitalAvailable
       ) {
 
         throw new Error(
-
           `Capital insuficiente. Capital disponible: $${capitalAvailable.toLocaleString(
             "es-CO"
           )}. Crédito solicitado: $${creditAmount.toLocaleString(
             "es-CO"
           )}.`
-
         );
 
       }
 
-
-      /* ================================================
-         CALCULAR INTERÉS
-      ================================================ */
 
       const totalCredit =
         Number(
@@ -338,18 +285,11 @@ export async function createCredit(
 
       const calculatedInterest =
         Math.max(
-
           totalCredit -
           creditAmount,
-
           0
-
         );
 
-
-      /* ================================================
-         NUEVO CAPITAL
-      ================================================ */
 
       const newCapitalAvailable =
         capitalAvailable -
@@ -365,10 +305,6 @@ export async function createCredit(
         interestPending +
         calculatedInterest;
 
-
-      /* ================================================
-         DATOS DEL CRÉDITO
-      ================================================ */
 
       const creditData = {
 
@@ -433,27 +369,14 @@ export async function createCredit(
       };
 
 
-      /* ================================================
-         GUARDAR CRÉDITO
-      ================================================ */
-
       transaction.set(
-
         creditRef,
-
         creditData
-
       );
 
 
-      /* ================================================
-         ACTUALIZAR FINANZAS
-      ================================================ */
-
       transaction.set(
-
         financeRef,
-
         {
 
           initialCapital,
@@ -470,23 +393,14 @@ export async function createCredit(
             newInterestPending
 
         },
-
         {
-
           merge: true
-
         }
-
       );
 
     }
-
   );
 
-
-  /* ====================================================
-     NOTIFICACIÓN
-  ==================================================== */
 
   await createNotification({
 
@@ -512,13 +426,7 @@ export async function createCredit(
   });
 
 
-  /* ====================================================
-     AUTOMATIZACIÓN DE RUTA
-  ==================================================== */
-
-  if (
-    credit.clientId
-  ) {
+  if (credit.clientId) {
 
     const paymentDate =
       credit.nextPaymentDate ||
@@ -532,23 +440,16 @@ export async function createCredit(
       try {
 
         await assignClientAutomaticallyToRoute(
-
           companyId,
-
           credit.clientId,
-
           paymentDate
-
         );
 
       } catch (error) {
 
         console.error(
-
           "Error asignando crédito a ruta automática:",
-
           error
-
         );
 
       }
@@ -606,21 +507,12 @@ export async function updateCredit(
 
 
   await updateDoc(
-
     creditRef,
-
     data
-
   );
 
 
-  /* ====================================================
-     AUTOMATIZACIÓN DE RUTA
-  ==================================================== */
-
-  if (
-    data.clientId
-  ) {
+  if (data.clientId) {
 
     const paymentDate =
       data.nextPaymentDate ||
@@ -634,23 +526,16 @@ export async function updateCredit(
       try {
 
         await assignClientAutomaticallyToRoute(
-
           companyId,
-
           data.clientId,
-
           paymentDate
-
         );
 
       } catch (error) {
 
         console.error(
-
           "Error actualizando ruta automática:",
-
           error
-
         );
 
       }
@@ -697,9 +582,7 @@ export async function removeCredit(
 
 
   await runTransaction(
-
     db,
-
     async transaction => {
 
       const creditSnapshot =
@@ -708,9 +591,7 @@ export async function removeCredit(
         );
 
 
-      if (
-        !creditSnapshot.exists()
-      ) {
+      if (!creditSnapshot.exists()) {
 
         throw new Error(
           "Crédito no encontrado."
@@ -749,22 +630,11 @@ export async function removeCredit(
         );
 
 
-      /*
-        Solo devolvemos el capital
-        que todavía estaba colocado.
-
-        El interés no forma parte
-        del capital disponible.
-      */
-
       const remainingCapital =
         Math.max(
-
           creditCapital -
           paidCapital,
-
           0
-
         );
 
 
@@ -794,12 +664,9 @@ export async function removeCredit(
 
       const remainingInterest =
         Math.max(
-
           interestAmount -
           paidInterest,
-
           0
-
         );
 
 
@@ -809,23 +676,13 @@ export async function removeCredit(
         );
 
 
-      /* ================================================
-         ELIMINAR CRÉDITO
-      ================================================ */
-
       transaction.delete(
         creditRef
       );
 
 
-      /* ================================================
-         DEVOLVER CAPITAL
-      ================================================ */
-
       transaction.set(
-
         financeRef,
-
         {
 
           capitalAvailable:
@@ -834,43 +691,32 @@ export async function removeCredit(
 
           capitalPlaced:
             Math.max(
-
               capitalPlaced -
               remainingCapital,
-
               0
-
             ),
 
           interestPending:
             Math.max(
-
               interestPending -
               remainingInterest,
-
               0
-
             )
 
         },
-
         {
-
           merge: true
-
         }
-
       );
 
     }
-
   );
 
 }
 
 
 /* ======================================================
-   APLICAR PAGO
+   APLICAR PAGO AL CRÉDITO
 ====================================================== */
 
 export async function applyPaymentToCredit(
@@ -897,9 +743,7 @@ export async function applyPaymentToCredit(
     );
 
 
-  if (
-    payment <= 0
-  ) {
+  if (payment <= 0) {
 
     throw new Error(
       "El valor del pago debe ser mayor que cero."
@@ -916,15 +760,11 @@ export async function applyPaymentToCredit(
 
 
   const financeRef =
-    getFinanceRef(
-      companyId
-    );
+    getFinanceRef(companyId);
 
 
   await runTransaction(
-
     db,
-
     async transaction => {
 
       const creditSnapshot =
@@ -933,9 +773,7 @@ export async function applyPaymentToCredit(
         );
 
 
-      if (
-        !creditSnapshot.exists()
-      ) {
+      if (!creditSnapshot.exists()) {
 
         throw new Error(
           "Crédito no encontrado."
@@ -959,10 +797,6 @@ export async function applyPaymentToCredit(
           ? financeSnapshot.data()
           : {};
 
-
-      /* ================================================
-         DATOS ACTUALES
-      ================================================ */
 
       const creditCapital =
         Number(
@@ -1012,51 +846,32 @@ export async function applyPaymentToCredit(
 
       const remainingCapital =
         Math.max(
-
           creditCapital -
           currentPaidCapital,
-
           0
-
         );
 
 
       const remainingInterest =
         Math.max(
-
           interestAmount -
           currentPaidInterest,
-
           0
-
         );
 
 
-      /* ================================================
-         DISTRIBUIR PAGO
-         
-         Primero interés.
-         Después capital.
-      ================================================ */
-
       const interestPaid =
         Math.min(
-
           payment,
-
           remainingInterest
-
         );
 
 
       const capitalPaid =
         Math.min(
-
           payment -
           interestPaid,
-
           remainingCapital
-
         );
 
 
@@ -1079,18 +894,11 @@ export async function applyPaymentToCredit(
 
       const newBalance =
         Math.max(
-
           currentBalance -
           payment,
-
           0
-
         );
 
-
-      /* ================================================
-         FINANZAS
-      ================================================ */
 
       const currentCapitalAvailable =
         Number(
@@ -1116,63 +924,34 @@ export async function applyPaymentToCredit(
         );
 
 
-      /*
-        El capital pagado vuelve a estar disponible.
-      */
-
       const newCapitalAvailable =
         currentCapitalAvailable +
         capitalPaid;
 
 
-      /*
-        El capital pagado deja de estar colocado.
-      */
-
       const newCapitalPlaced =
         Math.max(
-
           currentCapitalPlaced -
           capitalPaid,
-
           0
-
         );
 
-
-      /*
-        El interés pagado se convierte
-        en ganancia realizada.
-      */
 
       const newInterestCollected =
         currentInterestCollected +
         interestPaid;
 
 
-      /*
-        El interés pendiente disminuye.
-      */
-
       const newInterestPending =
         Math.max(
-
           currentInterestPending -
           interestPaid,
-
           0
-
         );
 
 
-      /* ================================================
-         ACTUALIZAR CRÉDITO
-      ================================================ */
-
       transaction.update(
-
         creditRef,
-
         {
 
           balance:
@@ -1193,18 +972,11 @@ export async function applyPaymentToCredit(
               : "Activo"
 
         }
-
       );
 
 
-      /* ================================================
-         ACTUALIZAR FINANZAS
-      ================================================ */
-
       transaction.set(
-
         financeRef,
-
         {
 
           capitalAvailable:
@@ -1220,26 +992,464 @@ export async function applyPaymentToCredit(
             newInterestPending
 
         },
-
         {
-
           merge: true
-
         }
-
       );
 
     }
-
   );
 
 
   return await getCreditById(
-
     companyId,
-
     creditId
+  );
 
+}
+
+
+/* ======================================================
+   RECALCULAR CRÉDITO DESDE PAGOS
+====================================================== */
+
+export async function recalculateCreditFromPayments(
+  companyId,
+  creditId
+) {
+
+  if (
+    !companyId ||
+    !creditId
+  ) {
+
+    throw new Error(
+      "companyId y creditId son obligatorios."
+    );
+
+  }
+
+
+  const creditRef =
+    getCreditRef(
+      companyId,
+      creditId
+    );
+
+
+  const paymentsRef =
+    collection(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      creditId,
+      "payments"
+    );
+
+
+  const financeRef =
+    getFinanceRef(
+      companyId
+    );
+
+
+  /*
+   * --------------------------------------------------
+   * OBTENER CRÉDITO
+   * --------------------------------------------------
+   */
+
+  const creditSnapshot =
+    await getDoc(
+      creditRef
+    );
+
+
+  if (!creditSnapshot.exists()) {
+
+    throw new Error(
+      "Crédito no encontrado."
+    );
+
+  }
+
+
+  const credit =
+    creditSnapshot.data();
+
+
+  /*
+   * --------------------------------------------------
+   * OBTENER PAGOS RESTANTES
+   * --------------------------------------------------
+   */
+
+  const paymentsSnapshot =
+    await getDocs(
+      paymentsRef
+    );
+
+
+  const payments =
+    paymentsSnapshot.docs.map(
+      item => ({
+        id:
+          item.id,
+
+        ...item.data()
+      })
+    );
+
+
+  /*
+   * --------------------------------------------------
+   * RECALCULAR ACUMULADOS
+   * --------------------------------------------------
+   */
+
+  let paidCapital = 0;
+
+  let paidInterest = 0;
+
+  let paidAmount = 0;
+
+
+  payments.forEach(payment => {
+
+    paidCapital +=
+      Number(
+        payment.capitalPaid || 0
+      );
+
+
+    paidInterest +=
+      Number(
+        payment.interestPaid || 0
+      );
+
+
+    paidAmount +=
+      Number(
+        payment.value || 0
+      );
+
+  });
+
+
+  /*
+   * --------------------------------------------------
+   * VALORES ORIGINALES DEL CRÉDITO
+   * --------------------------------------------------
+   */
+
+  const totalCredit =
+    Number(
+      credit.total ||
+      credit.amount ||
+      0
+    );
+
+
+  const creditCapital =
+    Number(
+      credit.capital ||
+      credit.amount ||
+      0
+    );
+
+
+  const interestAmount =
+    Number(
+      credit.interestAmount ??
+      Math.max(
+        totalCredit -
+        creditCapital,
+        0
+      )
+    );
+
+
+  /*
+   * --------------------------------------------------
+   * SALDOS
+   * --------------------------------------------------
+   */
+
+  const balance =
+    Math.max(
+      totalCredit -
+      paidAmount,
+      0
+    );
+
+
+  const status =
+    balance === 0
+      ? "Pagado"
+      : "Activo";
+
+
+  /*
+   * --------------------------------------------------
+   * CUOTAS
+   *
+   * SE MANTIENE LA LÓGICA ACTUAL:
+   * SOLO CUOTAS COMPLETAS.
+   * --------------------------------------------------
+   */
+
+  const installmentValue =
+    Number(
+      credit.installmentValue || 0
+    );
+
+
+  const totalInstallments =
+    Number(
+      credit.installments || 0
+    );
+
+
+  let paidInstallments = 0;
+
+
+  if (
+    installmentValue > 0
+  ) {
+
+    paidInstallments =
+      Math.floor(
+        paidAmount /
+        installmentValue
+      );
+
+  }
+
+
+  paidInstallments =
+    Math.min(
+      paidInstallments,
+      totalInstallments
+    );
+
+
+  const pendingInstallments =
+    Math.max(
+      totalInstallments -
+      paidInstallments,
+      0
+    );
+
+
+  /*
+   * --------------------------------------------------
+   * RECONSTRUIR FINANZAS
+   *
+   * El crédito original tenía:
+   *
+   * capitalPlaced = capital pendiente
+   * interestPending = interés pendiente
+   *
+   * Los pagos restantes determinan cuánto ya
+   * regresó a capital y cuánto interés se cobró.
+   * --------------------------------------------------
+   */
+
+  await runTransaction(
+    db,
+    async transaction => {
+
+      const financeSnapshot =
+        await transaction.get(
+          financeRef
+        );
+
+
+      const finance =
+        financeSnapshot.exists()
+          ? financeSnapshot.data()
+          : {};
+
+
+      const initialCapital =
+        Number(
+          finance.initialCapital || 0
+        );
+
+
+      /*
+       * Capital pendiente de este crédito.
+       */
+
+      const remainingCapital =
+        Math.max(
+          creditCapital -
+          paidCapital,
+          0
+        );
+
+
+      /*
+       * Interés pendiente de este crédito.
+       */
+
+      const remainingInterest =
+        Math.max(
+          interestAmount -
+          paidInterest,
+          0
+        );
+
+
+      /*
+       * Reconstruimos Finanzas globales
+       * sin afectar el capital inicial.
+       *
+       * Para este crédito:
+       *
+       * capitalPlaced representa el capital
+       * que todavía está colocado en este crédito.
+       *
+       * capitalAvailable representa el capital
+       * que ya regresó.
+       *
+       * Por eso tomamos el estado actual y
+       * revertimos la diferencia provocada
+       * por los pagos eliminados.
+       */
+
+      const currentCapitalAvailable =
+        Number(
+          finance.capitalAvailable || 0
+        );
+
+
+      const currentCapitalPlaced =
+        Number(
+          finance.capitalPlaced || 0
+        );
+
+
+      const currentInterestCollected =
+        Number(
+          finance.interestCollected || 0
+        );
+
+
+      const currentInterestPending =
+        Number(
+          finance.interestPending || 0
+        );
+
+
+      const previousPaidCapital =
+        Number(
+          credit.paidCapital || 0
+        );
+
+
+      const previousPaidInterest =
+        Number(
+          credit.paidInterest || 0
+        );
+
+
+      const capitalDifference =
+        previousPaidCapital -
+        paidCapital;
+
+
+      const interestDifference =
+        previousPaidInterest -
+        paidInterest;
+
+
+      const newCapitalAvailable =
+        Math.max(
+          currentCapitalAvailable -
+          capitalDifference,
+          0
+        );
+
+
+      const newCapitalPlaced =
+        Math.max(
+          currentCapitalPlaced +
+          capitalDifference,
+          0
+        );
+
+
+      const newInterestCollected =
+        Math.max(
+          currentInterestCollected -
+          interestDifference,
+          0
+        );
+
+
+      const newInterestPending =
+        Math.max(
+          currentInterestPending +
+          interestDifference,
+          0
+        );
+
+
+      transaction.update(
+        creditRef,
+        {
+
+          paidCapital,
+
+          paidInterest,
+
+          paidAmount,
+
+          balance,
+
+          status,
+
+          paidInstallments,
+
+          pendingInstallments
+
+        }
+      );
+
+
+      transaction.set(
+        financeRef,
+        {
+
+          initialCapital,
+
+          capitalAvailable:
+            newCapitalAvailable,
+
+          capitalPlaced:
+            newCapitalPlaced,
+
+          interestCollected:
+            newInterestCollected,
+
+          interestPending:
+            newInterestPending
+
+        },
+        {
+          merge: true
+        }
+      );
+
+    }
+  );
+
+
+  return await getCreditById(
+    companyId,
+    creditId
   );
 
 }

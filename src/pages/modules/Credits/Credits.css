@@ -1,220 +1,234 @@
-.credits-page{
-  padding:32px;
-  background:#f8fafc;
-  min-height:100%;
+.credits-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+  background: #f8fafc;
 }
 
 
-/* HEADER */
+/* =======================================================
+   HEADER
+======================================================= */
 
-.credits-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:32px;
+.credits-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.credits-header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+
+.credits-header p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.credits-header button {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 12px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+}
+
+.credits-header button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.credits-header button:active {
+  transform: translateY(0);
 }
 
 
-.credits-header h1{
-  margin:0;
-  font-size:32px;
-  font-weight:700;
-  color:#0f172a;
+/* =======================================================
+   ESTADÍSTICAS
+======================================================= */
+
+.credits-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.credit-card {
+  position: relative;
+  min-width: 0;
+  padding: 22px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.045);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.credit-card:hover {
+  transform: translateY(-2px);
+  border-color: #d7e0ec;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+}
+
+.credit-card span {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.credit-card strong {
+  color: #0f172a;
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.4px;
 }
 
 
-.credits-header p{
-  margin:8px 0 0;
-  color:#64748b;
-  font-size:15px;
+/* =======================================================
+   CONTENEDOR PRINCIPAL
+======================================================= */
+
+.credits-main {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.credits-main table {
+  width: 100%;
 }
 
 
+/* =======================================================
+   FORMULARIO
+======================================================= */
 
-.credits-header button{
-
-  background:#2563eb;
-  color:white;
-
-  border:none;
-
-  padding:12px 24px;
-
-  border-radius:12px;
-
-  font-size:15px;
-
-  font-weight:600;
-
-  cursor:pointer;
-
-  transition:.2s;
-
+.credits-page form {
+  margin-bottom: 28px;
 }
 
 
+/* =======================================================
+   TABLET
+======================================================= */
 
-.credits-header button:hover{
+@media (max-width: 1100px) {
 
-  background:#1d4ed8;
-
-}
-
-
-
-/* ESTADISTICAS */
-
-
-.credits-stats{
-
-  display:grid;
-
-  grid-template-columns:
-  repeat(4, minmax(0,1fr));
-
-  gap:22px;
-
-  margin-bottom:35px;
-
-}
-
-
-
-
-.credit-card{
-
-  background:white;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:20px;
-
-  padding:24px;
-
-
-  display:flex;
-
-  flex-direction:column;
-
-  gap:10px;
-
-
-  box-shadow:
-  0 10px 25px rgba(15,23,42,.05);
-
-}
-
-
-
-.credit-card span{
-
-  color:#64748b;
-
-  font-size:14px;
-
-}
-
-
-
-.credit-card strong{
-
-  color:#0f172a;
-
-  font-size:28px;
-
-  font-weight:700;
-
-}
-
-
-
-/* TABLA */
-
-
-.credits-main{
-
-  background:white;
-
-  border-radius:20px;
-
-  border:1px solid #e2e8f0;
-
-  padding:20px;
-
-  overflow:hidden;
-
-
-}
-
-
-
-.credits-main table{
-
-  width:100%;
-
-}
-
-
-
-
-
-/* FORM */
-
-
-.credits-page form{
-
-  margin-bottom:30px;
-
-}
-
-
-
-/* RESPONSIVE */
-
-
-@media(max-width:1100px){
-
-
-  .credits-stats{
-
-    grid-template-columns:
-    repeat(2,1fr);
-
+  .credits-page {
+    padding: 26px;
   }
 
+  .credits-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
 }
 
 
+/* =======================================================
+   MÓVIL
+======================================================= */
 
-@media(max-width:650px){
+@media (max-width: 700px) {
 
-
-  .credits-page{
-
-    padding:20px;
-
+  .credits-page {
+    padding: 20px 16px;
   }
 
-
-
-  .credits-header{
-
-    flex-direction:column;
-
-    align-items:flex-start;
-
-    gap:20px;
-
+  .credits-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
   }
 
-
-
-  .credits-stats{
-
-    grid-template-columns:1fr;
-
+  .credits-header h1 {
+    font-size: 27px;
   }
 
+  .credits-header p {
+    font-size: 14px;
+  }
+
+  .credits-header button {
+    width: 100%;
+  }
+
+  .credits-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .credit-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .credit-card strong {
+    font-size: 25px;
+  }
+
+  .credits-main {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+}
+
+
+/* =======================================================
+   MÓVIL PEQUEÑO
+======================================================= */
+
+@media (max-width: 420px) {
+
+  .credits-page {
+    padding: 16px 12px;
+  }
+
+  .credits-header h1 {
+    font-size: 25px;
+  }
+
+  .credits-main {
+    padding: 8px;
+  }
 
 }

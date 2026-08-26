@@ -1,17 +1,72 @@
+/* ======================================================
+   TIPOS DE NOTIFICACIONES
+====================================================== */
+
 export const NOTIFICATION_TYPES = {
 
-  PAYMENT_DUE: "payment_due",
+  /* ====================================================
+     CRÉDITOS
+  ==================================================== */
 
-  PAYMENT_OVERDUE: "payment_overdue",
+  CREDIT:
+    "credit",
 
-  PAYMENT_RECEIVED: "payment_received",
+  CREDIT_CREATED:
+    "credit_created",
 
-  CREDIT_CREATED: "credit_created",
 
-  FOLLOWUP_CREATED: "followup_created",
+  /* ====================================================
+     PAGOS
+  ==================================================== */
 
-  INVENTORY_LOW: "inventory_low",
+  PAYMENT:
+    "payment",
 
-  SYSTEM: "system"
+  PAYMENT_DUE:
+    "payment_due",
+
+  PAYMENT_OVERDUE:
+    "payment_overdue",
+
+  PAYMENT_RECEIVED:
+    "payment_received",
+
+
+  /* ====================================================
+     COBRANZA
+  ==================================================== */
+
+  OVERDUE:
+    "overdue",
+
+  COLLECTION:
+    "collection",
+
+  FOLLOWUP:
+    "followup",
+
+
+  /* ====================================================
+     SEGUIMIENTOS
+  ==================================================== */
+
+  FOLLOWUP_CREATED:
+    "followup_created",
+
+
+  /* ====================================================
+     INVENTARIO
+  ==================================================== */
+
+  INVENTORY_LOW:
+    "inventory_low",
+
+
+  /* ====================================================
+     SISTEMA
+  ==================================================== */
+
+  SYSTEM:
+    "system"
 
 };

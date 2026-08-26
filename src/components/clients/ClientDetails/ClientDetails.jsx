@@ -3,34 +3,25 @@ import {
   useState
 } from "react";
 
-
 import {
   X
 } from "lucide-react";
-
 
 import {
   useAuth
 } from "../../../context/AuthContext";
 
-
 import {
   getUserProfile
 } from "../../../pages/modules/services/company/companyService";
-
 
 import {
   getClientFinancialSummary
 } from "../../../pages/modules/services/clients/clientFinanceService";
 
-
 import ClientFinancialSummary from "../ClientFinancialSummary/ClientFinancialSummary";
 
-
 import "./ClientDetails.css";
-
-
-
 
 
 function ClientDetails({
@@ -41,73 +32,52 @@ function ClientDetails({
 
 }) {
 
-
-
   const { user } = useAuth();
 
 
-  const [summary,setSummary] = useState(null);
+  const [summary, setSummary] =
+    useState(null);
 
 
+  useEffect(() => {
+
+    async function loadSummary() {
+
+      if (!user || !client) {
+
+        return;
+
+      }
 
 
+      try {
+
+        const profile =
+          await getUserProfile(
+            user.uid
+          );
 
 
-  useEffect(()=>{
+        if (!profile?.companyId) {
+
+          return;
+
+        }
 
 
-    async function loadSummary(){
+        const data =
+          await getClientFinancialSummary(
 
+            profile.companyId,
 
+            client.id
 
-      if(!user || !client) return;
-
-
-
-
-
-      try{
-
-
-
-        const profile = await getUserProfile(
-
-          user.uid
-
-        );
-
-
-
-
-
-        if(!profile?.companyId) return;
-
-
-
-
-
-
-        const data = await getClientFinancialSummary(
-
-          profile.companyId,
-
-          client.id
-
-        );
-
-
-
+          );
 
 
         setSummary(data);
 
-
-
-
-
-      }catch(error){
-
-
+      } catch (error) {
 
         console.error(
 
@@ -117,35 +87,17 @@ function ClientDetails({
 
         );
 
-
-
       }
-
-
 
     }
 
 
-
-
-
     loadSummary();
 
+  }, [user, client]);
 
 
-
-  },[user,client]);
-
-
-
-
-
-
-
-
-
-  if(!client){
-
+  if (!client) {
 
     return (
 
@@ -157,27 +109,17 @@ function ClientDetails({
 
     );
 
-
   }
-
-
-
-
-
-
-
 
 
   return (
 
-
-
     <div className="client-details">
 
 
-
-
-
+      {/* ==================================================
+         CERRAR
+      ================================================== */}
 
       <button
 
@@ -185,41 +127,32 @@ function ClientDetails({
 
         onClick={onClose}
 
+        type="button"
+
+        aria-label="Cerrar detalles del cliente"
+
       >
 
-        <X size={20}/>
-
+        <X size={20} />
 
       </button>
 
 
-
-
-
-
-
-
+      {/* ==================================================
+         ENCABEZADO
+      ================================================== */}
 
       <div className="client-details__header">
 
 
-
-
-
         <div className="client-avatar">
 
-          {client.name?.charAt(0)}
+          {client.name?.charAt(0) || "C"}
 
         </div>
 
 
-
-
-
-
-
         <div>
-
 
           <h2>
 
@@ -228,147 +161,202 @@ function ClientDetails({
           </h2>
 
 
-
-
-
           <span>
 
-            {client.status}
+            {client.status || "Activo"}
 
           </span>
 
-
-
-
         </div>
-
-
-
 
 
       </div>
 
 
-
-
-
-
-
-
+      {/* ==================================================
+         INFORMACIÓN DEL CLIENTE
+      ================================================== */}
 
       <div className="client-details__info">
 
 
-
-
-
         <div>
 
-
           <label>
-
             Documento
-
           </label>
-
 
           <p>
 
-            {client.document || "No registrado"}
+            {client.document ||
+              "No registrado"}
 
           </p>
-
 
         </div>
 
 
-
-
-
-
-
         <div>
 
-
           <label>
-
             Teléfono
-
           </label>
-
 
           <p>
 
-            {client.phone || "No registrado"}
+            {client.phone ||
+              "No registrado"}
 
           </p>
-
 
         </div>
 
 
-
-
-
-
-
         <div>
 
-
           <label>
-
             Correo
-
           </label>
-
 
           <p>
 
-            {client.email || "No registrado"}
+            {client.email ||
+              "No registrado"}
 
           </p>
 
-
         </div>
-
-
-
-
-
 
 
         <div>
 
-
           <label>
-
             Dirección
-
           </label>
-
 
           <p>
 
-            {client.address || "No registrada"}
+            {client.address ||
+              "No registrada"}
 
           </p>
 
-
         </div>
-
-
-
 
 
       </div>
 
 
+      {/* ==================================================
+         PREFERENCIAS DE COMUNICACIÓN
+      ================================================== */}
+
+      <div className="client-details__communication">
 
 
+        <h3>
+
+          Preferencias de comunicación
+
+        </h3>
 
 
+        <div className="client-details__communication-list">
 
 
+          {/* WHATSAPP */}
+
+          <div className="client-details__communication-item">
+
+            <span>
+
+              WhatsApp
+
+            </span>
+
+
+            <strong
+              className={
+                client.whatsappEnabled
+                  ? "enabled"
+                  : "disabled"
+              }
+            >
+
+              {client.whatsappEnabled
+                ? "Habilitado"
+                : "Deshabilitado"}
+
+            </strong>
+
+          </div>
+
+
+          {/* SMS */}
+
+          <div className="client-details__communication-item">
+
+            <span>
+
+              SMS
+
+            </span>
+
+
+            <strong
+              className={
+                client.smsEnabled
+                  ? "enabled"
+                  : "disabled"
+              }
+            >
+
+              {client.smsEnabled
+                ? "Habilitado"
+                : "Deshabilitado"}
+
+            </strong>
+
+          </div>
+
+
+          {/* EMAIL */}
+
+          <div className="client-details__communication-item">
+
+            <span>
+
+              Correo electrónico
+
+            </span>
+
+
+            <strong
+              className={
+                client.emailEnabled
+                  ? "enabled"
+                  : "disabled"
+              }
+            >
+
+              {client.emailEnabled
+                ? "Habilitado"
+                : "Deshabilitado"}
+
+            </strong>
+
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+
+      {/* ==================================================
+         RESUMEN FINANCIERO
+      ================================================== */}
 
       <ClientFinancialSummary
 
@@ -377,21 +365,11 @@ function ClientDetails({
       />
 
 
-
-
-
-
-
     </div>
-
-
 
   );
 
-
-
 }
-
 
 
 export default ClientDetails;

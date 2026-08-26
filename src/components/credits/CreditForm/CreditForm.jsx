@@ -1,3 +1,7 @@
+import {
+  useState
+} from "react";
+
 import useCreditForm from "../../../hooks/useCreditForm";
 
 import ClientSection from "./sections/ClientSection";
@@ -14,145 +18,142 @@ import {
 import "./CreditForm.css";
 
 
-
 function CreditForm({
-
   onSave,
-
   creditToEdit,
-
   clients
-
 }) {
 
-
   const {
-
     form,
-
     handleChange,
-
     summary
-
-  } = useCreditForm(creditToEdit);
-
-
-
+  } = useCreditForm(
+    creditToEdit
+  );
 
 
+  const [
+    isSaving,
+    setIsSaving
+  ] = useState(false);
 
-  function handleSubmit(e){
 
+  async function handleSubmit(e) {
 
     e.preventDefault();
 
 
+    if (isSaving) {
+
+      return;
+
+    }
 
 
-    const selectedClient = clients.find(
-
-      client =>
-
-        String(client.id) === String(form.clientId)
-    );
+    setIsSaving(true);
 
 
+    try {
+
+      const selectedClient =
+        clients.find(
+          client =>
+            String(client.id) ===
+            String(form.clientId)
+        );
 
 
+      const credit =
+        buildCredit({
 
-    const credit = buildCredit({
+          form,
 
-      form,
+          summary,
 
-      summary,
+          selectedClient,
 
-      selectedClient,
+          creditToEdit
 
-      creditToEdit
-
-    });
-
-
+        });
 
 
+      await onSave(
+        credit
+      );
 
-    onSave(credit);
 
+    } catch (error) {
+
+      setIsSaving(false);
+
+      throw error;
+
+    }
 
   }
 
 
-
-
-
-
-
   return (
-
 
     <form
 
       className="credit-form"
 
-      onSubmit={handleSubmit}
+      onSubmit={
+        handleSubmit
+      }
 
     >
 
 
-
       <div className="credit-form__left">
-
 
 
         <ClientSection
 
           form={form}
 
-          handleChange={handleChange}
+          handleChange={
+            handleChange
+          }
 
           clients={clients}
 
         />
 
 
-
-
-
         <FinancialSection
 
           form={form}
 
-          handleChange={handleChange}
+          handleChange={
+            handleChange
+          }
 
         />
-
-
-
 
 
         <PaymentSection
 
           form={form}
 
-          handleChange={handleChange}
+          handleChange={
+            handleChange
+          }
 
         />
-
-
-
 
 
         <NotesSection
 
           form={form}
 
-          handleChange={handleChange}
+          handleChange={
+            handleChange
+          }
 
         />
-
-
-
-
 
 
         <button
@@ -161,29 +162,42 @@ function CreditForm({
 
           className="credit-form__button"
 
+          disabled={
+            isSaving
+          }
+
         >
 
           {
 
-            creditToEdit
+            isSaving
 
-              ? "Actualizar crédito"
+              ? (
 
-              : "Guardar crédito"
+                creditToEdit
+
+                  ? "Actualizando..."
+
+                  : "Guardando..."
+
+              )
+
+              : (
+
+                creditToEdit
+
+                  ? "Actualizar crédito"
+
+                  : "Guardar crédito"
+
+              )
 
           }
-
 
         </button>
 
 
-
       </div>
-
-
-
-
-
 
 
       <div className="credit-form__right">
@@ -199,16 +213,11 @@ function CreditForm({
       </div>
 
 
-
-
-
     </form>
-
 
   );
 
 }
-
 
 
 export default CreditForm;

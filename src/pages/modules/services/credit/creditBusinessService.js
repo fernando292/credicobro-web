@@ -18,6 +18,10 @@ import {
 } from "../routes/routeService";
 
 
+/* ======================================================
+   HELPERS
+====================================================== */
+
 function normalizeId(value) {
 
   if (
@@ -35,52 +39,48 @@ function normalizeId(value) {
 }
 
 
-function normalizeDate(value) {
-
-  if (!value) {
-    return "";
-  }
-
-  return String(value)
-    .trim()
-    .split("T")[0];
-
-}
-
-
 function calculateInstallments(
   paidAmount,
   installmentValue,
   totalInstallments
 ) {
 
+  const paid =
+    Number(paidAmount || 0);
+
+  const installment =
+    Number(installmentValue || 0);
+
+  const total =
+    Number(totalInstallments || 0);
+
+
   if (
-    !installmentValue ||
-    installmentValue <= 0
+    installment <= 0 ||
+    total <= 0
   ) {
 
     return 0;
 
   }
 
-  const paid =
+
+  const completed =
     Math.floor(
-      paidAmount /
-      installmentValue
+      paid / installment
     );
 
+
   return Math.min(
-    paid,
-    Number(
-      totalInstallments || 0
-    )
+    completed,
+    total
   );
 
 }
 
 
 /* ======================================================
-   CALCULAR SIGUIENTE FECHA
+   SIGUIENTE FECHA DE PAGO
 ====================================================== */
 
 function calculateNextPaymentDate(
@@ -96,14 +96,22 @@ function calculateNextPaymentDate(
 
   }
 
+
   const baseDate =
     credit.nextPaymentDate ||
     credit.firstPayment;
 
+
+  const dateString =
+    String(baseDate)
+      .split("T")[0];
+
+
   const currentDate =
     new Date(
-      `${String(baseDate).split("T")[0]}T00:00:00`
+      `${dateString}T00:00:00`
     );
+
 
   if (
     Number.isNaN(
@@ -115,9 +123,8 @@ function calculateNextPaymentDate(
 
   }
 
-  switch (
-    credit.frequency
-  ) {
+
+  switch (credit.frequency) {
 
     case "Semanal":
 
@@ -127,6 +134,7 @@ function calculateNextPaymentDate(
 
       break;
 
+
     case "Quincenal":
 
       currentDate.setDate(
@@ -134,6 +142,7 @@ function calculateNextPaymentDate(
       );
 
       break;
+
 
     case "Mensual":
 
@@ -143,11 +152,13 @@ function calculateNextPaymentDate(
 
       break;
 
+
     default:
 
       return null;
 
   }
+
 
   return currentDate
     .toISOString()
@@ -157,7 +168,7 @@ function calculateNextPaymentDate(
 
 
 /* ======================================================
-   BUSCAR CRÃ‰DITO REAL
+   RESOLVER CRÉDITO
 ====================================================== */
 
 export async function resolveCredit(
@@ -166,24 +177,30 @@ export async function resolveCredit(
   clientId
 ) {
 
-  const normalizedCreditId =
-    normalizeId(
-      creditId
+  if (!companyId) {
+
+    throw new Error(
+      "companyId es obligatorio."
     );
+
+  }
+
+
+  const normalizedCreditId =
+    normalizeId(creditId);
+
 
   const normalizedClientId =
-    normalizeId(
-      clientId
-    );
+    normalizeId(clientId);
 
 
-  /* ====================================================
-     PRIMERO: INTENTAR POR ID
-  ==================================================== */
+  /*
+   * --------------------------------------------------
+   * INTENTAR DIRECTAMENTE POR FIRESTORE ID
+   * --------------------------------------------------
+   */
 
-  if (
-    normalizedCreditId
-  ) {
+  if (normalizedCreditId) {
 
     const creditRef =
       doc(
@@ -194,37 +211,30 @@ export async function resolveCredit(
         normalizedCreditId
       );
 
+
     const snapshot =
       await getDoc(
         creditRef
       );
 
 
-    if (
-      snapshot.exists()
-    ) {
+    if (snapshot.exists()) {
 
       const credit =
         snapshot.data();
 
 
-      /*
-       * Si tenemos clientId,
-       * verificamos que el crÃ©dito pertenezca
-       * al cliente correcto.
-       */
-
       if (
         normalizedClientId &&
         normalizeId(
           credit.clientId
-        ) !==
-        normalizedClientId
+        ) !== normalizedClientId
       ) {
 
         console.warn(
-          "El crÃ©dito indicado no pertenece al cliente de la visita.",
+          "El crédito indicado no pertenece al cliente de la visita.",
           {
+
             creditId:
               normalizedCreditId,
 
@@ -258,9 +268,11 @@ export async function resolveCredit(
   }
 
 
-  /* ====================================================
-     SEGUNDO: BUSCAR POR CLIENTE
-  ==================================================== */
+  /*
+   * --------------------------------------------------
+   * BÚSQUEDA ALTERNATIVA
+   * --------------------------------------------------
+   */
 
   if (
     normalizedClientId ||
@@ -275,6 +287,7 @@ export async function resolveCredit(
         "credits"
       );
 
+
     const creditsSnapshot =
       await getDocs(
         creditsRef
@@ -283,14 +296,19 @@ export async function resolveCredit(
 
     const clientCredits =
       creditsSnapshot.docs
-        .map(
-          item => ({
+        .map(item => {
 
-            ...item.data(),
+          const data =
+            item.data();
+
+
+          return {
+
+            ...data,
 
             legacyCreditId:
               normalizeId(
-                item.data().id
+                data.id
               ),
 
             id:
@@ -299,82 +317,67 @@ export async function resolveCredit(
             firestoreId:
               item.id
 
-          })
-        )
-        .filter(
+          };
 
-          credit =>
+        })
+        .filter(credit => {
 
-            !normalizedClientId ||
+          if (!normalizedClientId) {
+
+            return true;
+
+          }
+
+
+          return (
             normalizeId(
               credit.clientId
             ) ===
             normalizedClientId
+          );
 
-        );
+        });
 
-
-    /*
-     * Preferimos crÃ©ditos activos.
-     */
 
     /*
-     * Un creditId de negocio antiguo puede ser distinto
-     * del ID real del documento Firestore.
+     * Buscar por ID lógico/antiguo
      */
-    if (
-      normalizedCreditId
-    ) {
+
+    if (normalizedCreditId) {
 
       const matchingCredit =
         clientCredits.find(
-
-          credit =>
+          credit => (
 
             normalizeId(
               credit.creditId
-            ) ===
-            normalizedCreditId ||
+            ) === normalizedCreditId ||
 
             normalizeId(
               credit.legacyCreditId
-            ) ===
-            normalizedCreditId
+            ) === normalizedCreditId
 
+          )
         );
 
 
-      if (
-        matchingCredit
-      ) {
-
-        return matchingCredit;
-
-      }
-
-
-      return null;
+      return matchingCredit || null;
 
     }
 
 
+    /*
+     * Buscar crédito activo único
+     */
+
     const activeCredits =
       clientCredits.filter(
-
         credit =>
-
           String(
             credit.status || ""
-          ).trim() !==
-          "Pagado"
-
+          ).trim() !== "Pagado"
       );
 
-
-    /*
-     * Si solamente existe un crÃ©dito activo,
-     * ese es el crÃ©dito correcto.
-     */
 
     if (
       activeCredits.length === 1
@@ -386,19 +389,15 @@ export async function resolveCredit(
 
 
     /*
-     * Si hay varios, buscamos el que tenga
-     * saldo pendiente.
+     * Buscar crédito con saldo
      */
 
     const creditsWithBalance =
       activeCredits.filter(
-
         credit =>
-
           Number(
             credit.balance || 0
           ) > 0
-
       );
 
 
@@ -412,8 +411,7 @@ export async function resolveCredit(
 
 
     /*
-     * Ãšltimo respaldo:
-     * si solamente existe un crÃ©dito del cliente.
+     * Si solamente existe uno
      */
 
     if (
@@ -433,7 +431,7 @@ export async function resolveCredit(
 
 
 /* ======================================================
-   REGISTRAR PAGO DE CRÃ‰DITO
+   REGISTRAR PAGO
 ====================================================== */
 
 export async function registerCreditPayment(
@@ -448,28 +446,34 @@ export async function registerCreditPayment(
   ) {
 
     throw new Error(
-      "companyId no es válido"
+      "companyId no es válido."
     );
 
   }
 
+
+  if (!payment) {
+
+    throw new Error(
+      "La información del pago es obligatoria."
+    );
+
+  }
+
+
+  /*
+   * Si no llega creditId,
+   * debe existir clientId para resolverlo.
+   */
 
   if (
     !creditId ||
     typeof creditId !== "string"
   ) {
 
-    /*
-     * No abortamos inmediatamente.
-     *
-     * Puede existir un creditId antiguo o incorrecto
-     * y podemos recuperar el crÃ©dito utilizando
-     * payment.clientId.
-     */
-
     if (
       !normalizeId(
-        payment?.clientId
+        payment.clientId
       )
     ) {
 
@@ -482,53 +486,26 @@ export async function registerCreditPayment(
   }
 
 
-  /* ====================================================
-     RESOLVER CRÃ‰DITO REAL
-  ==================================================== */
+  /*
+   * Resolver crédito real
+   */
 
   const credit =
     await resolveCredit(
-
       companyId,
-
       creditId,
-
-      payment?.clientId
-
+      payment.clientId
     );
 
 
-  if (
-    !credit
-  ) {
-
-    console.error(
-      "No se pudo resolver el crÃ©dito:",
-      {
-        companyId,
-
-        creditId,
-
-        clientId:
-          payment?.clientId
-
-      }
-    );
-
+  if (!credit) {
 
     throw new Error(
-      "Crédito no encontrado"
+      "Crédito no encontrado."
     );
 
   }
 
-
-  /*
-   * MUY IMPORTANTE:
-   *
-   * Usamos siempre el ID REAL del documento
-   * encontrado en Firestore.
-   */
 
   const realCreditId =
     normalizeId(
@@ -536,9 +513,7 @@ export async function registerCreditPayment(
     );
 
 
-  if (
-    !realCreditId
-  ) {
+  if (!realCreditId) {
 
     throw new Error(
       "El crédito encontrado no tiene un ID válido."
@@ -547,23 +522,9 @@ export async function registerCreditPayment(
   }
 
 
-  /* ====================================================
-     REFERENCIA REAL DEL CRÃ‰DITO
-  ==================================================== */
-
-  const creditRef =
-    doc(
-      db,
-      "companies",
-      companyId,
-      "credits",
-      realCreditId
-    );
-
-
-  /* ====================================================
-     OBTENER PAGOS
-  ==================================================== */
+  /*
+   * Obtener pagos existentes
+   */
 
   const paymentsRef =
     collection(
@@ -584,13 +545,10 @@ export async function registerCreditPayment(
 
   const usedInstallments =
     paymentsSnapshot.docs.map(
-
       item =>
         Number(
-          item.data()
-            .installmentNumber || 0
+          item.data().installmentNumber || 0
         )
-
     );
 
 
@@ -601,15 +559,17 @@ export async function registerCreditPayment(
     ) + 1;
 
 
+  /*
+   * Valor del pago
+   */
+
   const paymentValue =
     Number(
-      payment?.value || 0
+      payment.value || 0
     );
 
 
-  if (
-    paymentValue <= 0
-  ) {
+  if (paymentValue <= 0) {
 
     throw new Error(
       "El valor del pago debe ser mayor que cero."
@@ -618,9 +578,9 @@ export async function registerCreditPayment(
   }
 
 
-  /* ====================================================
-     CREAR PAGO
-  ==================================================== */
+  /*
+   * Preparar pago
+   */
 
   const paymentWithInstallment = {
 
@@ -633,92 +593,117 @@ export async function registerCreditPayment(
       nextInstallment,
 
     creditId:
-      realCreditId
+      realCreditId,
+
+    companyId
 
   };
 
 
+  /*
+   * Guardar pago.
+   *
+   * createPayment() es quien realiza
+   * la actualización financiera.
+   */
+
   const savedPayment =
     await createPayment(
-
       companyId,
-
       realCreditId,
-
       paymentWithInstallment
-
     );
 
 
-  /* ====================================================
-     CALCULAR NUEVOS VALORES
-  ==================================================== */
+  /*
+   * Obtener crédito actualizado
+   */
 
-  const paidAmount =
-
-    Number(
-      credit.paidAmount || 0
-    ) +
-
-    paymentValue;
-
-
-  const originalTotal =
-    Number(
-      credit.total ||
-      credit.amount ||
-      0
+  const creditRef =
+    doc(
+      db,
+      "companies",
+      companyId,
+      "credits",
+      realCreditId
     );
 
 
-  const balance =
-    Math.max(
+  const updatedCreditSnapshot =
+    await getDoc(
+      creditRef
+    );
 
-      originalTotal -
 
-      paidAmount,
+  if (
+    !updatedCreditSnapshot.exists()
+  ) {
 
-      0
+    throw new Error(
+      "El crédito no existe después de registrar el pago."
+    );
 
+  }
+
+
+  const updatedCreditData =
+    updatedCreditSnapshot.data();
+
+
+  /*
+   * --------------------------------------------------
+   * CUOTAS
+   *
+   * SE MANTIENE LA LÓGICA ACTUAL:
+   * SOLO CUOTAS COMPLETAS.
+   *
+   * La lógica de pagos parciales se implementará
+   * posteriormente.
+   * --------------------------------------------------
+   */
+
+  const currentPaidAmount =
+    Number(
+      updatedCreditData.paidAmount || 0
+    );
+
+
+  const totalInstallments =
+    Number(
+      updatedCreditData.installments || 0
+    );
+
+
+  const installmentValue =
+    Number(
+      updatedCreditData.installmentValue || 0
     );
 
 
   const paidInstallments =
     calculateInstallments(
-
-      paidAmount,
-
-      Number(
-        credit.installmentValue || 0
-      ),
-
-      Number(
-        credit.installments || 0
-      )
-
+      currentPaidAmount,
+      installmentValue,
+      totalInstallments
     );
 
 
   const pendingInstallments =
     Math.max(
-
-      Number(
-        credit.installments || 0
-      ) -
-
+      totalInstallments -
       paidInstallments,
-
       0
-
     );
 
 
-  /* ====================================================
-     CALCULAR PRÃ“XIMA FECHA
-  ==================================================== */
+  /*
+   * --------------------------------------------------
+   * SIGUIENTE FECHA
+   * --------------------------------------------------
+   */
 
   let nextPaymentDate =
-    credit.nextPaymentDate ||
+    updatedCreditData.nextPaymentDate ||
     null;
 
 
@@ -727,9 +712,13 @@ export async function registerCreditPayment(
   ) {
 
     nextPaymentDate =
-      calculateNextPaymentDate(
-        credit
-      );
+      calculateNextPaymentDate({
+
+        ...updatedCreditData,
+
+        nextPaymentDate
+
+      });
 
   } else {
 
@@ -739,88 +728,85 @@ export async function registerCreditPayment(
   }
 
 
-  /* ====================================================
-     ACTUALIZAR CRÃ‰DITO
-  ==================================================== */
-
-  const updatedCredit = {
-
-    balance,
-
-    paidAmount,
+  const installmentData = {
 
     paidInstallments,
 
     pendingInstallments,
 
-    nextPaymentDate,
-
-    status:
-
-      balance === 0
-
-        ? "Pagado"
-
-        : "Activo"
+    nextPaymentDate
 
   };
 
 
+  /*
+   * Actualizar solamente datos de cuotas.
+   */
+
   await updateDoc(
-
     creditRef,
-
-    updatedCredit
-
+    installmentData
   );
 
 
-  /* ====================================================
-     CREAR SIGUIENTE RUTA AUTOMÃTICA
-  ==================================================== */
+  /*
+   * --------------------------------------------------
+   * ACTUALIZAR RUTA
+   * --------------------------------------------------
+   */
 
   let updatedRoute =
     null;
 
 
   if (
-
     pendingInstallments > 0 &&
-
     nextPaymentDate &&
-
-    credit.clientId
-
+    updatedCreditData.clientId
   ) {
 
     try {
 
       updatedRoute =
         await assignClientAutomaticallyToRoute(
-
           companyId,
-
-          credit.clientId,
-
+          updatedCreditData.clientId,
           nextPaymentDate,
-
           realCreditId
-
         );
 
     } catch (error) {
 
       console.error(
-
-        "Error preparando la siguiente ruta automÃ¡tica:",
-
+        "Error preparando la siguiente ruta automática:",
         error
-
       );
 
     }
 
   }
+
+
+  /*
+   * Obtener crédito final actualizado
+   */
+
+  const finalCreditSnapshot =
+    await getDoc(
+      creditRef
+    );
+
+
+  const finalCredit =
+    finalCreditSnapshot.exists()
+      ? finalCreditSnapshot.data()
+      : {
+
+          ...updatedCreditData,
+
+          ...installmentData
+
+        };
 
 
   return {
@@ -830,11 +816,12 @@ export async function registerCreditPayment(
 
     updatedCredit: {
 
-      ...credit,
-
-      ...updatedCredit,
+      ...finalCredit,
 
       id:
+        realCreditId,
+
+      firestoreId:
         realCreditId
 
     },
@@ -847,7 +834,7 @@ export async function registerCreditPayment(
 
 
 /* ======================================================
-   ELIMINAR PAGO DE CRÃ‰DITO
+   ELIMINAR PAGO
 ====================================================== */
 
 export async function deleteCreditPayment(
@@ -856,6 +843,11 @@ export async function deleteCreditPayment(
   paymentId
 ) {
 
+  /*
+   * Resolver crédito primero para soportar
+   * IDs antiguos/lógicos.
+   */
+
   const resolvedCredit =
     await resolveCredit(
       companyId,
@@ -863,12 +855,10 @@ export async function deleteCreditPayment(
     );
 
 
-  if (
-    !resolvedCredit
-  ) {
+  if (!resolvedCredit) {
 
     throw new Error(
-      "Crédito no encontrado"
+      "Crédito no encontrado."
     );
 
   }
@@ -880,16 +870,32 @@ export async function deleteCreditPayment(
     );
 
 
+  if (!realCreditId) {
+
+    throw new Error(
+      "El crédito no tiene un ID válido."
+    );
+
+  }
+
+
+  /*
+   * Eliminar pago.
+   *
+   * removePayment() también recalcula
+   * los acumulados financieros.
+   */
+
   await removePayment(
-
     companyId,
-
     realCreditId,
-
     paymentId
-
   );
 
+
+  /*
+   * Obtener crédito actualizado.
+   */
 
   const creditRef =
     doc(
@@ -907,12 +913,10 @@ export async function deleteCreditPayment(
     );
 
 
-  if (
-    !creditSnapshot.exists()
-  ) {
+  if (!creditSnapshot.exists()) {
 
     throw new Error(
-      "Crédito no encontrado"
+      "Crédito no encontrado."
     );
 
   }
@@ -921,6 +925,10 @@ export async function deleteCreditPayment(
   const credit =
     creditSnapshot.data();
 
+
+  /*
+   * Obtener pagos restantes.
+   */
 
   const paymentsRef =
     collection(
@@ -946,114 +954,101 @@ export async function deleteCreditPayment(
     );
 
 
+  /*
+   * Calcular total pagado.
+   */
+
   const paidAmount =
     payments.reduce(
-
       (
         total,
         item
       ) =>
-
         total +
-
         Number(
           item.value || 0
         ),
-
       0
-
     );
 
 
+  /*
+   * Mantener lógica actual:
+   * solamente cuotas completas.
+   */
+
   const paidInstallments =
     calculateInstallments(
-
       paidAmount,
-
       Number(
         credit.installmentValue || 0
       ),
-
       Number(
         credit.installments || 0
       )
-
     );
 
 
   const pendingInstallments =
     Math.max(
-
       Number(
         credit.installments || 0
       ) -
+      paidInstallments,
+      0
+    );
+
+
+  /*
+   * Actualizar cuotas.
+   */
+
+  await updateDoc(
+    creditRef,
+    {
 
       paidInstallments,
 
-      0
+      pendingInstallments
 
-    );
-
-
-  const originalTotal =
-    Number(
-      credit.total ||
-      credit.amount ||
-      0
-    );
-
-
-  const balance =
-    Math.max(
-
-      originalTotal -
-
-      paidAmount,
-
-      0
-
-    );
-
-
-  const updatedCredit = {
-
-    balance,
-
-    paidAmount,
-
-    paidInstallments,
-
-    pendingInstallments,
-
-    status:
-
-      balance === 0
-
-        ? "Pagado"
-
-        : "Activo"
-
-  };
-
-
-  await updateDoc(
-
-    creditRef,
-
-    updatedCredit
-
+    }
   );
+
+
+  /*
+   * Obtener crédito final.
+   */
+
+  const finalCreditSnapshot =
+    await getDoc(
+      creditRef
+    );
+
+
+  const finalCredit =
+    finalCreditSnapshot.exists()
+      ? finalCreditSnapshot.data()
+      : {
+
+          ...credit,
+
+          paidInstallments,
+
+          pendingInstallments
+
+        };
 
 
   return {
 
     updatedCredit: {
 
-      ...credit,
-
-      ...updatedCredit,
+      ...finalCredit,
 
       id:
+        realCreditId,
+
+      firestoreId:
         realCreditId
 
     }

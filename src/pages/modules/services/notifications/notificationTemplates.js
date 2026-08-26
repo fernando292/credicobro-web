@@ -1,74 +1,105 @@
 export const notificationTemplates = {
 
-  creditCreated(data) {
+  /* ======================================================
+     CRÉDITO CREADO
+  ====================================================== */
+
+  creditCreated(data = {}) {
 
     return {
 
-      title: "Nuevo crédito",
+      title:
+        "Nuevo crédito",
 
-      message: `${data.client} recibió un crédito por $${Number(
-        data.amount || 0
-      ).toLocaleString()}`,
+      message:
+        `${data.client || "Cliente"} recibió un crédito por $${Number(
+          data.amount || 0
+        ).toLocaleString("es-CO")}`,
 
-      type: "success",
+      type:
+        "success",
 
-      module: "credits"
+      module:
+        "credits"
 
     };
 
   },
 
 
+  /* ======================================================
+     PAGO REGISTRADO
+  ====================================================== */
 
-  paymentCreated(data) {
+  paymentCreated(data = {}) {
 
     return {
 
-      title: "Pago registrado",
+      title:
+        "Pago registrado",
 
-      message: `${data.client} realizó un pago por $${Number(
-        data.amount || 0
-      ).toLocaleString()}`,
+      message:
+        `${data.client || "Cliente"} realizó un pago por $${Number(
+          data.amount || 0
+        ).toLocaleString("es-CO")}`,
 
-      type: "success",
+      type:
+        "success",
 
-      module: "payments"
+      module:
+        "payments"
 
     };
 
   },
 
 
+  /* ======================================================
+     CRÉDITO VENCIDO
+  ====================================================== */
 
-  overdueCredit(data) {
+  overdueCredit(data = {}) {
 
     return {
 
-      title: "Crédito vencido",
+      title:
+        "Crédito vencido",
 
-      message: `${data.client} presenta mora.`,
+      message:
+        `${data.client || "Cliente"} presenta mora.`,
 
-      type: "warning",
+      type:
+        "warning",
 
-      module: "collections"
+      module:
+        "collections"
 
     };
 
   },
 
 
+  /* ======================================================
+     SEGUIMIENTO CREADO
+  ====================================================== */
 
-  collectionVisit(data) {
+  collectionVisit(data = {}) {
 
     return {
 
-      title: "Seguimiento creado",
+      title:
+        "Seguimiento creado",
 
-      message: `${data.client} tiene gestión para ${data.date}.`,
+      message:
+        `${data.client || "Cliente"} tiene gestión para ${
+          data.date || "una fecha programada"
+        }.`,
 
-      type: "info",
+      type:
+        "info",
 
-      module: "collections"
+      module:
+        "collections"
 
     };
 

@@ -235,3 +235,117 @@
   color: #64748b;
 
 }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1000px) {
+
+  .how {
+    padding: 80px 0;
+  }
+
+
+  .how__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+
+  .how__grid::before {
+    display: none;
+  }
+
+
+  .how__header h2 {
+    font-size: 38px;
+  }
+
+
+  .step-card {
+    padding: 30px 26px;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .how {
+    padding: 60px 0;
+  }
+
+
+  .how__header {
+    margin-bottom: 40px;
+  }
+
+
+  .how__header h2 {
+    font-size: 34px;
+    line-height: 1.15;
+  }
+
+
+  .how__header p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+
+  .how__grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+
+  .step-card {
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+
+  .step-number {
+    width: 58px;
+    height: 58px;
+    font-size: 19px;
+    margin-bottom: 20px;
+  }
+
+
+  .step-card h3 {
+    font-size: 20px;
+  }
+
+
+  .step-card p {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .how {
+    padding: 50px 0;
+  }
+
+
+  .how__header h2 {
+    font-size: 30px;
+  }
+
+
+  .how__header p {
+    font-size: 15px;
+  }
+
+
+  .step-card {
+    padding: 22px;
+  }
+
+}

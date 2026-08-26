@@ -1,10 +1,10 @@
-
 import {
   Search,
   Users,
   CreditCard,
   Wallet,
-  X
+  X,
+  Menu
 } from "lucide-react";
 
 import {
@@ -20,8 +20,9 @@ import NotificationBell from "../../notifications/NotificationBell";
 import "./Topbar.css";
 
 
-
-function Topbar() {
+function Topbar({
+  onMenuClick
+}) {
 
   const navigate = useNavigate();
 
@@ -35,7 +36,6 @@ function Topbar() {
   } = useSearch();
 
 
-
   function handleResultClick(result) {
 
     if (result.type === "client") {
@@ -45,13 +45,11 @@ function Topbar() {
     }
 
 
-
     if (result.type === "credit") {
 
       navigate("/creditos");
 
     }
-
 
 
     if (result.type === "payment") {
@@ -61,11 +59,9 @@ function Topbar() {
     }
 
 
-
     clearSearch();
 
   }
-
 
 
   function getResultIcon(type) {
@@ -77,13 +73,11 @@ function Topbar() {
     }
 
 
-
     if (type === "credit") {
 
       return <CreditCard size={18} />;
 
     }
-
 
 
     if (type === "payment") {
@@ -93,16 +87,13 @@ function Topbar() {
     }
 
 
-
     return <Search size={18} />;
 
   }
 
 
-
   const showResults =
     searchTerm.trim().length > 0;
-
 
 
   return (
@@ -113,14 +104,36 @@ function Topbar() {
       <div className="topbar__left">
 
 
-        <h1>
-          Resumen general
-        </h1>
+        <div className="topbar__title-row">
 
 
-        <p>
-          Consulta el estado actual de tu operación financiera.
-        </p>
+          <button
+            type="button"
+            className="topbar__menu-button"
+            onClick={onMenuClick}
+            aria-label="Abrir menú"
+          >
+
+            <Menu size={23} strokeWidth={2.3} />
+
+          </button>
+
+
+          <div className="topbar__title-content">
+
+            <h1>
+              Resumen general
+            </h1>
+
+
+            <p>
+              Consulta el estado actual de tu operación financiera.
+            </p>
+
+          </div>
+
+
+        </div>
 
 
       </div>
@@ -332,7 +345,6 @@ function Topbar() {
   );
 
 }
-
 
 
 export default Topbar;

@@ -1,55 +1,75 @@
-.credit-section{
+.credit-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-sizing: border-box;
+}
 
-  background:white;
+.credit-section h2 {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
 
-  border:1px solid #e2e8f0;
+.credit-section textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 14px;
+  resize: vertical;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
 
-  border-radius:22px;
+.credit-section textarea:hover {
+  border-color: #cbd5e1;
+}
 
-  padding:28px;
+.credit-section textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
 
-  margin-bottom:24px;
+.credit-section textarea::placeholder {
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+
+  .credit-section {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .credit-section h2 {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
 
 }
 
-.credit-section h2{
+@media (max-width: 480px) {
 
-  margin:0 0 24px;
+  .credit-section {
+    padding: 18px;
+    margin-bottom: 18px;
+  }
 
-  font-size:22px;
-
-  color:#0f172a;
-
-}
-
-.credit-section textarea{
-
-  width:100%;
-
-  resize:vertical;
-
-  min-height:120px;
-
-  padding:14px;
-
-  border:1px solid #dbe2ea;
-
-  border-radius:12px;
-
-  font-size:15px;
-
-  outline:none;
-
-  transition:.25s;
-
-  font-family:inherit;
-
-}
-
-.credit-section textarea:focus{
-
-  border-color:#2563eb;
-
-  box-shadow:0 0 0 4px rgba(37,99,235,.08);
+  .credit-section textarea {
+    min-height: 110px;
+    font-size: 14px;
+  }
 
 }

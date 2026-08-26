@@ -12,6 +12,10 @@ import {
 } from "../../../../pages/modules/services/company/companyService";
 
 import {
+  getClientById
+} from "../../../../pages/modules/services/clients/clientService";
+
+import {
   getPayments
 } from "../../../../pages/modules/services/payment/paymentService";
 
@@ -20,426 +24,433 @@ import {
   deleteCreditPayment
 } from "../../../../pages/modules/services/credit/creditBusinessService";
 
-import {
-  notifyPaymentRegistered
-} from "../../../../pages/modules/services/notifications/notificationEvents";
-
 import "./CreditPaymentsTab.css";
 
 
-
 function CreditPaymentsTab({
-
   credit,
-
   onCreditUpdated
-
 }) {
-
 
   const { user } = useAuth();
 
+  const [companyId, setCompanyId] =
+    useState(null);
 
-  const [companyId,setCompanyId] = useState(null);
+  const [payments, setPayments] =
+    useState([]);
 
-  const [payments,setPayments] = useState([]);
+  const [isSaving, setIsSaving] =
+    useState(false);
 
-
-  const [form,setForm] = useState({
-
-    value:"",
-    method:"Efectivo",
-    date:""
-
+  const [form, setForm] = useState({
+    value: "",
+    method: "Efectivo",
+    date: ""
   });
 
 
+  /* ======================================================
+     CARGAR PAGOS
+  ====================================================== */
 
+  useEffect(() => {
 
+    async function loadPayments() {
 
-  useEffect(()=>{
+      if (
+        !user ||
+        !credit
+      ) {
+        return;
+      }
 
+      try {
 
-    async function load(){
+        const profile =
+          await getUserProfile(
+            user.uid
+          );
 
+        if (!profile?.companyId) {
+          return;
+        }
 
-      if(!user || !credit) return;
-
-
-
-      try{
-
-
-        const profile = await getUserProfile(
-
-          user.uid
-
-        );
-
-
-
-        if(!profile?.companyId) return;
-
-
-
-        const company = String(
-
-          profile.companyId
-
-        );
-
-
+        const company =
+          String(
+            profile.companyId
+          );
 
         setCompanyId(company);
 
-
-
-
-        const data = await getPayments(
-
-          company,
-
-          String(credit.id)
-
-        );
-
-
+        const data =
+          await getPayments(
+            company,
+            String(credit.id)
+          );
 
         setPayments(
-
           [...data].reverse()
-
         );
 
-
-
-      }catch(error){
-
+      } catch (error) {
 
         console.error(
-
-          "Error cargando pagos",
-
+          "Error cargando pagos:",
           error
-
         );
-
 
       }
 
-
     }
 
+    loadPayments();
+
+  }, [
+    user,
+    credit
+  ]);
 
 
-    load();
+  /* ======================================================
+     CAMBIAR FORMULARIO
+  ====================================================== */
 
+  function handleChange(e) {
 
-
-  },[user,credit]);
-
-
-
-
-
-
-
-
-  function handleChange(e){
-
+    if (isSaving) {
+      return;
+    }
 
     setForm({
 
       ...form,
 
-      [e.target.name]:e.target.value
+      [e.target.name]:
+        e.target.value
 
     });
-
 
   }
 
 
+  /* ======================================================
+     REGISTRAR PAGO
+  ====================================================== */
 
-
-
-
-
-
-  async function handleSubmit(e){
-
+  async function handleSubmit(e) {
 
     e.preventDefault();
 
 
+    if (isSaving) {
+      return;
+    }
 
-    if(
 
+    console.log(
+      "CREDIT PAYMENT TAB EJECUTADO"
+    );
+
+
+    if (
       !form.value ||
-
       !companyId
-
-    ) return;
-
-
-
+    ) {
+      return;
+    }
 
 
-    try{
+    setIsSaving(true);
 
 
+    try {
+
+      /* ==================================================
+         OBTENER CLIENTE
+      ================================================== */
+
+      let client = null;
+
+      if (credit.clientId) {
+
+        client =
+          await getClientById(
+            companyId,
+            String(
+              credit.clientId
+            )
+          );
+
+      }
+
+
+      /* ==================================================
+         PREPARAR PAGO
+      ================================================== */
 
       const payment = {
 
+        value:
+          Number(
+            form.value
+          ),
 
-        value:Number(form.value),
+        method:
+          form.method,
 
+        date:
+          form.date,
 
-        method:form.method,
+        createdAt:
+          new Date(),
 
+        clientId:
+          credit.clientId ||
+          null,
 
-        date:form.date,
+        client:
+          client?.name ||
+          credit.clientName ||
+          credit.client ||
+          "Cliente",
 
-
-        createdAt:new Date()
-
+        phone:
+          client?.phone ||
+          ""
 
       };
 
 
+      console.log(
+        "DATOS PARA NOTIFICACIÓN:",
+        {
 
+          client:
+            payment.client,
 
+          phone:
+            payment.phone,
 
-      const result = await registerCreditPayment(
+          clientId:
+            payment.clientId,
 
-        companyId,
+          amount:
+            payment.value
 
-        String(credit.id),
-
-        payment
-
+        }
       );
 
 
+      /* ==================================================
+         REGISTRAR PAGO
+      ================================================== */
 
-
-
-
-      await notifyPaymentRegistered({
-
-        companyId,
-
-        client:
-
-          credit.clientName ||
-
-          credit.client ||
-
-          "Cliente",
-
-
-        amount:payment.value
-
-      });
-
-
-
-
-
-
-
-      setPayments(prev=>[
-
-        result.payment,
-
-        ...prev
-
-      ]);
-
-
-
-
-
-
-      if(onCreditUpdated){
-
-
-        onCreditUpdated(
-
-          result.updatedCredit
-
+      const result =
+        await registerCreditPayment(
+          companyId,
+          String(credit.id),
+          payment
         );
 
+
+      /* ==================================================
+         ACTUALIZAR LISTA
+      ================================================== */
+
+      setPayments(
+        prev => [
+          result.payment,
+          ...prev
+        ]
+      );
+
+
+      /* ==================================================
+         ACTUALIZAR CRÉDITO
+      ================================================== */
+
+      if (
+        onCreditUpdated
+      ) {
+
+        onCreditUpdated(
+          result.updatedCredit
+        );
 
       }
 
 
-
-
-
+      /* ==================================================
+         LIMPIAR FORMULARIO
+      ================================================== */
 
       setForm({
 
-        value:"",
+        value: "",
 
-        method:"Efectivo",
+        method:
+          "Efectivo",
 
-        date:""
+        date: ""
 
       });
 
 
-
-
-    }catch(error){
-
+    } catch (error) {
 
       console.error(
-
-        "Error registrando pago",
-
+        "Error registrando pago:",
         error
-
       );
 
+    } finally {
+
+      setIsSaving(false);
 
     }
-
-
 
   }
 
 
+  /* ======================================================
+     ELIMINAR PAGO
+  ====================================================== */
 
+  async function handleDelete(
+    paymentId
+  ) {
 
-
-
-
-
-
-  async function handleDelete(paymentId){
-
-
-
-    const ok = window.confirm(
-
-      "¿Eliminar este pago?"
-
-    );
-
-
-
-    if(!ok) return;
-
-
-
-
-    try{
-
-
-      const result = await deleteCreditPayment(
-
-        companyId,
-
-        String(credit.id),
-
-        String(paymentId)
-
+    const ok =
+      window.confirm(
+        "¿Eliminar este pago?"
       );
 
+    if (!ok) {
+      return;
+    }
 
+    try {
 
-
-
-
-      setPayments(prev=>
-
-        prev.filter(
-
-          item =>
-
-            String(item.id)!==String(paymentId)
-
-        )
-
-      );
-
-
-
-
-
-
-      if(onCreditUpdated){
-
-
-        onCreditUpdated(
-
-          result.updatedCredit
-
+      const result =
+        await deleteCreditPayment(
+          companyId,
+          String(credit.id),
+          String(paymentId)
         );
 
 
-      }
+      /* ==================================================
+         ELIMINAR DE LA LISTA
+      ================================================== */
 
-
-
-    }catch(error){
-
-
-      console.error(
-
-        "Error eliminando pago",
-
-        error
-
+      setPayments(
+        prev =>
+          prev.filter(
+            item =>
+              String(item.id) !==
+              String(paymentId)
+          )
       );
 
 
+      /* ==================================================
+         ACTUALIZAR CRÉDITO
+      ================================================== */
+
+      if (
+        onCreditUpdated
+      ) {
+
+        onCreditUpdated(
+          result.updatedCredit
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Error eliminando pago:",
+        error
+      );
+
     }
-
-
 
   }
 
 
+  /* ======================================================
+     VALORES DEL CRÉDITO
+  ====================================================== */
+
+  const paidAmount =
+    Number(
+      credit?.paidAmount || 0
+    );
+
+  const balance =
+    Number(
+      credit?.balance || 0
+    );
+
+  const paidInstallments =
+    Number(
+      credit?.paidInstallments || 0
+    );
+
+  const totalInstallments =
+    Number(
+      credit?.installments || 0
+    );
+
+  const pendingInstallments =
+    Number(
+      credit?.pendingInstallments ??
+      Math.max(
+        totalInstallments -
+        paidInstallments,
+        0
+      )
+    );
+
+  const installmentValue =
+    Number(
+      credit?.installmentValue || 0
+    );
 
 
+  /* ======================================================
+     FORMATO DE MONEDA
+  ====================================================== */
+
+  function formatCurrency(
+    value
+  ) {
+
+    return Number(
+      value || 0
+    ).toLocaleString(
+      "es-CO"
+    );
+
+  }
 
 
-
-
-
-  const totalPaid = payments.reduce(
-
-    (total,payment)=>
-
-      total +
-
-      Number(payment.value || 0),
-
-    0
-
-  );
-
-
-
-
-
-
-
-
+  /* ======================================================
+     RENDER
+  ====================================================== */
 
   return (
-
 
     <div className="credit-payments">
 
 
-
-
+      {/* ==================================================
+         RESUMEN DE PAGOS
+      ================================================== */}
 
       <div className="payment-summary">
-
 
 
         <div>
@@ -455,8 +466,6 @@ function CreditPaymentsTab({
         </div>
 
 
-
-
         <div>
 
           <span>
@@ -467,14 +476,13 @@ function CreditPaymentsTab({
 
             $
 
-            {totalPaid.toLocaleString()}
+            {formatCurrency(
+              paidAmount
+            )}
 
           </strong>
 
         </div>
-
-
-
 
 
         <div>
@@ -483,43 +491,86 @@ function CreditPaymentsTab({
             Saldo restante
           </span>
 
+          <strong>
+
+            $
+
+            {formatCurrency(
+              balance
+            )}
+
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Cuotas pagadas
+          </span>
+
+          <strong>
+
+            {paidInstallments}
+
+            {" / "}
+
+            {totalInstallments}
+
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Cuotas pendientes
+          </span>
+
+          <strong>
+            {pendingInstallments}
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Valor de cuota
+          </span>
 
           <strong>
 
             $
 
-            {Number(
-
-              credit.balance || 0
-
-            ).toLocaleString()}
-
+            {formatCurrency(
+              installmentValue
+            )}
 
           </strong>
 
-
         </div>
-
 
 
       </div>
 
 
-
-
-
-
-
-
+      {/* ==================================================
+         FORMULARIO DE PAGO
+      ================================================== */}
 
       <form
 
         className="payment-form"
 
-        onSubmit={handleSubmit}
+        onSubmit={
+          handleSubmit
+        }
 
       >
-
 
 
         <input
@@ -528,48 +579,56 @@ function CreditPaymentsTab({
 
           name="value"
 
-          value={form.value}
+          value={
+            form.value
+          }
 
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
 
           placeholder="Valor del pago"
 
+          min="1"
+
+          disabled={
+            isSaving
+          }
+
         />
-
-
-
 
 
         <select
 
           name="method"
 
-          value={form.method}
+          value={
+            form.method
+          }
 
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
+
+          disabled={
+            isSaving
+          }
 
         >
-
 
           <option>
             Efectivo
           </option>
 
-
           <option>
             Transferencia
           </option>
-
 
           <option>
             Otro
           </option>
 
-
         </select>
-
-
-
 
 
         <input
@@ -578,140 +637,179 @@ function CreditPaymentsTab({
 
           name="date"
 
-          value={form.date}
+          value={
+            form.date
+          }
 
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
+
+          disabled={
+            isSaving
+          }
 
         />
 
 
+        <button
 
+          type="submit"
 
+          disabled={
+            isSaving
+          }
 
-        <button>
+        >
 
-          Registrar pago
+          {
+
+            isSaving
+
+              ? "Registrando..."
+
+              : "Registrar pago"
+
+          }
 
         </button>
-
 
 
       </form>
 
 
-
-
-
-
-
-
+      {/* ==================================================
+         HISTORIAL DE PAGOS
+      ================================================== */}
 
       <div className="payments-list">
 
 
-
         {
 
-          payments.map((payment,index)=>(
+          payments.length === 0 ? (
 
-
-            <div
-
-              key={payment.id}
-
-              className="payment-item"
-
-            >
-
-
+            <div className="payment-item">
 
               <div>
 
-
                 <strong>
-
-                  Pago #{payments.length-index}
-
+                  Sin pagos registrados
                 </strong>
-
-
-
-                <strong>
-
-                  $
-
-                  {Number(
-
-                    payment.value || 0
-
-                  ).toLocaleString()}
-
-
-                </strong>
-
-
-
 
                 <span>
-
-                  Método: {payment.method}
-
+                  Este crédito todavía no tiene pagos.
                 </span>
-
-
-
-                <small>
-
-                  Fecha: {payment.date || "Sin fecha"}
-
-                </small>
-
-
 
               </div>
 
-
-
-
-
-              <button
-
-                type="button"
-
-                onClick={()=>handleDelete(payment.id)}
-
-              >
-
-                Eliminar
-
-              </button>
-
-
-
-
             </div>
 
+          ) : (
 
-          ))
+            payments.map(
+              (
+                payment,
+                index
+              ) => (
+
+                <div
+
+                  key={
+                    payment.id
+                  }
+
+                  className="payment-item"
+
+                >
+
+                  <div>
+
+                    <strong>
+
+                      Pago #
+                      {
+                        payments.length -
+                        index
+                      }
+
+                    </strong>
+
+
+                    <strong>
+
+                      $
+
+                      {
+                        formatCurrency(
+                          payment.value
+                        )
+                      }
+
+                    </strong>
+
+
+                    <span>
+
+                      Método:{" "}
+
+                      {
+                        payment.method ||
+                        "No especificado"
+                      }
+
+                    </span>
+
+
+                    <small>
+
+                      Fecha:{" "}
+
+                      {
+                        payment.date ||
+                        "Sin fecha"
+                      }
+
+                    </small>
+
+                  </div>
+
+
+                  <button
+
+                    type="button"
+
+                    onClick={() =>
+                      handleDelete(
+                        payment.id
+                      )
+                    }
+
+                  >
+
+                    Eliminar
+
+                  </button>
+
+                </div>
+
+              )
+
+            )
+
+          )
 
         }
-
 
 
       </div>
 
 
-
-
-
     </div>
-
 
   );
 
-
 }
-
 
 
 export default CreditPaymentsTab;

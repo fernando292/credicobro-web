@@ -1,81 +1,105 @@
-.credit-section{
-
-  background:white;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:22px;
-
-  padding:28px;
-
-  margin-bottom:24px;
-
+.credit-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 28px;
+  margin-bottom: 24px;
 }
 
-.credit-section h2{
-
-  margin:0 0 24px;
-
-  font-size:22px;
-
-  color:#0f172a;
-
+.credit-section h2 {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.credit-grid{
-
-  display:grid;
-
-  grid-template-columns:repeat(2,1fr);
-
-  gap:22px;
-
+.credit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
 }
 
-.credit-grid label{
-
-  display:block;
-
-  margin-bottom:8px;
-
-  color:#475569;
-
-  font-weight:600;
-
+.credit-grid > div {
+  min-width: 0;
 }
 
-.credit-grid input{
-
-  width:100%;
-
-  padding:14px;
-
-  border:1px solid #dbe2ea;
-
-  border-radius:12px;
-
-  font-size:15px;
-
-  outline:none;
-
-  transition:.25s;
-
+.credit-grid label {
+  display: block;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.credit-grid input:focus{
-
-  border-color:#2563eb;
-
-  box-shadow:0 0 0 4px rgba(37,99,235,.08);
-
+.credit-grid input,
+.credit-grid select {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
-@media(max-width:768px){
+.credit-grid input:hover,
+.credit-grid select:hover {
+  border-color: #cbd5e1;
+}
 
-  .credit-grid{
+.credit-grid input:focus,
+.credit-grid select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
 
-    grid-template-columns:1fr;
+.credit-grid select {
+  cursor: pointer;
+  appearance: auto;
+}
 
+.credit-grid input::placeholder {
+  color: #94a3b8;
+}
+
+@media (max-width: 768px) {
+  .credit-section {
+    padding: 22px;
+    border-radius: 18px;
   }
 
+  .credit-section h2 {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .credit-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .credit-section {
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .credit-grid {
+    gap: 16px;
+  }
+
+  .credit-grid input,
+  .credit-grid select {
+    min-height: 46px;
+    font-size: 14px;
+  }
 }

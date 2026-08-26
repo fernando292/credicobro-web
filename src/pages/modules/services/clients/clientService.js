@@ -1,3 +1,4 @@
+
 import {
   collection,
   addDoc,
@@ -61,7 +62,7 @@ export async function getClientById(
   const clientRef = doc(
     db,
     "companies",
-    companyId,
+    String(companyId),
     "clients",
     String(clientId)
   );
@@ -132,13 +133,9 @@ export async function createClient(
     try {
 
       await assignClientAutomaticallyToRoute(
-
         companyId,
-
         result.id,
-
         createdClient.nextPaymentDate
-
       );
 
     } catch (error) {
@@ -199,13 +196,9 @@ export async function updateClient(
     try {
 
       await assignClientAutomaticallyToRoute(
-
         companyId,
-
         String(clientId),
-
         clientData.nextPaymentDate
-
       );
 
     } catch (error) {

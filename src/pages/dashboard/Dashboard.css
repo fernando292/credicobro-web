@@ -1,210 +1,260 @@
 .dashboard {
-
-  width:100%;
-
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 
-
-/* Encabezado */
+/* ======================================================
+   ENCABEZADO
+====================================================== */
 
 .dashboard__header {
-
-  margin-bottom:35px;
-
+  margin-bottom: 35px;
 }
-
-
 
 .dashboard__header h1 {
-
-  margin:0 0 10px;
-
-  font-size:34px;
-
-  font-weight:800;
-
-  letter-spacing:-1px;
-
-  color:#0f172a;
-
+  margin: 0 0 10px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #0f172a;
+  line-height: 1.15;
 }
-
-
 
 .dashboard__header p {
-
-  margin:0;
-
-  color:#64748b;
-
-  font-size:16px;
-
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 
-
-/* Estadísticas */
+/* ======================================================
+   ESTADÍSTICAS
+====================================================== */
 
 .dashboard__stats {
-
-  display:grid;
-
-  grid-template-columns:repeat(4,1fr);
-
-  gap:24px;
-
-  margin-bottom:35px;
-
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 35px;
+  width: 100%;
 }
 
 
-
-/* Panel inferior */
+/* ======================================================
+   PANEL INFERIOR
+====================================================== */
 
 .dashboard__bottom {
-
-  display:grid;
-
-  grid-template-columns:2fr 1fr;
-
-  gap:25px;
-
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 25px;
+  width: 100%;
+  min-width: 0;
 }
-
-
 
 .dashboard-panel {
-
-  background:white;
-
-  border-radius:24px;
-
-  padding:30px;
-
-  border:1px solid #e2e8f0;
-
-  transition:.3s ease;
-
+  background: white;
+  border-radius: 24px;
+  padding: 30px;
+  border: 1px solid #e2e8f0;
+  transition: .3s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
-
-
 
 .dashboard-panel:hover {
-
   box-shadow:
-
-  0 20px 45px rgba(15,23,42,.08);
-
+    0 20px 45px rgba(15, 23, 42, .08);
 }
-
-
 
 .dashboard-panel h3 {
-
-  margin:0 0 25px;
-
-  color:#0f172a;
-
-  font-size:20px;
-
-  font-weight:800;
-
+  margin: 0 0 25px;
+  color: #0f172a;
+  font-size: 20px;
+  font-weight: 800;
 }
 
 
-
-/* Espacio para gráficos */
+/* ======================================================
+   ESPACIO PARA GRÁFICOS
+====================================================== */
 
 .dashboard-empty {
-
-  height:220px;
-
-  border-radius:20px;
-
+  height: 220px;
+  border-radius: 20px;
   background:
-
-  linear-gradient(
-
-    135deg,
-
-    #f8fafc,
-
-    #f1f5f9
-
-  );
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  color:#94a3b8;
-
-  font-size:15px;
-
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #f1f5f9
+    );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 15px;
 }
 
 
-
-/* Actividad */
+/* ======================================================
+   ACTIVIDAD
+====================================================== */
 
 .activity-item {
-
-  padding:16px 0;
-
-  border-bottom:1px solid #e2e8f0;
-
-  color:#475569;
-
-  font-size:15px;
-
+  padding: 16px 0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
-
-
 
 .activity-item:last-child {
-
-  border-bottom:none;
-
+  border-bottom: none;
 }
 
 
+/* ======================================================
+   RESPONSIVE - TABLET
+====================================================== */
 
-/* Responsive */
-
-@media(max-width:1200px){
-
+@media (max-width: 1200px) {
 
   .dashboard__stats {
-
-    grid-template-columns:repeat(2,1fr);
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .dashboard__bottom {
+    grid-template-columns: 1fr;
+  }
 
 }
 
 
+/* ======================================================
+   RESPONSIVE - TABLET PEQUEÑA
+====================================================== */
 
-@media(max-width:700px){
+@media (max-width: 900px) {
 
-
-  .dashboard__stats,
-
-  .dashboard__bottom {
-
-    grid-template-columns:1fr;
-
+  .dashboard__header {
+    margin-bottom: 28px;
   }
-
 
   .dashboard__header h1 {
-
-    font-size:28px;
-
+    font-size: 30px;
   }
 
+  .dashboard__header p {
+    font-size: 15px;
+  }
 
+  .dashboard__stats {
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .dashboard__bottom {
+    gap: 20px;
+  }
+
+}
+
+
+/* ======================================================
+   RESPONSIVE - CELULAR
+====================================================== */
+
+@media (max-width: 700px) {
+
+  .dashboard {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard__header {
+    margin-bottom: 24px;
+  }
+
+  .dashboard__header h1 {
+    font-size: 26px;
+    letter-spacing: -.6px;
+  }
+
+  .dashboard__header p {
+    font-size: 14px;
+  }
+
+  .dashboard__stats {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard__bottom {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .dashboard-panel {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .dashboard-panel h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+
+  .dashboard-empty {
+    height: 180px;
+    border-radius: 16px;
+  }
+
+}
+
+
+/* ======================================================
+   RESPONSIVE - CELULAR PEQUEÑO
+====================================================== */
+
+@media (max-width: 480px) {
+
+  .dashboard__header h1 {
+    font-size: 23px;
+  }
+
+  .dashboard__header p {
+    font-size: 13px;
+  }
+
+  .dashboard__stats {
+    gap: 12px;
+  }
+
+  .dashboard-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .dashboard-panel h3 {
+    font-size: 17px;
+  }
+
+}
+
+
+/* ======================================================
+   PREVENIR DESBORDAMIENTO
+====================================================== */
+
+.dashboard,
+.dashboard__header,
+.dashboard__stats,
+.dashboard__bottom,
+.dashboard-panel {
+  max-width: 100%;
 }

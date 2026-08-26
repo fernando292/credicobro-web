@@ -1,4 +1,3 @@
-
 import {
   useEffect,
   useState
@@ -51,6 +50,22 @@ function ClientForm({
 
     email: "",
 
+
+    /* ==================================================
+       PREFERENCIAS DE COMUNICACIÓN
+    ================================================== */
+
+    whatsappEnabled: false,
+
+    smsEnabled: false,
+
+    emailEnabled: false,
+
+
+    /* ==================================================
+       DIRECCIÓN
+    ================================================== */
+
     addressType: "Carrera",
 
     addressNumber: "",
@@ -93,21 +108,44 @@ function ClientForm({
 
         ...client,
 
+
         addressType:
           client.addressType ||
           "Carrera",
+
 
         addressNumberLetter:
           client.addressNumberLetter ||
           "",
 
+
         addressSecondaryLetter:
           client.addressSecondaryLetter ||
           "",
 
+
         addressPlateLetter:
           client.addressPlateLetter ||
-          ""
+          "",
+
+
+        /* ==================================================
+           COMPATIBILIDAD CON CLIENTES EXISTENTES
+
+           Si estos campos todavía no existen en Firestore,
+           simplemente quedan en false.
+        ================================================== */
+
+        whatsappEnabled:
+          client.whatsappEnabled === true,
+
+
+        smsEnabled:
+          client.smsEnabled === true,
+
+
+        emailEnabled:
+          client.emailEnabled === true
 
       });
 
@@ -124,7 +162,9 @@ function ClientForm({
 
     const {
       name,
-      value
+      value,
+      type,
+      checked
     } = e.target;
 
 
@@ -132,7 +172,10 @@ function ClientForm({
 
       ...previous,
 
-      [name]: value
+      [name]:
+        type === "checkbox"
+          ? checked
+          : value
 
     }));
 
@@ -228,14 +271,18 @@ function ClientForm({
 
     ].filter(
 
-      value => value?.trim()
+      value =>
+        value?.trim()
 
     );
 
 
-    if (complementParts.length > 0) {
+    if (
+      complementParts.length > 0
+    ) {
 
-      address += `, ${complementParts.join(", ")}`;
+      address +=
+        `, ${complementParts.join(", ")}`;
 
     }
 
@@ -265,7 +312,8 @@ function ClientForm({
 
       ...form,
 
-      address: generatedAddress,
+      address:
+        generatedAddress,
 
       createdAt:
         client?.createdAt ||
@@ -362,6 +410,8 @@ function ClientForm({
 
             placeholder="300 000 0000"
 
+            inputMode="tel"
+
           />
 
         </div>
@@ -391,6 +441,128 @@ function ClientForm({
 
 
         {/* ============================================
+           PREFERENCIAS DE COMUNICACIÓN
+        ============================================ */}
+
+
+        <div className="client-form__full">
+
+          <h3 className="client-form__section-title">
+
+            Preferencias de comunicación
+
+          </h3>
+
+        </div>
+
+
+        <div className="client-form__full">
+
+          <div className="client-form__communication-options">
+
+
+            {/* WHATSAPP */}
+
+            <label className="client-form__checkbox">
+
+              <input
+
+                type="checkbox"
+
+                name="whatsappEnabled"
+
+                checked={
+                  form.whatsappEnabled
+                }
+
+                onChange={
+                  handleChange
+                }
+
+              />
+
+              <span>
+
+                WhatsApp
+
+              </span>
+
+            </label>
+
+
+            {/* SMS */}
+
+            <label className="client-form__checkbox">
+
+              <input
+
+                type="checkbox"
+
+                name="smsEnabled"
+
+                checked={
+                  form.smsEnabled
+                }
+
+                onChange={
+                  handleChange
+                }
+
+              />
+
+              <span>
+
+                SMS
+
+              </span>
+
+            </label>
+
+
+            {/* EMAIL */}
+
+            <label className="client-form__checkbox">
+
+              <input
+
+                type="checkbox"
+
+                name="emailEnabled"
+
+                checked={
+                  form.emailEnabled
+                }
+
+                onChange={
+                  handleChange
+                }
+
+              />
+
+              <span>
+
+                Correo electrónico
+
+              </span>
+
+            </label>
+
+
+          </div>
+
+
+          <small className="client-form__communication-help">
+
+            Estas preferencias indican los canales que
+            CrediCobro podrá utilizar posteriormente para
+            enviar recordatorios y notificaciones al cliente.
+
+          </small>
+
+        </div>
+
+
+        {/* ============================================
            DIRECCIÓN
         ============================================ */}
 
@@ -398,7 +570,9 @@ function ClientForm({
         <div className="client-form__full">
 
           <h3 className="client-form__section-title">
+
             Dirección
+
           </h3>
 
         </div>
@@ -472,7 +646,9 @@ function ClientForm({
 
               name="addressNumberLetter"
 
-              value={form.addressNumberLetter}
+              value={
+                form.addressNumberLetter
+              }
 
               onChange={handleChange}
 
@@ -482,13 +658,18 @@ function ClientForm({
 
                 <option
 
-                  key={letter || "none"}
+                  key={
+                    letter || "none"
+                  }
 
                   value={letter}
 
                 >
 
-                  {letter || "Sin letra"}
+                  {
+                    letter ||
+                    "Sin letra"
+                  }
 
                 </option>
 
@@ -515,7 +696,9 @@ function ClientForm({
 
               name="addressSecondary"
 
-              value={form.addressSecondary}
+              value={
+                form.addressSecondary
+              }
 
               onChange={handleChange}
 
@@ -530,7 +713,9 @@ function ClientForm({
 
               name="addressSecondaryLetter"
 
-              value={form.addressSecondaryLetter}
+              value={
+                form.addressSecondaryLetter
+              }
 
               onChange={handleChange}
 
@@ -540,13 +725,18 @@ function ClientForm({
 
                 <option
 
-                  key={letter || "none"}
+                  key={
+                    letter || "none"
+                  }
 
                   value={letter}
 
                 >
 
-                  {letter || "Sin letra"}
+                  {
+                    letter ||
+                    "Sin letra"
+                  }
 
                 </option>
 
@@ -573,7 +763,9 @@ function ClientForm({
 
               name="addressPlate"
 
-              value={form.addressPlate}
+              value={
+                form.addressPlate
+              }
 
               onChange={handleChange}
 
@@ -588,7 +780,9 @@ function ClientForm({
 
               name="addressPlateLetter"
 
-              value={form.addressPlateLetter}
+              value={
+                form.addressPlateLetter
+              }
 
               onChange={handleChange}
 
@@ -598,13 +792,18 @@ function ClientForm({
 
                 <option
 
-                  key={letter || "none"}
+                  key={
+                    letter || "none"
+                  }
 
                   value={letter}
 
                 >
 
-                  {letter || "Sin letra"}
+                  {
+                    letter ||
+                    "Sin letra"
+                  }
 
                 </option>
 
@@ -629,7 +828,9 @@ function ClientForm({
 
             name="addressComplement"
 
-            value={form.addressComplement}
+            value={
+              form.addressComplement
+            }
 
             onChange={handleChange}
 
@@ -652,7 +853,9 @@ function ClientForm({
 
             name="neighborhood"
 
-            value={form.neighborhood}
+            value={
+              form.neighborhood
+            }
 
             onChange={handleChange}
 
@@ -675,7 +878,9 @@ function ClientForm({
 
             name="city"
 
-            value={form.city}
+            value={
+              form.city
+            }
 
             onChange={handleChange}
 
@@ -696,8 +901,10 @@ function ClientForm({
 
           <div className="client-form__address-preview">
 
-            {buildAddress() ||
-              "La dirección aparecerá aquí..."}
+            {
+              buildAddress() ||
+              "La dirección aparecerá aquí..."
+            }
 
           </div>
 

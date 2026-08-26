@@ -4,7 +4,6 @@
   background: #07111f;
 }
 
-
 .footer__content {
   width: 100%;
   max-width: 1000px;
@@ -17,13 +16,11 @@
   text-align: center;
 }
 
-
 .footer__brand {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 
 .footer__brand h3 {
   font-size: 32px;
@@ -32,11 +29,9 @@
   margin-bottom: 15px;
 }
 
-
 .footer__brand h3 span {
   color: #2563eb;
 }
-
 
 .footer__brand p {
   max-width: 280px;
@@ -46,7 +41,6 @@
   line-height: 1.7;
 }
 
-
 .footer__column {
   display: flex;
   flex-direction: column;
@@ -54,7 +48,6 @@
 
   gap: 12px;
 }
-
 
 .footer__column h4 {
   color: white;
@@ -65,35 +58,106 @@
   margin-bottom: 8px;
 }
 
-
 .footer__column a {
   color: #94a3b8;
 
   font-size: 15px;
 
-  transition: .2s ease;
+  transition: 0.2s ease;
 }
-
 
 .footer__column a:hover {
   color: white;
 }
 
-
 .footer__bottom {
-
   max-width: 1000px;
 
   margin: 50px auto 0;
 
-  padding-top: 25px;
+  padding: 25px 20px 0;
 
-  border-top: 1px solid rgba(255,255,255,.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
 
   text-align: center;
 
   color: #64748b;
 
   font-size: 14px;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+
+  .footer {
+    padding: 55px 20px 20px;
+  }
+
+  .footer__content {
+    grid-template-columns: 1fr 1fr;
+    gap: 45px 25px;
+  }
+
+  .footer__brand {
+    grid-column: 1 / -1;
+  }
+
+  .footer__brand h3 {
+    font-size: 28px;
+  }
+
+  .footer__brand p {
+    max-width: 320px;
+  }
+
+  .footer__column {
+    align-items: center;
+  }
+
+  .footer__bottom {
+    margin-top: 45px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .footer {
+    padding: 50px 16px 20px;
+  }
+
+  .footer__content {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+
+  .footer__brand {
+    grid-column: auto;
+  }
+
+  .footer__brand h3 {
+    font-size: 26px;
+  }
+
+  .footer__brand p {
+    font-size: 14px;
+  }
+
+  .footer__column {
+    gap: 10px;
+  }
+
+  .footer__bottom {
+    margin-top: 40px;
+    padding-top: 20px;
+
+    font-size: 13px;
+    line-height: 1.6;
+  }
 
 }

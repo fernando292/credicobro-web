@@ -11,16 +11,17 @@ import {
 import { db } from "../../../../config/firebase";
 
 import {
-  createNotification
-} from "../notifications/notificationService";
+  notifyPaymentRegistered
+} from "../notifications/notificationEngine";
 
 import {
-  applyPaymentToCredit
+  applyPaymentToCredit,
+  recalculateCreditFromPayments
 } from "../credit/creditService";
 
 
 /* ======================================================
-   REFERENCIA DE PAGOS
+   REFERENCIAS
 ====================================================== */
 
 function getPaymentsRef(
@@ -40,10 +41,6 @@ function getPaymentsRef(
 }
 
 
-/* ======================================================
-   REFERENCIA DE CRÉDITO
-====================================================== */
-
 function getCreditRef(
   companyId,
   creditId
@@ -55,6 +52,22 @@ function getCreditRef(
     companyId,
     "credits",
     creditId
+  );
+
+}
+
+
+function getClientRef(
+  companyId,
+  clientId
+) {
+
+  return doc(
+    db,
+    "companies",
+    companyId,
+    "clients",
+    clientId
   );
 
 }
@@ -141,9 +154,7 @@ export async function createPayment(
     );
 
 
-  if (
-    paymentValue <= 0
-  ) {
+  if (paymentValue <= 0) {
 
     throw new Error(
       "El valor del pago debe ser mayor que cero."
@@ -152,20 +163,9 @@ export async function createPayment(
   }
 
 
-  console.log(
-    "CREATE PAYMENT EJECUTADO",
-    {
-      companyId,
-      creditId,
-      amount:
-        paymentValue
-    }
-  );
-
-
-  /* ====================================================
-     1. LEER ESTADO ANTERIOR DEL CRÉDITO
-  ==================================================== */
+  /*
+   * ESTADO ANTERIOR DEL CRÉDITO.
+   */
 
   const creditSnapshot =
     await getDoc(
@@ -176,9 +176,7 @@ export async function createPayment(
     );
 
 
-  if (
-    !creditSnapshot.exists()
-  ) {
+  if (!creditSnapshot.exists()) {
 
     throw new Error(
       "El crédito no existe."
@@ -190,6 +188,117 @@ export async function createPayment(
   const previousCredit =
     creditSnapshot.data();
 
+
+  /*
+   * CLIENTE REAL DEL CRÉDITO.
+   */
+
+  const clientId =
+    payment.clientId ||
+    previousCredit.clientId ||
+    "";
+
+
+  let clientData =
+    null;
+
+
+  if (clientId) {
+
+    const clientSnapshot =
+      await getDoc(
+        getClientRef(
+          companyId,
+          clientId
+        )
+      );
+
+
+    if (clientSnapshot.exists()) {
+
+      clientData = {
+
+        id:
+          clientSnapshot.id,
+
+        ...clientSnapshot.data()
+
+      };
+
+    }
+
+  }
+
+
+  /*
+   * DATOS REALES DEL CLIENTE.
+   */
+
+  const clientName =
+    clientData?.name ||
+    clientData?.fullName ||
+    clientData?.nombre ||
+    payment.client ||
+    previousCredit.client ||
+    "Cliente";
+
+
+  const clientPhone =
+    clientData?.phone ||
+    clientData?.phoneNumber ||
+    clientData?.telefono ||
+    payment.phone ||
+    null;
+
+
+  const clientDocument =
+    clientData?.document ||
+    clientData?.documentNumber ||
+    clientData?.identification ||
+    clientData?.cedula ||
+    null;
+
+
+  /*
+   * LOG PRINCIPAL DEL PAGO.
+   */
+
+  console.log(
+    "CREATE PAYMENT EJECUTADO",
+    {
+
+      companyId,
+
+      creditId,
+
+      amount:
+        paymentValue,
+
+      client: {
+
+        id:
+          clientData?.id ||
+          clientId ||
+          null,
+
+        name:
+          clientName,
+
+        phone:
+          clientPhone,
+
+        document:
+          clientDocument
+
+      }
+
+    }
+  );
+
+
+  /*
+   * ACUMULADOS ANTERIORES.
+   */
 
   const previousPaidCapital =
     Number(
@@ -209,20 +318,9 @@ export async function createPayment(
     );
 
 
-  /* ====================================================
-     2. APLICAR PAGO AL CRÉDITO
-
-     applyPaymentToCredit actualiza:
-
-     - capitalAvailable
-     - capitalPlaced
-     - interestCollected
-     - interestPending
-     - balance
-     - paidAmount
-     - paidCapital
-     - paidInterest
-  ==================================================== */
+  /*
+   * ÚNICA ACTUALIZACIÓN FINANCIERA.
+   */
 
   const updatedCredit =
     await applyPaymentToCredit(
@@ -232,45 +330,18 @@ export async function createPayment(
     );
 
 
-  console.log(
-    "PAGO APLICADO AL CRÉDITO",
-    {
-      creditId,
+  if (!updatedCredit) {
 
-      payment:
-        paymentValue,
+    throw new Error(
+      "No se pudo actualizar el crédito."
+    );
 
-      paidCapitalTotal:
-        updatedCredit.paidCapital || 0,
-
-      paidInterestTotal:
-        updatedCredit.paidInterest || 0,
-
-      balance:
-        updatedCredit.balance || 0
-    }
-  );
+  }
 
 
-  /* ====================================================
-     3. CALCULAR LOS VALORES DE ESTE PAGO
-
-     El crédito guarda acumulados.
-
-     Ejemplo:
-
-     Antes:
-     paidCapital   = 80.000
-     paidInterest  = 0
-
-     Después:
-     paidCapital   = 160.000
-     paidInterest  = 0
-
-     Este pago:
-     capitalPaid   = 80.000
-     interestPaid  = 0
-  ==================================================== */
+  /*
+   * ACUMULADOS ACTUALIZADOS.
+   */
 
   const currentPaidCapital =
     Number(
@@ -290,77 +361,24 @@ export async function createPayment(
     );
 
 
+  /*
+   * DISTRIBUCIÓN DE ESTE PAGO.
+   */
+
   const capitalPaid =
     Math.max(
-
       currentPaidCapital -
       previousPaidCapital,
-
       0
-
     );
 
 
   const interestPaid =
     Math.max(
-
       currentPaidInterest -
       previousPaidInterest,
-
       0
-
     );
-
-
-  const calculatedPayment =
-    capitalPaid +
-    interestPaid;
-
-
-  /*
-    Validación de seguridad.
-
-    El pago debe quedar completamente
-    distribuido entre capital e interés.
-
-    Permitimos una pequeña diferencia
-    únicamente por posibles redondeos.
-  */
-
-  const difference =
-    Math.abs(
-
-      calculatedPayment -
-      paymentValue
-
-    );
-
-
-  if (
-    difference > 0.01
-  ) {
-
-    console.warn(
-
-      "ADVERTENCIA: el pago no coincide con la distribución financiera.",
-
-      {
-
-        paymentValue,
-
-        capitalPaid,
-
-        interestPaid,
-
-        calculatedPayment,
-
-        difference
-
-      }
-
-    );
-
-  }
 
 
   console.log(
@@ -385,16 +403,43 @@ export async function createPayment(
   );
 
 
-  /* ====================================================
-     4. PREPARAR DOCUMENTO DEL PAGO
+  const calculatedPayment =
+    capitalPaid +
+    interestPaid;
 
-     IMPORTANTE:
 
-     capitalPaid e interestPaid corresponden
-     ÚNICAMENTE a este pago.
+  const difference =
+    Math.abs(
+      calculatedPayment -
+      paymentValue
+    );
 
-     NO son los acumulados del crédito.
-  ==================================================== */
+
+  if (difference > 0.01) {
+
+    console.warn(
+      "ADVERTENCIA: distribución financiera diferente al pago.",
+      {
+
+        paymentValue,
+
+        capitalPaid,
+
+        interestPaid,
+
+        calculatedPayment,
+
+        difference
+
+      }
+    );
+
+  }
+
+
+  /*
+   * DOCUMENTO DEL PAGO.
+   */
 
   const paymentData = {
 
@@ -414,6 +459,10 @@ export async function createPayment(
 
     companyId,
 
+    clientId:
+      clientId ||
+      null,
+
     createdAt:
       payment.createdAt ||
       new Date()
@@ -421,20 +470,17 @@ export async function createPayment(
   };
 
 
-  /* ====================================================
-     5. GUARDAR PAGO
-  ==================================================== */
+  /*
+   * GUARDAR PAGO.
+   */
 
   const result =
     await addDoc(
-
       getPaymentsRef(
         companyId,
         creditId
       ),
-
       paymentData
-
     );
 
 
@@ -458,29 +504,53 @@ export async function createPayment(
   );
 
 
-  /* ====================================================
-     6. NOTIFICACIÓN
-  ==================================================== */
+  /*
+   * NOTIFICACIÓN DEL PAGO.
+   *
+   * Si el cliente tiene teléfono:
+   *
+   * internal
+   * +
+   * whatsapp
+   *
+   * Si no tiene teléfono:
+   *
+   * internal
+   *
+   * El teléfono se envía explícitamente
+   * al motor de notificaciones.
+   */
 
   try {
 
-    await createNotification({
+    await notifyPaymentRegistered({
 
       companyId,
 
-      title:
-        "Pago registrado",
+      client:
+        clientName,
 
-      message:
-        `${payment.client || "Cliente"} realizó un pago por $${paymentValue.toLocaleString(
-          "es-CO"
-        )}`,
+      amount:
+        paymentValue,
 
-      type:
-        "success",
+      phone:
+        clientPhone,
 
-      module:
-        "payments",
+      communicationPreferences: {
+
+        whatsappEnabled:
+
+          clientData?.whatsappEnabled === true,
+
+        smsEnabled:
+
+          clientData?.smsEnabled === true,
+
+        emailEnabled:
+
+          clientData?.emailEnabled === true
+
+      },
 
       referenceId:
         result.id
@@ -489,12 +559,6 @@ export async function createPayment(
 
   } catch (error) {
 
-    /*
-      La notificación no debe
-      invalidar un pago que ya
-      fue registrado correctamente.
-    */
-
     console.error(
       "Error creando notificación del pago:",
       error
@@ -502,10 +566,6 @@ export async function createPayment(
 
   }
 
-
-  /* ====================================================
-     7. DEVOLVER PAGO
-  ==================================================== */
 
   return {
 
@@ -565,21 +625,13 @@ export async function updatePayment(
 
   const paymentRef =
     doc(
-
       db,
-
       "companies",
-
       companyId,
-
       "credits",
-
       creditId,
-
       "payments",
-
       paymentId
-
     );
 
 
@@ -616,26 +668,24 @@ export async function removePayment(
 
   const paymentRef =
     doc(
-
       db,
-
       "companies",
-
       companyId,
-
       "credits",
-
       creditId,
-
       "payments",
-
       paymentId
-
     );
 
 
   await deleteDoc(
     paymentRef
+  );
+
+
+  return await recalculateCreditFromPayments(
+    companyId,
+    creditId
   );
 
 }

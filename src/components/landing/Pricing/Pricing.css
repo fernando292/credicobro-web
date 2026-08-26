@@ -225,3 +225,104 @@
   cursor: pointer;
 
 }
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1000px) {
+
+  .pricing {
+    padding: 80px 0;
+  }
+
+  .pricing__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .pricing-card--popular {
+    transform: none;
+  }
+
+  .pricing__header h2 {
+    font-size: 40px;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .pricing {
+    padding: 60px 0;
+  }
+
+  .pricing__header {
+    margin-bottom: 45px;
+  }
+
+  .pricing__header h2 {
+    font-size: 34px;
+    line-height: 1.15;
+  }
+
+  .pricing__header p {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .pricing__grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .pricing-card {
+    padding: 32px 25px;
+    border-radius: 20px;
+  }
+
+  .pricing-card--popular {
+    transform: none;
+  }
+
+  .pricing-card__badge {
+    top: -13px;
+    font-size: 12px;
+    padding: 6px 16px;
+  }
+
+  .pricing-card h3 {
+    font-size: 22px;
+  }
+
+  .pricing-card strong {
+    font-size: 34px;
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .pricing {
+    padding: 50px 0;
+  }
+
+  .pricing__header h2 {
+    font-size: 30px;
+  }
+
+  .pricing__header p {
+    font-size: 15px;
+  }
+
+  .pricing-card {
+    padding: 28px 22px;
+  }
+
+  .pricing-card strong {
+    font-size: 32px;
+  }
+
+}

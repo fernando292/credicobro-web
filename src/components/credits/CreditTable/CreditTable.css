@@ -1,317 +1,405 @@
 .credit-table {
+  width: 100%;
 
-  background:white;
+  background: #ffffff;
 
-  border:1px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
 
-  border-radius:22px;
+  overflow: hidden;
 
-  overflow:hidden;
-
+  box-sizing: border-box;
 }
 
 
+/* ======================================================
+   TABLA
+====================================================== */
 
 .credit-table table {
+  width: 100%;
 
-  width:100%;
+  border-collapse: collapse;
 
-  border-collapse:collapse;
-
+  table-layout: auto;
 }
 
 
+/* ======================================================
+   ENCABEZADOS
+====================================================== */
 
 .credit-table th {
+  padding: 15px 16px;
 
-  padding:18px;
+  text-align: left;
 
-  text-align:left;
+  background: #f8fafc;
 
-  background:#f8fafc;
+  color: #64748b;
 
-  color:#64748b;
+  font-size: 11px;
+  font-weight: 750;
 
-  font-size:14px;
+  line-height: 1.3;
 
-  font-weight:700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 
+  white-space: nowrap;
 }
 
 
+/* ======================================================
+   CELDAS
+====================================================== */
 
 .credit-table td {
+  padding: 16px;
 
-  padding:18px;
+  border-top: 1px solid #f1f5f9;
 
-  border-top:1px solid #f1f5f9;
+  color: #0f172a;
 
-  color:#0f172a;
+  font-size: 14px;
 
+  line-height: 1.4;
+
+  vertical-align: middle;
 }
 
 
+/* ======================================================
+   HOVER FILA
+====================================================== */
+
+.credit-table tbody tr {
+  transition:
+    background 0.18s ease;
+}
+
+.credit-table tbody tr:hover {
+  background: #f8fafc;
+}
 
 
+/* ======================================================
+   CLIENTE
+====================================================== */
+
+.credit-table td:first-child {
+  font-weight: 700;
+
+  color: #0f172a;
+
+  min-width: 150px;
+}
 
 
-/* ACCIONES */
+/* ======================================================
+   VALORES MONETARIOS
+====================================================== */
 
+.credit-table td:nth-child(2),
+.credit-table td:nth-child(3) {
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+
+/* ======================================================
+   CUOTAS
+====================================================== */
+
+.credit-table td:nth-child(4) {
+  color: #475569;
+
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+
+/* ======================================================
+   ESTADOS
+====================================================== */
+
+.credit-status {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 68px;
+
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+
+/* ACTIVO */
+
+.credit-status.activo {
+  background: #dcfce7;
+
+  color: #15803d;
+}
+
+
+/* PAGADO */
+
+.credit-status.pagado {
+  background: #dbeafe;
+
+  color: #2563eb;
+}
+
+
+/* MORA */
+
+.credit-status.mora {
+  background: #fee2e2;
+
+  color: #dc2626;
+}
+
+
+/* CUALQUIER OTRO ESTADO */
+
+.credit-status:not(.activo):not(.pagado):not(.mora) {
+  background: #f1f5f9;
+
+  color: #475569;
+}
+
+
+/* ======================================================
+   ACCIONES
+====================================================== */
 
 .credit-actions {
+  display: flex;
 
-  display:flex;
+  align-items: center;
 
-  align-items:center;
+  gap: 8px;
 
-  gap:10px;
-
+  white-space: nowrap;
 }
-
 
 
 .credit-actions button {
+  width: 36px;
+  height: 36px;
 
-  width:38px;
+  display: flex;
 
-  height:38px;
+  align-items: center;
+  justify-content: center;
 
-  display:flex;
+  flex-shrink: 0;
 
-  align-items:center;
+  border: none;
 
-  justify-content:center;
+  border-radius: 10px;
 
-  border:none;
+  cursor: pointer;
 
-  border-radius:10px;
-
-  cursor:pointer;
-
-  transition:.2s ease;
-
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
-
-
-
 
 
 .credit-actions button svg {
+  width: 19px;
+  height: 19px;
 
-  width:20px;
-
-  height:20px;
-
-  stroke-width:2.4;
-
+  stroke-width: 2.4;
 }
 
 
-
-
-
-
-/* VER */
-
+/* ======================================================
+   VER
+====================================================== */
 
 .credit-actions button:first-child {
+  background: #dbeafe;
 
-  background:#dbeafe;
-
-  color:#2563eb;
-
+  color: #2563eb;
 }
-
-
 
 .credit-actions button:first-child:hover {
+  background: #bfdbfe;
 
-  background:#bfdbfe;
+  box-shadow:
+    0 4px 10px rgba(37, 99, 235, 0.14);
 
+  transform: translateY(-1px);
 }
 
 
-
-
-
-
-/* EDITAR */
-
+/* ======================================================
+   EDITAR
+====================================================== */
 
 .credit-actions button:nth-child(2) {
+  background: #fef3c7;
 
-  background:#fef3c7;
-
-  color:#d97706;
-
+  color: #d97706;
 }
-
-
 
 .credit-actions button:nth-child(2):hover {
+  background: #fde68a;
 
-  background:#fde68a;
+  box-shadow:
+    0 4px 10px rgba(217, 119, 6, 0.14);
 
+  transform: translateY(-1px);
 }
 
 
-
-
-
-
-/* ELIMINAR */
-
+/* ======================================================
+   ELIMINAR
+====================================================== */
 
 .credit-actions button:nth-child(3) {
+  background: #fee2e2;
 
-  background:#fee2e2;
-
-  color:#dc2626;
-
+  color: #dc2626;
 }
-
-
 
 .credit-actions button:nth-child(3):hover {
+  background: #fecaca;
 
-  background:#fecaca;
+  box-shadow:
+    0 4px 10px rgba(220, 38, 38, 0.14);
 
+  transform: translateY(-1px);
 }
 
 
-
-
-
-
-.credit-actions button:hover {
-
-  transform:translateY(-2px);
-
-}
-
-
-
-
-
-
-/* ESTADOS */
-
-
-.credit-status {
-
-  display:inline-flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  padding:6px 12px;
-
-  border-radius:20px;
-
-  font-size:13px;
-
-  font-weight:700;
-
-}
-
-
-
-.credit-status.activo {
-
-  background:#dcfce7;
-
-  color:#16a34a;
-
-}
-
-
-
-.credit-status.pagado {
-
-  background:#dbeafe;
-
-  color:#2563eb;
-
-}
-
-
-
-.credit-status.mora {
-
-  background:#fee2e2;
-
-  color:#dc2626;
-
-}
-
-
-
-
-
-
-/* TABLA VACIA */
-
+/* ======================================================
+   ESTADO VACÍO
+====================================================== */
 
 .credit-table-empty {
+  width: 100%;
 
-  background:white;
+  padding: 64px 30px;
 
-  border:1px solid #e2e8f0;
+  background: #ffffff;
 
-  border-radius:22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
 
-  padding:70px 40px;
+  box-sizing: border-box;
 
-  text-align:center;
-
+  text-align: center;
 }
-
 
 
 .credit-table-empty h3 {
+  margin: 0 0 8px;
 
-  margin:0 0 10px;
+  color: #0f172a;
 
-  font-size:24px;
-
-  color:#0f172a;
-
+  font-size: 20px;
+  font-weight: 800;
 }
-
 
 
 .credit-table-empty p {
+  margin: 0;
 
-  margin:0;
+  color: #64748b;
 
-  color:#64748b;
+  font-size: 14px;
 
-  font-size:15px;
-
+  line-height: 1.5;
 }
 
 
+/* ======================================================
+   TABLET
+====================================================== */
 
-
-
-
-@media(max-width:900px){
-
-
+@media (max-width: 1000px) {
   .credit-table {
+    overflow-x: auto;
 
-    overflow-x:auto;
-
+    -webkit-overflow-scrolling: touch;
   }
-
-
 
   .credit-table table {
-
-    min-width:800px;
-
+    min-width: 760px;
   }
 
+  .credit-table th,
+  .credit-table td {
+    padding: 14px;
+  }
+}
 
+
+/* ======================================================
+   TABLET PEQUEÑA
+====================================================== */
+
+@media (max-width: 700px) {
+  .credit-table {
+    border-radius: 15px;
+  }
+
+  .credit-table table {
+    min-width: 720px;
+  }
+
+  .credit-table th {
+    padding: 13px;
+
+    font-size: 10px;
+  }
+
+  .credit-table td {
+    padding: 13px;
+
+    font-size: 13px;
+  }
+
+  .credit-actions button {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+
+/* ======================================================
+   MÓVIL
+====================================================== */
+
+@media (max-width: 480px) {
+  .credit-table-empty {
+    padding: 50px 20px;
+
+    border-radius: 15px;
+  }
+
+  .credit-table-empty h3 {
+    font-size: 18px;
+  }
+
+  .credit-table-empty p {
+    font-size: 13px;
+  }
 }

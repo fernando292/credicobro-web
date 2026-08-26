@@ -1,139 +1,260 @@
 .chart-card {
 
-  background:white;
+  background: white;
 
-  border-radius:24px;
+  border-radius: 24px;
 
-  padding:30px;
+  padding: 30px;
 
-  border:1px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
 
-  height:100%;
+  height: 100%;
+
+  min-width: 0;
+
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
 
 }
 
 
+/* ======================================================
+   ENCABEZADO
+====================================================== */
 
 .chart-card__header {
 
-  display:flex;
+  display: flex;
 
-  justify-content:space-between;
+  justify-content: space-between;
 
-  align-items:flex-start;
+  align-items: flex-start;
 
-  margin-bottom:25px;
+  gap: 15px;
+
+  margin-bottom: 25px;
 
 }
 
+
+.chart-card__header > div {
+
+  min-width: 0;
+
+}
 
 
 .chart-card__header h3 {
 
-  margin:0 0 8px;
+  margin: 0 0 8px;
 
-  font-size:20px;
+  font-size: 20px;
 
-  font-weight:800;
+  font-weight: 800;
 
-  color:#0f172a;
+  color: #0f172a;
+
+  line-height: 1.25;
 
 }
-
 
 
 .chart-card__header p {
 
-  margin:0;
+  margin: 0;
 
-  font-size:14px;
+  font-size: 14px;
 
-  color:#64748b;
+  color: #64748b;
+
+  line-height: 1.5;
 
 }
-
 
 
 .chart-card__header span {
 
-  padding:8px 14px;
+  flex-shrink: 0;
 
-  border-radius:20px;
+  padding: 8px 14px;
 
-  background:#eff6ff;
+  border-radius: 20px;
 
-  color:#2563eb;
+  background: #eff6ff;
 
-  font-size:13px;
+  color: #2563eb;
 
-  font-weight:700;
+  font-size: 13px;
+
+  font-weight: 700;
 
 }
 
 
+/* ======================================================
+   CUERPO
+====================================================== */
+
+.chart-card__body {
+
+  width: 100%;
+
+  min-width: 0;
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+}
 
 
+/* ======================================================
+   PLACEHOLDER
+====================================================== */
 
 .chart-placeholder {
 
-  height:220px;
+  height: 220px;
 
-  border-radius:20px;
+  border-radius: 20px;
 
   background:
+    linear-gradient(
+      180deg,
+      #f8fafc,
+      #ffffff
+    );
 
-  linear-gradient(
+  display: flex;
 
-    180deg,
+  flex-direction: column;
 
-    #f8fafc,
+  justify-content: center;
 
-    #ffffff
+  align-items: center;
 
-  );
+  position: relative;
 
-  display:flex;
-
-  flex-direction:column;
-
-  justify-content:center;
-
-  align-items:center;
-
-  position:relative;
-
-  overflow:hidden;
+  overflow: hidden;
 
 }
-
-
-
 
 
 .chart-line {
 
-  width:80%;
+  width: 80%;
 
-  height:80px;
+  height: 80px;
 
-  border-top:3px solid #2563eb;
+  border-top: 3px solid #2563eb;
 
-  border-radius:50%;
+  border-radius: 50%;
 
-  transform:rotate(-5deg);
+  transform: rotate(-5deg);
 
-  opacity:.35;
+  opacity: .35;
 
 }
 
 
-
 .chart-placeholder p {
 
-  margin-top:20px;
+  color: #94a3b8;
 
-  color:#94a3b8;
+  font-size: 14px;
 
-  font-size:14px;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 900px) {
+
+  .chart-card {
+
+    padding: 24px;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR
+====================================================== */
+
+@media (max-width: 600px) {
+
+  .chart-card {
+
+    padding: 18px;
+
+    border-radius: 20px;
+
+  }
+
+  .chart-card__header {
+
+    margin-bottom: 18px;
+
+    gap: 10px;
+
+  }
+
+  .chart-card__header h3 {
+
+    font-size: 18px;
+
+  }
+
+  .chart-card__header p {
+
+    font-size: 13px;
+
+  }
+
+  .chart-card__header span {
+
+    padding: 7px 11px;
+
+    font-size: 12px;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR PEQUEÑO
+====================================================== */
+
+@media (max-width: 400px) {
+
+  .chart-card {
+
+    padding: 15px;
+
+    border-radius: 18px;
+
+  }
+
+  .chart-card__header {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+  }
+
+  .chart-card__header span {
+
+    align-self: flex-start;
+
+  }
 
 }

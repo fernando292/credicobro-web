@@ -1,47 +1,114 @@
-.dashboard-charts{
+.dashboard-charts {
 
-    display:grid;
+  display: grid;
 
-    grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 
-    gap:25px;
+  gap: 25px;
 
-    margin-bottom:35px;
+  margin-bottom: 35px;
 
-}
+  width: 100%;
 
-
-
-.dashboard-chart{
-
-    background:#fff;
-
-    border:1px solid #e2e8f0;
-
-    border-radius:20px;
-
-    padding:20px;
-
-    box-shadow:0 12px 30px rgba(15,23,42,.05);
+  min-width: 0;
 
 }
 
 
+/* ======================================================
+   TARJETA
+====================================================== */
 
-.dashboard-chart--full{
+.dashboard-chart {
 
-    grid-column:1/-1;
+  background: #fff;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 20px;
+
+  padding: 20px;
+
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, .05);
+
+  min-width: 0;
+
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
 
 }
 
 
+.dashboard-chart--full {
 
-@media(max-width:1000px){
+  grid-column: 1 / -1;
 
-    .dashboard-charts{
+}
 
-        grid-template-columns:1fr;
 
-    }
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 1000px) {
+
+  .dashboard-charts {
+
+    grid-template-columns: 1fr;
+
+  }
+
+  .dashboard-chart--full {
+
+    grid-column: auto;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR
+====================================================== */
+
+@media (max-width: 600px) {
+
+  .dashboard-charts {
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+  }
+
+  .dashboard-chart {
+
+    padding: 16px;
+
+    border-radius: 18px;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR PEQUEÑO
+====================================================== */
+
+@media (max-width: 400px) {
+
+  .dashboard-chart {
+
+    padding: 13px;
+
+    border-radius: 16px;
+
+  }
 
 }

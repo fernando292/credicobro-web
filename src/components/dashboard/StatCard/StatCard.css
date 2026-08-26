@@ -8,152 +8,293 @@
 
   border: 1px solid #e2e8f0;
 
-  display:flex;
+  display: flex;
 
-  align-items:center;
+  align-items: center;
 
-  gap:18px;
+  gap: 18px;
 
-  transition:.3s ease;
+  transition: .3s ease;
 
-  position:relative;
+  position: relative;
 
-  overflow:hidden;
+  overflow: hidden;
+
+  min-width: 0;
+
+  box-sizing: border-box;
 
 }
-
 
 
 .stat-card::before {
 
-  content:"";
+  content: "";
 
-  position:absolute;
+  position: absolute;
 
-  width:90px;
+  width: 90px;
 
-  height:90px;
+  height: 90px;
 
-  right:-30px;
+  right: -30px;
 
-  top:-30px;
+  top: -30px;
 
-  background:rgba(37,99,235,.05);
+  background: rgba(37, 99, 235, .05);
 
-  border-radius:50%;
+  border-radius: 50%;
 
 }
-
 
 
 .stat-card:hover {
 
-  transform:translateY(-6px);
+  transform: translateY(-6px);
 
   box-shadow:
-
-  0 20px 45px rgba(15,23,42,.10);
+    0 20px 45px rgba(15, 23, 42, .10);
 
 }
 
 
+/* ======================================================
+   ICONO
+====================================================== */
 
 .stat-card__icon {
 
-  width:62px;
+  width: 62px;
 
-  height:62px;
+  height: 62px;
 
-  border-radius:18px;
+  min-width: 62px;
 
-  display:flex;
+  border-radius: 18px;
 
-  align-items:center;
+  display: flex;
 
-  justify-content:center;
+  align-items: center;
+
+  justify-content: center;
 
 }
 
 
+/* ======================================================
+   COLORES
+====================================================== */
 
 .stat-card__icon.blue {
 
-  background:#dbeafe;
+  background: #dbeafe;
 
-  color:#2563eb;
+  color: #2563eb;
 
 }
-
 
 
 .stat-card__icon.green {
 
-  background:#dcfce7;
+  background: #dcfce7;
 
-  color:#16a34a;
+  color: #16a34a;
 
 }
-
 
 
 .stat-card__icon.purple {
 
-  background:#ede9fe;
+  background: #ede9fe;
 
-  color:#7c3aed;
+  color: #7c3aed;
 
 }
-
 
 
 .stat-card__icon.orange {
 
-  background:#ffedd5;
+  background: #ffedd5;
 
-  color:#ea580c;
+  color: #ea580c;
 
 }
 
+
+/* ======================================================
+   CONTENIDO
+====================================================== */
+
+.stat-card__content {
+
+  min-width: 0;
+
+  position: relative;
+
+  z-index: 1;
+
+}
 
 
 .stat-card__content span {
 
-  display:block;
+  display: block;
 
-  color:#64748b;
+  color: #64748b;
 
-  font-size:14px;
+  font-size: 14px;
 
-  margin-bottom:6px;
+  margin-bottom: 6px;
+
+  line-height: 1.4;
 
 }
-
 
 
 .stat-card__content h2 {
 
-  margin:0;
+  margin: 0;
 
-  font-size:30px;
+  font-size: 30px;
 
-  font-weight:800;
+  font-weight: 800;
 
-  color:#0f172a;
+  color: #0f172a;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
 
 }
 
 
-
 .stat-card__content small {
 
-  display:block;
+  display: block;
 
-  margin-top:8px;
+  margin-top: 8px;
 
-  color:#16a34a;
+  font-weight: 700;
 
-  font-weight:700;
+  font-size: 13px;
 
-  font-size:13px;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media (max-width: 900px) {
+
+  .stat-card {
+
+    padding: 22px;
+
+  }
+
+  .stat-card__icon {
+
+    width: 56px;
+
+    height: 56px;
+
+    min-width: 56px;
+
+    border-radius: 16px;
+
+  }
+
+  .stat-card__content h2 {
+
+    font-size: 27px;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR
+====================================================== */
+
+@media (max-width: 600px) {
+
+  .stat-card {
+
+    padding: 18px;
+
+    gap: 14px;
+
+    border-radius: 20px;
+
+  }
+
+  .stat-card__icon {
+
+    width: 50px;
+
+    height: 50px;
+
+    min-width: 50px;
+
+    border-radius: 14px;
+
+  }
+
+  .stat-card__content span {
+
+    font-size: 13px;
+
+  }
+
+  .stat-card__content h2 {
+
+    font-size: 24px;
+
+  }
+
+  .stat-card__content small {
+
+    font-size: 12px;
+
+  }
+
+}
+
+
+/* ======================================================
+   CELULAR PEQUEÑO
+====================================================== */
+
+@media (max-width: 400px) {
+
+  .stat-card {
+
+    padding: 16px;
+
+    gap: 12px;
+
+    border-radius: 18px;
+
+  }
+
+  .stat-card__icon {
+
+    width: 46px;
+
+    height: 46px;
+
+    min-width: 46px;
+
+    border-radius: 13px;
+
+  }
+
+  .stat-card__content h2 {
+
+    font-size: 21px;
+
+  }
 
 }
