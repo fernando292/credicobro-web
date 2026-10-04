@@ -124,7 +124,590 @@ function normalizeDate(
 
 
 /* ======================================================
-   OBTENER CRÃ‰DITOS
+   DETERMINAR ESTADO DEL PAGO
+====================================================== */
+
+/*
+ * La lógica real de las cuotas pertenece a
+ * creditBusinessService.
+ *
+ * Aquí solamente interpretamos el resultado
+ * que devuelve ese servicio.
+ *
+ * Si existe una cuota en estado "Pago parcial",
+ * el pago que acaba de registrarse debe reflejar
+ * ese estado en la visita.
+ *
+ * Si no existe ninguna cuota parcial y hubo pago,
+ * el estado es "Cobrado".
+ */
+
+function getPaymentVisitStatus(
+  updatedCredit
+) {
+
+  const installments =
+    Array.isArray(
+      updatedCredit?.installmentProgress
+    )
+      ? updatedCredit.installmentProgress
+      : [];
+
+
+  const hasPartialInstallment =
+    installments.some(
+
+      installment =>
+
+        installment?.status ===
+        "Pago parcial"
+
+    );
+
+
+  if (
+    hasPartialInstallment
+  ) {
+
+    return "Pago parcial";
+
+  }
+
+
+  return "Cobrado";
+
+}
+
+
+/* ======================================================
+   SINCRONIZAR PAGO DE CRÉDITO CON VISITA DE RUTA
+====================================================== */
+
+/*
+ * Este flujo se utiliza únicamente cuando el pago
+ * nació desde CRÉDITOS.
+ *
+ * NO crea una ruta nueva.
+ *
+ * Busca una ruta que ya exista para:
+ *
+ * - la fecha del pago
+ * - el cliente
+ * - el crédito
+ *
+ * Si encuentra la ruta, actualiza su visita.
+ *
+ * IMPORTANTE:
+ *
+ * Cuando el pago nació desde RUTAS,
+ * registerRouteVisit() envía routeId y visitId.
+ *
+ * Por eso este método NO interfiere con:
+ *
+ * RUTAS → registrar pago → CRÉDITO
+ */
+
+export async function syncCreditPaymentToRoute(
+  companyId,
+  creditId,
+  clientId,
+  payment
+) {
+
+  if (
+    !companyId ||
+    !creditId ||
+    !clientId ||
+    !payment
+  ) {
+
+    return null;
+
+  }
+
+
+  const normalizedCreditId =
+    normalizeId(
+      creditId
+    );
+
+
+  const normalizedClientId =
+    normalizeId(
+      clientId
+    );
+
+
+  const paymentDate =
+    normalizeDate(
+      payment.date
+    );
+
+
+  if (
+    !normalizedCreditId ||
+    !normalizedClientId ||
+    !paymentDate
+  ) {
+
+    return null;
+
+  }
+
+
+  /* ====================================================
+     OBTENER RUTAS
+  ==================================================== */
+
+  const routesRef =
+    collection(
+      db,
+      "companies",
+      companyId,
+      "routes"
+    );
+
+
+  const routesSnapshot =
+    await getDocs(
+      routesRef
+    );
+
+
+  const routes =
+    routesSnapshot.docs.map(
+      item => ({
+
+        id:
+          item.id,
+
+        ...item.data()
+
+      })
+    );
+
+
+  /* ====================================================
+     BUSCAR RUTA EXISTENTE
+  ==================================================== */
+
+  const matchingRoutes =
+    routes.filter(
+
+      route => {
+
+        const routeDate =
+          normalizeDate(
+            route.date
+          );
+
+
+        if (
+          routeDate !==
+          paymentDate
+        ) {
+
+          return false;
+
+        }
+
+
+        const routeClientIds =
+          Array.isArray(
+            route.clientIds
+          )
+
+            ? route.clientIds.map(
+                normalizeId
+              )
+
+            : [];
+
+
+        if (
+          !routeClientIds.includes(
+            normalizedClientId
+          )
+        ) {
+
+          return false;
+
+        }
+
+
+        const routeCreditIds =
+          Array.isArray(
+            route.creditIds
+          )
+
+            ? route.creditIds.map(
+                normalizeId
+              )
+
+            : [];
+
+
+        const mappedCreditId =
+          route.creditByClient &&
+          typeof route.creditByClient === "object"
+
+            ? normalizeId(
+                route.creditByClient[
+                  normalizedClientId
+                ]
+              )
+
+            : "";
+
+
+        const directCreditId =
+          normalizeId(
+            route.creditId
+          );
+
+
+        const creditMatches =
+          routeCreditIds.includes(
+            normalizedCreditId
+          ) ||
+
+          directCreditId ===
+          normalizedCreditId ||
+
+          mappedCreditId ===
+          normalizedCreditId;
+
+
+        return creditMatches;
+
+      }
+
+    );
+
+
+  /*
+   * No encontramos una ruta existente.
+   *
+   * NO creamos una nueva aquí.
+   */
+
+  if (
+    matchingRoutes.length === 0
+  ) {
+
+    return null;
+
+  }
+
+
+  const route =
+    matchingRoutes[0];
+
+
+  /* ====================================================
+     OBTENER VISITAS DE LA RUTA
+  ==================================================== */
+
+  let visits =
+    await getRouteVisits(
+
+      companyId,
+
+      route.id
+
+    );
+
+
+  let matchingVisit =
+    visits.find(
+
+      visit => {
+
+        if (
+          normalizeId(
+            visit.clientId
+          ) !==
+          normalizedClientId
+        ) {
+
+          return false;
+
+        }
+
+
+        const visitCreditId =
+          normalizeId(
+            visit.creditId
+          );
+
+
+        if (
+          visitCreditId
+        ) {
+
+          return (
+            visitCreditId ===
+            normalizedCreditId
+          );
+
+        }
+
+
+        return true;
+
+      }
+
+    );
+
+
+  /*
+   * Si la visita no existe, intentamos asegurarnos
+   * de que la ruta tenga sus visitas creadas.
+   */
+
+  if (
+    !matchingVisit
+  ) {
+
+    await ensureRouteVisits(
+
+      companyId,
+
+      route.id,
+
+      Array.isArray(
+        route.clientIds
+      )
+        ? route.clientIds
+        : []
+
+    );
+
+
+    visits =
+      await getRouteVisits(
+
+        companyId,
+
+        route.id
+
+      );
+
+
+    matchingVisit =
+      visits.find(
+
+        visit => {
+
+          if (
+            normalizeId(
+              visit.clientId
+            ) !==
+            normalizedClientId
+          ) {
+
+            return false;
+
+          }
+
+
+          const visitCreditId =
+            normalizeId(
+              visit.creditId
+            );
+
+
+          return (
+            !visitCreditId ||
+            visitCreditId ===
+            normalizedCreditId
+          );
+
+        }
+
+      );
+
+  }
+
+
+  if (
+    !matchingVisit
+  ) {
+
+    return null;
+
+  }
+
+
+  /* ====================================================
+     OBTENER ESTADO ACTUAL DEL CRÉDITO
+  ==================================================== */
+
+  /*
+   * CAMBIO PAGOS PARCIALES:
+   *
+   * El crédito ya fue actualizado por
+   * registerCreditPayment().
+   *
+   * Consultamos el estado actual para saber
+   * si el pago dejó una cuota parcial.
+   */
+
+  let updatedCredit =
+    null;
+
+
+  try {
+
+    updatedCredit =
+      await resolveCredit(
+
+        companyId,
+
+        normalizedCreditId,
+
+        normalizedClientId
+
+      );
+
+  } catch (error) {
+
+    console.error(
+      "Error obteniendo crédito actualizado para sincronizar visita:",
+      error
+    );
+
+  }
+
+
+  /*
+   * Si por alguna razón no podemos obtener
+   * el crédito actualizado, mantenemos el
+   * comportamiento anterior: pago = Cobrado.
+   */
+
+  const visitStatus =
+    updatedCredit
+      ? getPaymentVisitStatus(
+          updatedCredit
+        )
+      : "Cobrado";
+
+
+  /* ====================================================
+     ACTUALIZAR VISITA
+  ==================================================== */
+
+  const visitRef =
+    doc(
+
+      getVisitsRef(
+        companyId,
+        route.id
+      ),
+
+      matchingVisit.id
+
+    );
+
+
+  const collectedAmount =
+    Number(
+      payment.value ||
+      0
+    );
+
+
+  await updateDoc(
+
+    visitRef,
+
+    {
+
+      status:
+        visitStatus,
+
+      collectedAmount,
+
+      creditId:
+        normalizedCreditId,
+
+      paymentId:
+        payment.id ||
+        null,
+
+      paymentMethod:
+        payment.method ||
+        null,
+
+      visitedAt:
+        serverTimestamp(),
+
+      updatedAt:
+        serverTimestamp()
+
+    }
+
+  );
+
+
+  /* ====================================================
+     ACTUALIZAR RESUMEN DE RUTA
+  ==================================================== */
+
+  const updatedRoute =
+    await syncRouteSummary(
+
+      companyId,
+
+      route.id
+
+    );
+
+
+  /* ====================================================
+     OBTENER VISITA ACTUALIZADA
+  ==================================================== */
+
+  const updatedVisitSnapshot =
+    await getDoc(
+      visitRef
+    );
+
+
+  const updatedVisit =
+    updatedVisitSnapshot.exists()
+
+      ? {
+
+          id:
+            updatedVisitSnapshot.id,
+
+          ...updatedVisitSnapshot.data()
+
+        }
+
+      : null;
+
+
+  return {
+
+    route: updatedRoute,
+
+    visit:
+      updatedVisit,
+
+    payment,
+
+    updatedCredit
+
+  };
+
+}
+
+
+/* ======================================================
+   OBTENER CRÉDITOS
 ====================================================== */
 
 async function getCompanyCredits(
@@ -167,7 +750,7 @@ async function getCompanyCredits(
 
 
 /* ======================================================
-   BUSCAR CRÃ‰DITO POR CUALQUIER IDENTIFICADOR
+   BUSCAR CRÉDITO POR CUALQUIER IDENTIFICADOR
 ====================================================== */
 
 async function findCreditByAnyId(
@@ -241,7 +824,7 @@ async function findCreditByAnyId(
   } catch (error) {
 
     console.warn(
-      "No fue posible consultar crÃ©dito directamente:",
+      "No fue posible consultar crédito directamente:",
       error
     );
 
@@ -252,11 +835,6 @@ async function findCreditByAnyId(
    * SEGUNDO:
    * Buscamos el ID dentro de los campos guardados
    * del documento.
-   *
-   * Esto corrige crÃ©ditos antiguos donde:
-   *
-   * credit.id !== document.id
-   *
    */
 
   const credits =
@@ -297,7 +875,7 @@ async function findCreditByAnyId(
 
 
 /* ======================================================
-   VALIDAR CRÃ‰DITO POR CLIENTE
+   VALIDAR CRÉDITO POR CLIENTE
 ====================================================== */
 
 async function getValidCreditById(
@@ -316,7 +894,7 @@ async function getValidCreditById(
 
 
 /* ======================================================
-   BUSCAR CRÃ‰DITO DE LA VISITA
+   BUSCAR CRÉDITO DE LA VISITA
 ====================================================== */
 
 async function findCreditForVisit(
@@ -381,7 +959,7 @@ async function findCreditForVisit(
 
 
   /* ====================================================
-     1. CRÃ‰DITO EXPLÃCITO
+     1. CRÉDITO EXPLÍCITO
   ==================================================== */
 
   if (
@@ -431,7 +1009,7 @@ async function findCreditForVisit(
 
 
   /* ====================================================
-     2. CRÃ‰DITO POR FECHA DE PAGO
+     2. CRÉDITO POR FECHA DE PAGO
   ==================================================== */
 
   const normalizedRouteDate =
@@ -479,7 +1057,7 @@ async function findCreditForVisit(
 
 
   /* ====================================================
-     3. ÃšNICO CRÃ‰DITO ACTIVO
+     3. ÚNICO CRÉDITO ACTIVO
   ==================================================== */
 
   const activeCredits =
@@ -515,7 +1093,7 @@ async function findCreditForVisit(
 
 
 /* ======================================================
-   RESOLVER CRÃ‰DITO REAL DE LA VISITA
+   RESOLVER CRÉDITO REAL DE LA VISITA
 ====================================================== */
 
 async function resolveVisitCredit(
@@ -550,7 +1128,7 @@ async function resolveVisitCredit(
 
 
   /* ====================================================
-     1. CRÃ‰DITO GUARDADO EN LA VISITA
+     1. CRÉDITO GUARDADO EN LA VISITA
   ==================================================== */
 
   const visitCreditId =
@@ -610,7 +1188,7 @@ async function resolveVisitCredit(
 
 
   /* ====================================================
-     3. BUSCAR CRÃ‰DITO CORRECTO
+     3. BUSCAR CRÉDITO CORRECTO
   ==================================================== */
 
   return await findCreditForVisit(
@@ -844,7 +1422,7 @@ export async function ensureRouteVisits(
 
 
   /* ====================================================
-     REPARAR VISITAS SIN CRÃ‰DITO
+     REPARAR VISITAS SIN CRÉDITO
   ==================================================== */
 
   const refreshedSnapshot =
@@ -1129,7 +1707,7 @@ export async function registerRouteVisit(
 
 
   /* ====================================================
-     RESOLVER CRÃ‰DITO REAL
+     RESOLVER CRÉDITO REAL
   ==================================================== */
 
   const resolvedCredit =
@@ -1145,12 +1723,8 @@ export async function registerRouteVisit(
 
 
   /*
-   * ESTE ES EL PUNTO CLAVE.
-   *
    * resolvedCredit.id siempre es el ID REAL
-   * del documento Firestore porque todas las
-   * bÃºsquedas anteriores construyen el crÃ©dito
-   * usando snapshot.id.
+   * del documento Firestore.
    */
 
   const selectedCreditId =
@@ -1208,7 +1782,7 @@ export async function registerRouteVisit(
   ) {
 
     /*
-     * SOLO se envÃ­a el ID REAL DE FIRESTORE.
+     * SOLO se envía el ID REAL DE FIRESTORE.
      */
 
     const paymentResult =
@@ -1270,13 +1844,34 @@ export async function registerRouteVisit(
      ACTUALIZAR VISITA
   ==================================================== */
 
+  /*
+   * CAMBIO PAGOS PARCIALES:
+   *
+   * Cuando existe un pago, el estado de la visita
+   * se determina por el estado real del crédito.
+   *
+   * Cuando NO existe pago, se conserva exactamente
+   * el estado seleccionado por el usuario.
+   */
+
+  const finalStatus =
+    value > 0
+
+      ? getPaymentVisitStatus(
+          updatedCredit
+        )
+
+      : status;
+
+
   await updateDoc(
 
     visitRef,
 
     {
 
-      status,
+      status:
+        finalStatus,
 
       notes:
         data.notes ||
@@ -1308,7 +1903,7 @@ export async function registerRouteVisit(
 
       visitedAt:
 
-        status ===
+        finalStatus ===
         "Pendiente"
 
           ? null

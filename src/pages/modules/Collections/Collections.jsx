@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useMemo,
@@ -47,6 +48,11 @@ import {
 import {
   analyzeCollectionPortfolio
 } from "../services/collection/collectionIntelligenceService";
+
+import {
+  notifyTodayCollection,
+  notifyClientOverdue
+} from "../services/notifications/notificationEngine";
 
 import "./Collections.css";
 
@@ -196,6 +202,178 @@ function Collection() {
             payments
 
           });
+
+
+        /* ==================================================
+           NOTIFICACIONES AUTOMÁTICAS DE COBRANZA
+        ================================================== */
+
+        const clientsById =
+          new Map(
+            clients.map(
+              client => [
+                String(client.id),
+                client
+              ]
+            )
+          );
+
+
+        const collectionNotifications =
+          result.analysis
+            .filter(
+              item =>
+                item.status === "Activo" &&
+                item.balance > 0 &&
+                (
+                  item.daysUntilPayment === 0 ||
+                  item.daysUntilPayment < 0
+                )
+            )
+            .map(
+              item => {
+
+                const client =
+                  clientsById.get(
+                    String(item.clientId)
+                  );
+
+
+                if (
+                  !client?.phone ||
+                  client.smsEnabled !== true
+                ) {
+                  return null;
+                }
+
+
+                const communicationPreferences = {
+
+                  smsEnabled:
+                    client.smsEnabled === true,
+
+                  whatsappEnabled:
+                    client.whatsappEnabled === true,
+
+                  emailEnabled:
+                    client.emailEnabled === true
+
+                };
+
+
+                /* ==========================================
+                   IDENTIFICAR LA FECHA DE LA CUOTA
+                ========================================== */
+
+                const paymentDate =
+                  item.nextPaymentDate?.toDate
+                    ? item.nextPaymentDate.toDate()
+                    : typeof item.nextPaymentDate === "string" &&
+                     /^\d{4}-\d{2}-\d{2}$/.test(item.nextPaymentDate)
+                     ? (() => {
+                        const [
+                          year,
+                          month, 
+                          day
+                        ] = item.nextPaymentDate
+                          .split("-")
+                          .map(Number);
+
+                        return new Date(
+                          year,
+                          month - 1,
+                          day
+                        );
+                      })()
+                     : new Date(
+                        item.nextPaymentDate
+                      );
+
+
+                const paymentDateKey =
+                  !Number.isNaN(
+                    paymentDate.getTime()
+                  )
+                    ? paymentDate.toLocaleDateString(
+                        "en-CA",
+                        {
+                          timeZone:
+                            "America/Bogota"
+                        }
+                      )
+                    : null;
+
+
+                /* ==========================================
+                   COBRO DE HOY
+                ========================================== */
+
+                if (
+                  item.daysUntilPayment === 0
+                ) {
+
+                  return notifyTodayCollection({
+
+                    companyId,
+
+                    client:
+                      item.clientName,
+
+                    phone:
+                      client.phone,
+
+                    referenceId:
+                      paymentDateKey
+                        ? `payment_due_${item.creditId}_${paymentDateKey}`
+                        : `payment_due_${item.creditId}`,
+
+                    communicationPreferences
+
+                  });
+
+                }
+
+
+                /* ==========================================
+                   PAGO VENCIDO / MORA
+                ========================================== */
+
+                return notifyClientOverdue({
+
+                  companyId,
+
+                  client:
+                    item.clientName,
+
+                  phone:
+                    client.phone,
+
+                  referenceId:
+                    paymentDateKey
+                      ? `payment_overdue_${item.creditId}_${paymentDateKey}`
+                      : `payment_overdue_${item.creditId}`,
+
+                  communicationPreferences
+
+                });
+
+              }
+            )
+            .filter(
+              notification =>
+                notification !== null
+            );
+
+
+        if (
+          collectionNotifications.length > 0
+        ) {
+
+          await Promise.all(
+            collectionNotifications
+          );
+
+        }
 
 
         setAnalysis(result);
@@ -884,3 +1062,4 @@ function Collection() {
 
 
 export default Collection;
+

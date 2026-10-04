@@ -3,9 +3,7 @@ import "./CreditSummary.css";
 import CreditProgress from "./CreditProgress";
 
 function CreditSummary({ credit }) {
-
   return (
-
     <div className="credit-stats">
 
       <CreditProgress
@@ -120,10 +118,20 @@ function CreditSummary({ credit }) {
 
       </div>
 
+      <div className="summary-card summary-card--notes">
+
+        <span>
+          Observaciones
+        </span>
+
+        <strong>
+          {credit.notes || "Sin observaciones"}
+        </strong>
+
+      </div>
+
     </div>
-
   );
-
 }
 
 export default CreditSummary;

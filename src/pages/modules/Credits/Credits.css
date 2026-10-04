@@ -1,92 +1,315 @@
 .credits-page {
   width: 100%;
   min-height: 100%;
-  padding: 32px;
-  box-sizing: border-box;
+  padding: 28px;
   background: #f8fafc;
+  box-sizing: border-box;
 }
 
-
-/* =======================================================
+/* ======================================================
    HEADER
-======================================================= */
+====================================================== */
 
 .credits-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 30px;
+
+  margin-bottom: 24px;
 }
 
 .credits-header h1 {
   margin: 0;
+
   color: #0f172a;
-  font-size: 32px;
+
+  font-size: 30px;
+  font-weight: 800;
   line-height: 1.2;
-  font-weight: 750;
-  letter-spacing: -0.5px;
 }
 
 .credits-header p {
-  margin: 8px 0 0;
+  margin: 7px 0 0;
+
   color: #64748b;
-  font-size: 15px;
+
+  font-size: 14px;
   line-height: 1.5;
 }
 
+/* ======================================================
+   BOTÓN NUEVO CRÉDITO
+====================================================== */
+
 .credits-header button {
   flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   min-height: 44px;
-  padding: 0 22px;
+
+  padding: 0 19px;
+
   border: none;
   border-radius: 12px;
+
   background: #2563eb;
   color: #ffffff;
+
+  font-family: inherit;
   font-size: 14px;
   font-weight: 700;
+
   cursor: pointer;
+
+  box-shadow:
+    0 6px 14px rgba(37, 99, 235, 0.16);
+
   transition:
     background 0.2s ease,
     transform 0.2s ease,
     box-shadow 0.2s ease;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
 }
 
 .credits-header button:hover {
   background: #1d4ed8;
+
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+
+  box-shadow:
+    0 8px 18px rgba(37, 99, 235, 0.2);
 }
 
 .credits-header button:active {
   transform: translateY(0);
 }
 
+/* ======================================================
+   FILTROS
+====================================================== */
 
-/* =======================================================
+.credits-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 18px;
+
+  padding: 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 5px 16px rgba(15, 23, 42, 0.035);
+}
+
+.credits-filter-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.credits-filter-button {
+  min-height: 38px;
+
+  padding: 0 14px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #475569;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.credits-filter-button:hover {
+  border-color: #bfdbfe;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  transform: translateY(-1px);
+}
+
+.credits-filter-button--active {
+  border-color: #2563eb;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px rgba(37, 99, 235, 0.16);
+}
+
+.credits-filter-button--active:hover {
+  background: #1d4ed8;
+
+  border-color: #1d4ed8;
+
+  color: #ffffff;
+}
+
+/* ======================================================
+   HERRAMIENTAS DE FILTRO
+====================================================== */
+
+.credits-filter-tools {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.credits-search,
+.credits-date-picker {
+  display: flex;
+  align-items: center;
+
+  min-height: 40px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  box-sizing: border-box;
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.credits-search {
+  width: 280px;
+
+  padding: 0 11px;
+}
+
+.credits-date-picker {
+  width: 170px;
+
+  padding: 0 10px;
+}
+
+.credits-search:focus-within,
+.credits-date-picker:focus-within {
+  background: #ffffff;
+
+  border-color: #93c5fd;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.credits-search span,
+.credits-date-picker span {
+  flex-shrink: 0;
+
+  margin-right: 7px;
+
+  font-size: 14px;
+
+  line-height: 1;
+}
+
+.credits-search input,
+.credits-date-picker input {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.credits-search input::placeholder {
+  color: #94a3b8;
+}
+
+.credits-date-picker input {
+  cursor: pointer;
+}
+
+.credits-date-picker input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/* ======================================================
    ESTADÍSTICAS
-======================================================= */
+====================================================== */
 
 .credits-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 28px;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 16px;
+
+  margin-bottom: 22px;
 }
 
+/* ======================================================
+   TARJETAS DE ESTADÍSTICAS
+====================================================== */
+
 .credit-card {
-  position: relative;
   min-width: 0;
-  padding: 22px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  box-sizing: border-box;
+
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.045);
+  justify-content: space-between;
+
+  min-height: 112px;
+
+  padding: 19px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 5px 16px rgba(15, 23, 42, 0.04);
+
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -95,87 +318,239 @@
 
 .credit-card:hover {
   transform: translateY(-2px);
-  border-color: #d7e0ec;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+
+  box-shadow:
+    0 9px 22px rgba(15, 23, 42, 0.07);
 }
 
 .credit-card span {
+  display: block;
+
+  margin-bottom: 10px;
+
   color: #64748b;
-  font-size: 13px;
-  line-height: 1.4;
-  font-weight: 600;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  line-height: 1.35;
+
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+
+  word-break: break-word;
 }
 
 .credit-card strong {
+  display: block;
+
   color: #0f172a;
-  font-size: 27px;
+
+  font-size: 25px;
+  font-weight: 800;
+
   line-height: 1.2;
-  font-weight: 750;
-  letter-spacing: -0.4px;
+
+  word-break: break-word;
 }
 
+/* ======================================================
+   VARIACIONES VISUALES
+====================================================== */
 
-/* =======================================================
-   CONTENEDOR PRINCIPAL
-======================================================= */
+.credit-card:nth-child(1) {
+  border-top: 3px solid #2563eb;
+}
+
+.credit-card:nth-child(1) strong {
+  color: #1d4ed8;
+}
+
+.credit-card:nth-child(2) {
+  border-top: 3px solid #16a34a;
+}
+
+.credit-card:nth-child(2) strong {
+  color: #15803d;
+}
+
+.credit-card:nth-child(3) {
+  border-top: 3px solid #64748b;
+}
+
+.credit-card:nth-child(3) strong {
+  color: #334155;
+}
+
+.credit-card:nth-child(4) {
+  border-top: 3px solid #f97316;
+}
+
+.credit-card:nth-child(4) strong {
+  color: #c2410c;
+}
+
+/* ======================================================
+   FORMULARIO
+====================================================== */
+
+.credits-page form {
+  width: 100%;
+
+  margin-bottom: 24px;
+}
+
+/* ======================================================
+   ENCABEZADO DE RESULTADOS
+====================================================== */
+
+.credits-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 10px;
+}
+
+.credits-results-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  line-height: 1.3;
+}
+
+.credits-results-header p {
+  margin: 4px 0 0;
+
+  color: #64748b;
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.credits-clear-search {
+  flex-shrink: 0;
+
+  padding: 7px 11px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.credits-clear-search:hover {
+  background: #dbeafe;
+
+  border-color: #bfdbfe;
+}
+
+/* ======================================================
+   CONTENEDOR PRINCIPAL DE LA TABLA
+====================================================== */
 
 .credits-main {
   width: 100%;
+
   background: #ffffff;
+
   border: 1px solid #e2e8f0;
   border-radius: 18px;
-  padding: 18px;
+
+  padding: 4px;
+
   box-sizing: border-box;
+
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+
+  box-shadow:
+    0 5px 16px rgba(15, 23, 42, 0.035);
 }
+
+/* ======================================================
+   EVITAR DESBORDAMIENTO
+====================================================== */
 
 .credits-main table {
   width: 100%;
+  max-width: 100%;
 }
 
-
-/* =======================================================
-   FORMULARIO
-======================================================= */
-
-.credits-page form {
-  margin-bottom: 28px;
-}
-
-
-/* =======================================================
+/* ======================================================
    TABLET
-======================================================= */
+====================================================== */
+
+@media (max-width: 1150px) {
+  .credits-filters {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .credits-filter-buttons {
+    width: 100%;
+  }
+
+  .credits-filter-tools {
+    width: 100%;
+  }
+
+  .credits-search {
+    flex: 1;
+
+    width: auto;
+  }
+
+  .credits-date-picker {
+    flex-shrink: 0;
+  }
+}
 
 @media (max-width: 1100px) {
-
   .credits-page {
-    padding: 26px;
+    padding: 24px;
   }
 
   .credits-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 14px;
   }
 
+  .credit-card {
+    min-height: 105px;
+  }
 }
 
+/* ======================================================
+   TABLET PEQUEÑA
+====================================================== */
 
-/* =======================================================
-   MÓVIL
-======================================================= */
-
-@media (max-width: 700px) {
-
+@media (max-width: 800px) {
   .credits-page {
-    padding: 20px 16px;
+    padding: 20px;
   }
 
   .credits-header {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 24px;
+    align-items: flex-start;
   }
 
   .credits-header h1 {
@@ -183,52 +558,160 @@
   }
 
   .credits-header p {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .credits-header button {
+    min-height: 42px;
+
+    padding: 0 16px;
+  }
+
+  .credits-filter-tools {
+    flex-direction: column;
+  }
+
+  .credits-search,
+  .credits-date-picker {
     width: 100%;
   }
 
-  .credits-stats {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-bottom: 22px;
+  .credits-date-picker {
+    min-height: 40px;
   }
-
-  .credit-card {
-    padding: 18px;
-    border-radius: 16px;
-  }
-
-  .credit-card strong {
-    font-size: 25px;
-  }
-
-  .credits-main {
-    padding: 12px;
-    border-radius: 16px;
-  }
-
 }
 
+/* ======================================================
+   MÓVIL
+====================================================== */
 
-/* =======================================================
-   MÓVIL PEQUEÑO
-======================================================= */
-
-@media (max-width: 420px) {
-
+@media (max-width: 650px) {
   .credits-page {
-    padding: 16px 12px;
+    padding: 16px;
+  }
+
+  .credits-header {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
   }
 
   .credits-header h1 {
     font-size: 25px;
   }
 
-  .credits-main {
-    padding: 8px;
+  .credits-header p {
+    margin-top: 6px;
+
+    font-size: 13px;
   }
 
+  .credits-header button {
+    width: 100%;
+  }
+
+  .credits-filters {
+    padding: 11px;
+
+    border-radius: 14px;
+  }
+
+  .credits-filter-buttons {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 7px;
+  }
+
+  .credits-filter-button {
+    width: 100%;
+
+    min-height: 40px;
+
+    padding: 0 8px;
+  }
+
+  .credits-stats {
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+  }
+
+  .credit-card {
+    min-height: 86px;
+
+    padding: 15px;
+
+    border-radius: 15px;
+  }
+
+  .credit-card span {
+    font-size: 10px;
+  }
+
+  .credit-card strong {
+    font-size: 22px;
+  }
+
+  .credits-results-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .credits-clear-search {
+    width: 100%;
+  }
+
+  .credits-main {
+    border-radius: 15px;
+
+    padding: 3px;
+  }
+
+  .credits-page form {
+    margin-bottom: 18px;
+  }
+}
+
+/* ======================================================
+   MÓVIL PEQUEÑO
+====================================================== */
+
+@media (max-width: 420px) {
+  .credits-page {
+    padding: 13px;
+  }
+
+  .credits-header h1 {
+    font-size: 23px;
+  }
+
+  .credits-header button {
+    min-height: 40px;
+
+    font-size: 13px;
+  }
+
+  .credits-filter-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .credit-card {
+    padding: 14px;
+  }
+
+  .credit-card strong {
+    font-size: 20px;
+  }
 }

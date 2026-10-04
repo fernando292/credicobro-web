@@ -19,26 +19,6 @@ import {
    RESOLVER CANALES DE COMUNICACIÓN
 ====================================================== */
 
-/*
-  Determina los canales solicitados según las
-  preferencias de comunicación.
-
-  IMPORTANTE:
-
-  Las preferencias del cliente/empresa NO tienen
-  autoridad sobre la política.
-
-  Ejemplo:
-
-    whatsappEnabled = true
-
-  NO significa que cualquier notificación pueda
-  enviarse por WhatsApp.
-
-  La política central de communicationRules.js
-  determina finalmente qué canales están permitidos.
-*/
-
 function resolveNotificationChannels({
 
   communicationPreferences = {},
@@ -92,13 +72,6 @@ function resolveNotificationChannels({
   }
 
 
-  /*
-    Aplicamos la política central.
-
-    El resultado solamente contiene canales
-    autorizados para ese tipo de comunicación.
-  */
-
   return filterAllowedCommunicationChannels({
 
     channels:
@@ -122,6 +95,8 @@ export async function notifyCreditCreated({
   client,
 
   amount,
+
+  phone = null,
 
   referenceId = null,
 
@@ -162,6 +137,8 @@ export async function notifyCreditCreated({
     type,
 
     referenceId,
+
+    phone,
 
     channels:
       resolvedChannels
@@ -204,13 +181,6 @@ export async function notifyPaymentRegistered({
 
     });
 
-
-  /*
-    Resolver canales antes de crear la notificación.
-
-    Este log es TEMPORAL y sirve para comprobar
-    si WhatsApp está siendo solicitado y autorizado.
-  */
 
   const resolvedChannels =
     resolveNotificationChannels({
@@ -271,6 +241,8 @@ export async function notifyClientOverdue({
 
   client,
 
+  phone = null,
+
   referenceId = null,
 
   communicationPreferences = {}
@@ -309,6 +281,8 @@ export async function notifyClientOverdue({
 
     referenceId,
 
+    phone,
+
     channels:
       resolvedChannels
 
@@ -326,6 +300,8 @@ export async function notifyTodayCollection({
   companyId,
 
   client,
+
+  phone = null,
 
   referenceId = null,
 
@@ -361,10 +337,13 @@ export async function notifyTodayCollection({
         client || "Cliente"
       }.`,
 
+
     module:
       "collections",
 
     referenceId,
+
+    phone,
 
     channels:
       resolvedChannels

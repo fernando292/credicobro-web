@@ -1,0 +1,155 @@
+rules_version = '2';
+
+service cloud.firestore {b
+  match /databases/{database}/documents {
+
+    // =====================================================
+    // FUNCIONES DE SEGURIDAD
+    // =====================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated()
+        && request.auth.uid == userId;
+    }
+
+    function getUserCompanyId() {
+      return get(
+        /databases/$(database)/documents/users/$(request.auth.uid)
+      ).data.companyId;
+    }
+
+    function belongsToCompany(companyId) {
+      return isAuthenticated()
+        && getUserCompanyId() == companyId;
+    }
+
+
+    // =====================================================
+    // EMPRESAS
+    // =====================================================
+
+    match /companies/{companyId} {
+
+      // El usuario autenticado puede consultar su propia empresa.
+      allow read: if belongsToCompany(companyId);
+
+      // La creación inicial se permite durante el registro.
+      allow create: if isAuthenticated();
+
+      // Una empresa existente solamente puede ser modificada
+      // por usuarios pertenecientes a esa misma empresa.
+      allow update, delete: if belongsToCompany(companyId);
+
+
+      // ===================================================
+      // CLIENTES
+      // ===================================================
+
+      match /clients/{clientId} {
+        allow read, write: if belongsToCompany(companyId);
+      }
+
+
+      // ===================================================
+      // CRÉDITOS
+      // ===================================================
+
+      match /credits/{creditId} {
+        allow read, write: if belongsToCompany(companyId);
+
+
+        // ================================================
+        // PAGOS
+        // ================================================
+
+        match /payments/{paymentId} {
+          allow read, write: if belongsToCompany(companyId);
+        }
+      }
+
+
+      // ===================================================
+      // GASTOS
+      // ===================================================
+
+      match /expenses/{expenseId} {
+        allow read, write: if belongsToCompany(companyId);
+      }
+
+
+      // ===================================================
+      // RUTAS
+      // ===================================================
+
+      match /routes/{routeId} {
+        allow read, write: if belongsToCompany(companyId);
+
+
+        // ================================================
+        // VISITAS
+        // ================================================
+
+        match /visits/{visitId} {
+          allow read, write: if belongsToCompany(companyId);
+        }
+      }
+
+
+      // ===================================================
+      // COBRANZA
+      // ===================================================
+
+      match /collectionFollowUps/{followUpId} {
+        allow read, write: if belongsToCompany(companyId);
+      }
+
+      match /collectionTracking/{trackingId} {
+        allow read, write: if belongsToCompany(companyId);
+      }
+
+
+      // ===================================================
+      // CONFIGURACIÓN FINANCIERA
+      // ===================================================
+
+      match /settings/{documentId} {
+        allow read, write: if belongsToCompany(companyId);
+      }
+    }
+
+
+    // =====================================================
+    // PERFILES DE USUARIO
+    // =====================================================
+
+    match /users/{userId} {
+
+      // Cada usuario solamente puede acceder a su propio perfil.
+      allow read, write: if isOwner(userId);
+    }
+
+
+    // =====================================================
+    // NOTIFICACIONES
+    // =====================================================
+
+    match /notifications/{notificationId} {
+
+      allow read: if belongsToCompany(
+        resource.data.companyId
+      );
+
+      allow create: if belongsToCompany(
+        request.resource.data.companyId
+      );
+
+      allow update, delete: if belongsToCompany(
+        resource.data.companyId
+      );
+    }
+  }
+}

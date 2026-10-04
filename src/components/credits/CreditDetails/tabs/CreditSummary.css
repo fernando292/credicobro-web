@@ -1,166 +1,83 @@
-.credit-stats{
-
-  display:grid;
-
-  grid-template-columns:repeat(3, 1fr);
-
-  gap:14px;
-
-  width:100%;
-
+.credit-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
 }
 
-
-
-/* Tarjetas individuales */
-
-.summary-card{
-
-
-  background:#ffffff;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:18px;
-
-  padding:18px;
-
-  min-height:85px;
-
-  display:flex;
-
-  flex-direction:column;
-
-  justify-content:center;
-
-  gap:8px;
-
-  box-shadow:0 8px 20px rgba(15,23,42,.05);
-
-  transition:.25s ease;
-
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  min-height: 85px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+  transition: .25s ease;
 }
 
-
-
-.summary-card:hover{
-
-  transform:translateY(-2px);
-
-  box-shadow:0 12px 25px rgba(15,23,42,.08);
-
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(15, 23, 42, .08);
 }
 
-
-
-
-
-.summary-card span{
-
-  font-size:12px;
-
-  color:#64748b;
-
-  font-weight:600;
-
+.summary-card span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-
-
-
-
-.summary-card strong{
-
-  font-size:18px;
-
-  color:#0f172a;
-
-  font-weight:800;
-
-  line-height:1.2;
-
-  word-break:break-word;
-
+.summary-card strong {
+  font-size: 18px;
+  color: #0f172a;
+  font-weight: 800;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
-
-
-
-
-/* Cliente ocupa todo el ancho */
-
-.summary-card:nth-child(2){
-
-  grid-column:span 3;
-
+.summary-card:nth-child(2) {
+  grid-column: span 3;
 }
 
-
-
-
-
-
-
-/* Progreso del crédito */
-
-.credit-progress{
-
-  grid-column:span 3;
-
+.credit-progress {
+  grid-column: span 3;
 }
 
+.summary-card--notes {
+  grid-column: span 3;
+  justify-content: flex-start;
+}
 
+.summary-card--notes strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
 
-
-
-
-
-@media(max-width:1000px){
-
-
-  .credit-stats{
-
-    grid-template-columns:repeat(2,1fr);
-
+@media(max-width:1000px) {
+  .credit-stats {
+    grid-template-columns: repeat(2, 1fr);
   }
-
-
 
   .summary-card:nth-child(2),
-
-  .credit-progress{
-
-    grid-column:span 2;
-
+  .credit-progress,
+  .summary-card--notes {
+    grid-column: span 2;
   }
-
-
 }
 
-
-
-
-
-
-
-@media(max-width:650px){
-
-
-  .credit-stats{
-
-    grid-template-columns:1fr;
-
+@media(max-width:650px) {
+  .credit-stats {
+    grid-template-columns: 1fr;
   }
-
-
 
   .summary-card:nth-child(2),
-
-  .credit-progress{
-
-    grid-column:span 1;
-
+  .credit-progress,
+  .summary-card--notes {
+    grid-column: span 1;
   }
-
-
 }

@@ -3,6 +3,10 @@ import {
 } from "./providers/whatsapp/whatsappProvider";
 
 import {
+  sendSmsNotification
+} from "../notifications/channels/sms/smsNotificationService";
+
+import {
   filterAllowedCommunicationChannels,
   getBlockedCommunicationChannels
 } from "./communicationRules";
@@ -265,36 +269,76 @@ export async function sendCommunication({
     )
   ) {
 
-    /*
-      Provider SMS pendiente.
+    try {
 
-      No se realiza ninguna petición externa
-      hasta configurar el proveedor real.
-    */
+      const result =
+        await sendSmsNotification({
 
-    results.sms = {
+          companyId,
 
-      success:
-        false,
+          phone,
 
-      status:
-        "not_configured",
+          message,
 
-      channel:
-        "sms",
+          type,
 
-      companyId,
+          referenceId
 
-      type,
+        });
 
-      module,
 
-      referenceId,
+      results.sms = {
 
-      error:
-        "El canal SMS todavía no tiene un provider configurado."
+        ...result,
 
-    };
+        channel:
+          "sms",
+
+        companyId,
+
+        type,
+
+        module,
+
+        referenceId
+
+      };
+
+
+    } catch (error) {
+
+      console.error(
+        "Error creando solicitud SMS:",
+        error
+      );
+
+
+      results.sms = {
+
+        success:
+          false,
+
+        status:
+          "error",
+
+        channel:
+          "sms",
+
+        companyId,
+
+        type,
+
+        module,
+
+        referenceId,
+
+        error:
+          error?.message ||
+          "Error desconocido."
+
+      };
+
+    }
 
   }
 

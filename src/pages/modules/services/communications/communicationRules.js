@@ -1,3 +1,4 @@
+
 import {
   NOTIFICATION_TYPES
 } from "../notifications/notificationTypes";
@@ -17,6 +18,13 @@ import {
   Las preferencias indican qué canales desea utilizar
   la empresa, mientras que estas reglas determinan qué
   canales están realmente autorizados para cada evento.
+
+  EVENTOS SMS ACTUALES:
+
+  - Crédito creado                → BLOQUEADO
+  - Pago registrado               → BLOQUEADO
+  - Pago pendiente / cobro de hoy → PERMITIDO
+  - Pago vencido / mora           → PERMITIDO
 */
 
 
@@ -44,17 +52,6 @@ export const COMMUNICATION_CHANNELS = {
 /* ======================================================
    TIPOS DE NOTIFICACIÓN CON WHATSAPP PERMITIDO
 ====================================================== */
-
-/*
-  WhatsApp no queda habilitado para cualquier evento.
-
-  Actualmente solamente está permitido para:
-
-  - Pago registrado.
-  - Recordatorio de pago.
-
-  PAYMENT_DUE corresponde al recordatorio de pago.
-*/
 
 const WHATSAPP_ALLOWED_TYPES = [
 
@@ -129,11 +126,31 @@ export function isCommunicationChannelAllowed({
   ) {
 
     /*
-      El canal está definido arquitectónicamente,
-      pero actualmente no existe un provider funcional.
+      SMS está permitido únicamente para:
+
+      - Pago pendiente / cobro de hoy.
+      - Pago vencido / mora.
+
+      SMS permanece bloqueado para:
+
+      - Crédito creado.
+      - Pago registrado.
+
+      El envío real se realiza mediante la cola
+      smsQueue y el Android CrediCobro SMS.
     */
 
-    return false;
+    return (
+
+      type ===
+      NOTIFICATION_TYPES.PAYMENT_DUE
+
+      ||
+
+      type ===
+      NOTIFICATION_TYPES.PAYMENT_OVERDUE
+
+    );
 
   }
 
@@ -284,3 +301,4 @@ export function getBlockedCommunicationChannels({
   ];
 
 }
+

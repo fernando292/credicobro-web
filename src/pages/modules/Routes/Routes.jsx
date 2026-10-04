@@ -1,3 +1,4 @@
+
 import {
   useEffect,
   useState
@@ -31,6 +32,123 @@ import {
 import RouteDetails from "../../../components/dashboard/routes/RouteDetails/RouteDetails";
 
 import "./Routes.css";
+
+
+/* ======================================================
+   UTILIDADES DE FECHA
+
+   Se utilizan fechas locales para evitar que
+   toISOString() cambie el día por diferencias de zona
+   horaria.
+====================================================== */
+
+function getLocalDateString(
+  date = new Date()
+) {
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  return `${year}-${month}-${day}`;
+
+}
+
+
+function addDays(
+  dateString,
+  amount
+) {
+
+  if (!dateString) {
+    return getLocalDateString();
+  }
+
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    dateString
+      .split("-")
+      .map(Number);
+
+
+  const date =
+    new Date(
+      year,
+      month - 1,
+      day
+    );
+
+
+  date.setDate(
+    date.getDate() + amount
+  );
+
+
+  return getLocalDateString(
+    date
+  );
+
+}
+
+
+function formatDisplayDate(
+  dateString
+) {
+
+  if (!dateString) {
+    return "";
+  }
+
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    dateString
+      .split("-")
+      .map(Number);
+
+
+  const date =
+    new Date(
+      year,
+      month - 1,
+      day
+    );
+
+
+  return date.toLocaleDateString(
+    "es-CO",
+    {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+}
 
 
 function Routes() {
@@ -143,6 +261,32 @@ function Routes() {
     description: ""
 
   });
+
+
+  /* ======================================================
+     FILTROS DE RUTAS
+
+     today       = Hoy
+     tomorrow    = Mañana
+     pending     = Pendientes
+     completed   = Completadas
+     noCollection = Sin cobro
+     all         = Todas
+     date        = Fecha seleccionada en calendario
+  ====================================================== */
+
+  const [
+    routeFilter,
+    setRouteFilter
+  ] = useState("today");
+
+
+  const [
+    selectedDate,
+    setSelectedDate
+  ] = useState(
+    getLocalDateString()
+  );
 
 
   /* ======================================================
@@ -1183,32 +1327,147 @@ function Routes() {
 
 
   /* ======================================================
-     FECHA ACTUAL
+     FECHAS DE TRABAJO
   ====================================================== */
 
   const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
+    getLocalDateString();
 
 
-  /* ======================================================
-     RUTAS DE HOY
-  ====================================================== */
-
-  const todayRoutes =
-    routes.filter(
-      route =>
-        route.date === today
+  const tomorrow =
+    addDays(
+      today,
+      1
     );
 
 
   /* ======================================================
-     CLIENTES EN RUTA
+     FILTROS DE RUTAS
+
+     No modifican las rutas existentes.
+     Solamente determinan cuáles se muestran.
   ====================================================== */
 
+  const filteredRoutes =
+    routes
+      .filter(
+        route => {
+
+          switch (
+            routeFilter
+          ) {
+
+            case "today":
+
+              return (
+                route.date ===
+                today
+              );
+
+
+            case "tomorrow":
+
+              return (
+                route.date ===
+                tomorrow
+              );
+
+
+            case "pending":
+
+              return (
+                route.status ===
+                "Pendiente"
+              );
+
+
+            case "completed":
+
+              return (
+                route.status ===
+                "Completada"
+              );
+
+
+            case "noCollection":
+
+              return (
+                Number(
+                  route.collected || 0
+                ) <= 0
+              );
+
+
+            case "date":
+
+              return (
+                route.date ===
+                selectedDate
+              );
+
+
+            case "all":
+
+            default:
+
+              return true;
+
+          }
+
+        }
+      )
+      .sort(
+        (
+          first,
+          second
+        ) => {
+
+          const firstDate =
+            first.date || "";
+
+          const secondDate =
+            second.date || "";
+
+
+          if (
+            firstDate !==
+            secondDate
+          ) {
+
+            return firstDate.localeCompare(
+              secondDate
+            );
+
+          }
+
+
+          return (
+            first.name || ""
+          ).localeCompare(
+            second.name || "",
+            "es",
+            {
+              sensitivity: "base"
+            }
+          );
+
+        }
+      );
+
+
+  /* ======================================================
+     RESUMEN DE LAS RUTAS VISIBLES
+
+     El resumen ahora corresponde únicamente al filtro
+     que el usuario está viendo.
+  ====================================================== */
+
+  const visibleRoutes =
+    filteredRoutes;
+
+
   const clientsInRoutes =
-    routes.reduce(
+    visibleRoutes.reduce(
       (
         total,
         route
@@ -1225,12 +1484,8 @@ function Routes() {
     );
 
 
-  /* ======================================================
-     VISITAS PENDIENTES
-  ====================================================== */
-
   const pendingVisits =
-    routes.reduce(
+    visibleRoutes.reduce(
       (
         total,
         route
@@ -1257,12 +1512,8 @@ function Routes() {
     );
 
 
-  /* ======================================================
-     RECAUDADO
-  ====================================================== */
-
   const collected =
-    routes.reduce(
+    visibleRoutes.reduce(
       (
         total,
         route
@@ -1277,6 +1528,80 @@ function Routes() {
       0
 
     );
+
+
+  /* ======================================================
+     TÍTULO DINÁMICO DEL LISTADO
+  ====================================================== */
+
+  let routesTitle =
+    "Rutas de hoy";
+
+
+  switch (
+    routeFilter
+  ) {
+
+    case "tomorrow":
+
+      routesTitle =
+        "Rutas de mañana";
+
+      break;
+
+
+    case "pending":
+
+      routesTitle =
+        "Rutas pendientes";
+
+      break;
+
+
+    case "completed":
+
+      routesTitle =
+        "Rutas completadas";
+
+      break;
+
+
+    case "noCollection":
+
+      routesTitle =
+        "Rutas sin cobro";
+
+      break;
+
+
+    case "all":
+
+      routesTitle =
+        "Todas las rutas";
+
+      break;
+
+
+    case "date":
+
+      routesTitle =
+        `Rutas del ${formatDisplayDate(
+          selectedDate
+        )}`;
+
+      break;
+
+
+    case "today":
+
+    default:
+
+      routesTitle =
+        "Rutas de hoy";
+
+      break;
+
+  }
 
 
   /* ======================================================
@@ -1347,6 +1672,124 @@ function Routes() {
 
 
   /* ======================================================
+     CAMBIAR FILTRO
+  ====================================================== */
+
+  function handleRouteFilter(
+    filter
+  ) {
+
+    setRouteFilter(
+      filter
+    );
+
+
+    if (
+      filter ===
+      "today"
+    ) {
+
+      setSelectedDate(
+        today
+      );
+
+    }
+
+
+    if (
+      filter ===
+      "tomorrow"
+    ) {
+
+      setSelectedDate(
+        tomorrow
+      );
+
+    }
+
+  }
+
+
+  /* ======================================================
+     CAMBIAR FECHA DESDE CALENDARIO
+  ====================================================== */
+
+  function handleDateChange(
+    event
+  ) {
+
+    const value =
+      event.target.value;
+
+
+    if (!value) {
+      return;
+    }
+
+
+    setSelectedDate(
+      value
+    );
+
+
+    setRouteFilter(
+      "date"
+    );
+
+  }
+
+
+  /* ======================================================
+     DÍA ANTERIOR
+  ====================================================== */
+
+  function handlePreviousDay() {
+
+    const previousDate =
+      addDays(
+        selectedDate,
+        -1
+      );
+
+
+    setSelectedDate(
+      previousDate
+    );
+
+
+    setRouteFilter(
+      "date"
+    );
+
+  }
+
+
+  /* ======================================================
+     DÍA SIGUIENTE
+  ====================================================== */
+
+  function handleNextDay() {
+
+    const nextDate =
+      addDays(
+        selectedDate,
+        1
+      );
+
+
+    setSelectedDate(
+      nextDate
+    );
+
+
+    setRouteFilter(
+      "date"
+    );
+
+  }
+
+
+  /* ======================================================
      RENDER
   ====================================================== */
 
@@ -1398,6 +1841,249 @@ function Routes() {
 
 
       {/* ==================================================
+          FILTROS
+      ================================================== */}
+
+      <div className="routes__filters">
+
+
+        <div className="routes__filter-buttons">
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "today"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "today"
+              )
+            }
+
+          >
+
+            Hoy
+
+          </button>
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "tomorrow"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "tomorrow"
+              )
+            }
+
+          >
+
+            Mañana
+
+          </button>
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "pending"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "pending"
+              )
+            }
+
+          >
+
+            Pendientes
+
+          </button>
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "completed"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "completed"
+              )
+            }
+
+          >
+
+            Completadas
+
+          </button>
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "noCollection"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "noCollection"
+              )
+            }
+
+          >
+
+            Sin cobro
+
+          </button>
+
+
+          <button
+
+            type="button"
+
+            className={
+              `routes__filter-button ${
+                routeFilter === "all"
+                  ? "routes__filter-button--active"
+                  : ""
+              }`
+            }
+
+            onClick={() =>
+              handleRouteFilter(
+                "all"
+              )
+            }
+
+          >
+
+            Todas
+
+          </button>
+
+        </div>
+
+
+        {/* ==================================================
+            NAVEGACIÓN POR FECHA
+        ================================================== */}
+
+        <div className="routes__date-controls">
+
+
+          <button
+
+            type="button"
+
+            className="routes__date-button"
+
+            onClick={
+              handlePreviousDay
+            }
+
+            aria-label="Día anterior"
+
+            title="Día anterior"
+
+          >
+
+            ‹
+
+          </button>
+
+
+          <div className="routes__date-picker">
+
+
+            <span>
+              📅
+            </span>
+
+
+            <input
+
+              type="date"
+
+              value={
+                selectedDate
+              }
+
+              onChange={
+                handleDateChange
+              }
+
+              aria-label="Elegir fecha"
+
+            />
+
+          </div>
+
+
+          <button
+
+            type="button"
+
+            className="routes__date-button"
+
+            onClick={
+              handleNextDay
+            }
+
+            aria-label="Día siguiente"
+
+            title="Día siguiente"
+
+          >
+
+            ›
+
+          </button>
+
+
+        </div>
+
+      </div>
+
+
+      {/* ==================================================
           RESUMEN
       ================================================== */}
 
@@ -1407,12 +2093,12 @@ function Routes() {
         <div className="routes__card">
 
           <span>
-            Rutas de hoy
+            Rutas mostradas
           </span>
 
 
           <strong>
-            {todayRoutes.length}
+            {visibleRoutes.length}
           </strong>
 
         </div>
@@ -1463,6 +2149,46 @@ function Routes() {
 
 
       {/* ==================================================
+          TÍTULO DE RESULTADOS
+      ================================================== */}
+
+      {
+        routes.length > 0 && (
+
+          <div className="routes__results-header">
+
+            <div>
+
+              <h2>
+                {routesTitle}
+              </h2>
+
+
+              <p>
+
+                {
+                  visibleRoutes.length
+                }
+
+                {" "}
+
+                {
+                  visibleRoutes.length === 1
+                    ? "ruta encontrada"
+                    : "rutas encontradas"
+                }
+
+              </p>
+
+            </div>
+
+          </div>
+
+        )
+      }
+
+
+      {/* ==================================================
           LISTA / EMPTY
       ================================================== */}
 
@@ -1507,245 +2233,286 @@ function Routes() {
 
           )
 
-          : (
+          : visibleRoutes.length === 0
 
-            <div className="routes__list">
+            ? (
 
-              {
-                routes.map(
-                  route => (
+              <div className="routes__empty routes__empty--filtered">
 
-                    <div
+                <h2>
+                  No hay rutas para este filtro
+                </h2>
 
-                      className="routes__route-card"
 
-                      key={
-                        route.id
-                      }
+                <p>
 
-                    >
+                  No encontramos rutas que
+                  coincidan con la vista seleccionada.
 
-                      <div>
+                </p>
 
-                        <h3>
-                          {route.name}
-                        </h3>
 
+                <button
 
-                        <p>
+                  className="routes__empty-button"
 
-                          {
-                            route.zone ||
-                            "Sin zona"
-                          }
+                  type="button"
 
-                        </p>
+                  onClick={() =>
+                    handleRouteFilter(
+                      "all"
+                    )
+                  }
 
-                      </div>
+                >
 
+                  Ver todas las rutas
 
-                      <div>
+                </button>
 
-                        <span>
-                          Fecha
-                        </span>
+              </div>
 
+            )
 
-                        <strong>
+            : (
 
-                          {
-                            route.date ||
-                            "-"
-                          }
+              <div className="routes__list">
 
-                        </strong>
+                {
+                  visibleRoutes.map(
+                    route => (
 
-                      </div>
+                      <div
 
+                        className="routes__route-card"
 
-                      <div>
+                        key={
+                          route.id
+                        }
 
-                        <span>
-                          Visitas
-                        </span>
+                      >
 
+                        <div>
 
-                        <strong>
+                          <h3>
+                            {route.name}
+                          </h3>
 
-                          {
-                            route.completedVisits ||
-                            0
-                          }
 
-                          {" / "}
+                          <p>
 
-                          {
-                            route.totalVisits ||
-                            0
-                          }
+                            {
+                              route.zone ||
+                              "Sin zona"
+                            }
 
-                        </strong>
+                          </p>
 
-                      </div>
+                        </div>
 
 
-                      <div>
-
-                        <span>
-                          Recaudado
-                        </span>
-
-
-                        <strong>
-
-                          $
-
-                          {
-                            Number(
-                              route.collected ||
-                              0
-                            ).toLocaleString()
-                          }
-
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <span
-
-                          className={
-                            `route-status route-status--${
-                              route.status ===
-                              "Completada"
-
-                                ? "completed"
-
-                                : route.status ===
-                                  "En progreso"
-
-                                  ? "progress"
-
-                                  : "pending"
-                            }`
-                          }
-
-                        >
-
-                          {
-                            route.status ||
-                            "Pendiente"
-                          }
-
-                        </span>
-
-                      </div>
-
-
-                      <div className="routes__route-actions">
-
-
-                        <button
-
-                          type="button"
-
-                          className="routes__open-button"
-
-                          onClick={() =>
-                            handleOpenRoute(
-                              route
-                            )
-                          }
-
-                        >
-
-                          Abrir ruta
-
-                        </button>
-
-
-                        <button
-
-                          type="button"
-
-                          className="routes__clients-button"
-
-                          onClick={() =>
-                            handleOpenClients(
-                              route
-                            )
-                          }
-
-                        >
-
-                          Clientes
+                        <div>
 
                           <span>
+                            Fecha
+                          </span>
+
+
+                          <strong>
+
+                            {
+                              route.date ||
+                              "-"
+                            }
+
+                          </strong>
+
+                        </div>
+
+
+                        <div>
+
+                          <span>
+                            Visitas
+                          </span>
+
+
+                          <strong>
+
+                            {
+                              route.completedVisits ||
+                              0
+                            }
+
+                            {" / "}
 
                             {
                               route.totalVisits ||
                               0
                             }
 
+                          </strong>
+
+                        </div>
+
+
+                        <div>
+
+                          <span>
+                            Recaudado
                           </span>
 
-                        </button>
+
+                          <strong>
+
+                            $
+
+                            {
+                              Number(
+                                route.collected ||
+                                0
+                              ).toLocaleString()
+                            }
+
+                          </strong>
+
+                        </div>
 
 
-                        <button
+                        <div>
 
-                          type="button"
+                          <span
 
-                          className="routes__edit-button"
+                            className={
+                              `route-status route-status--${
+                                route.status ===
+                                "Completada"
 
-                          onClick={() =>
-                            handleOpenEditForm(
-                              route
-                            )
-                          }
+                                  ? "completed"
 
-                        >
+                                  : route.status ===
+                                    "En progreso"
 
-                          Editar
+                                    ? "progress"
 
-                        </button>
+                                    : "pending"
+                              }`
+                            }
+
+                          >
+
+                            {
+                              route.status ||
+                              "Pendiente"
+                            }
+
+                          </span>
+
+                        </div>
 
 
-                        <button
+                        <div className="routes__route-actions">
 
-                          type="button"
 
-                          className="routes__delete-button"
+                          <button
 
-                          onClick={() =>
-                            handleDeleteRoute(
-                              route
-                            )
-                          }
+                            type="button"
 
-                          disabled={
-                            deletingRoute
-                          }
+                            className="routes__open-button"
 
-                        >
+                            onClick={() =>
+                              handleOpenRoute(
+                                route
+                              )
+                            }
 
-                          Eliminar
+                          >
 
-                        </button>
+                            Abrir ruta
+
+                          </button>
+
+
+                          <button
+
+                            type="button"
+
+                            className="routes__clients-button"
+
+                            onClick={() =>
+                              handleOpenClients(
+                                route
+                              )
+                            }
+
+                          >
+
+                            Clientes
+
+                            <span>
+
+                              {
+                                route.totalVisits ||
+                                0
+                              }
+
+                            </span>
+
+                          </button>
+
+
+                          <button
+
+                            type="button"
+
+                            className="routes__edit-button"
+
+                            onClick={() =>
+                              handleOpenEditForm(
+                                route
+                              )
+                            }
+
+                          >
+
+                            Editar
+
+                          </button>
+
+
+                          <button
+
+                            type="button"
+
+                            className="routes__delete-button"
+
+                            onClick={() =>
+                              handleDeleteRoute(
+                                route
+                              )
+                            }
+
+                            disabled={
+                              deletingRoute
+                            }
+
+                          >
+
+                            Eliminar
+
+                          </button>
+
+                        </div>
 
                       </div>
 
-                    </div>
-
+                    )
                   )
-                )
-              }
+                }
 
-            </div>
+              </div>
 
-          )
+            )
       }
 
 

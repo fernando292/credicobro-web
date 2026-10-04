@@ -1,3 +1,4 @@
+
 import {
   useState
 } from "react";
@@ -62,6 +63,12 @@ function CreditForm({
             String(client.id) ===
             String(form.clientId)
         );
+
+
+      console.log(
+        "CLIENTE SELECCIONADO PARA CRÉDITO:",
+        selectedClient
+      );
 
 
       const credit =
@@ -136,7 +143,7 @@ function CreditForm({
 
         <PaymentSection
 
-          form={form}
+          form={form }
 
           handleChange={
             handleChange

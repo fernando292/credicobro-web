@@ -843,6 +843,351 @@ export async function removeRoute(
 
 
 /* ======================================================
+   ELIMINAR CRÉDITO DE RUTAS ASOCIADAS
+====================================================== */
+
+export async function removeCreditFromRoutes(
+  companyId,
+  creditId,
+  clientId = null,
+  paymentDate = null
+) {
+
+  if (
+    !companyId ||
+    !creditId
+  ) {
+
+    return;
+
+  }
+
+  const normalizedCreditId =
+    normalizeId(
+      creditId
+    );
+
+  const normalizedClientId =
+    normalizeId(
+      clientId
+    );
+
+  const normalizedPaymentDate =
+    normalizeDate(
+      paymentDate
+    );
+
+
+  if (!normalizedCreditId) {
+
+    return;
+
+  }
+
+
+  const routes =
+    await getRoutes(
+      companyId
+    );
+
+
+  for (const route of routes) {
+
+    const currentClientIds =
+      Array.isArray(
+        route.clientIds
+      )
+
+        ? route.clientIds
+            .map(normalizeId)
+            .filter(Boolean)
+
+        : [];
+
+
+    const currentCreditIds =
+      Array.isArray(
+        route.creditIds
+      )
+
+        ? route.creditIds
+            .map(normalizeId)
+            .filter(Boolean)
+
+        : [];
+
+
+    if (
+      route.creditId
+    ) {
+
+      currentCreditIds.push(
+        normalizeId(
+          route.creditId
+        )
+      );
+
+    }
+
+
+    const uniqueCreditIds = [
+
+      ...new Set(
+
+        currentCreditIds
+          .map(normalizeId)
+          .filter(Boolean)
+
+      )
+
+    ];
+
+
+    const currentCreditByClient = {
+
+      ...(route.creditByClient &&
+      typeof route.creditByClient === "object"
+        ? route.creditByClient
+        : {})
+
+    };
+
+
+    const mappedClients =
+      Object.entries(
+        currentCreditByClient
+      )
+        .filter(
+          ([, mappedCreditId]) =>
+            normalizeId(
+              mappedCreditId
+            ) ===
+            normalizedCreditId
+        )
+        .map(
+          ([mappedClientId]) =>
+            normalizeId(
+              mappedClientId
+            )
+        )
+        .filter(Boolean);
+
+
+    const directCreditMatch =
+      uniqueCreditIds.includes(
+        normalizedCreditId
+      ) ||
+      mappedClients.length > 0;
+
+
+    /*
+     * Compatibilidad con rutas automáticas
+     * antiguas que no guardaron creditId.
+     */
+
+    const automaticRoute =
+      String(
+        route.description || ""
+      ).trim() ===
+      "Ruta creada automáticamente para cobro.";
+
+
+    const legacyAutomaticMatch =
+      !directCreditMatch &&
+      automaticRoute &&
+      normalizedClientId &&
+      currentClientIds.includes(
+        normalizedClientId
+      ) &&
+      normalizedPaymentDate &&
+      normalizeDate(
+        route.date
+      ) ===
+      normalizedPaymentDate;
+
+
+    if (
+      !directCreditMatch &&
+      !legacyAutomaticMatch
+    ) {
+
+      continue;
+
+    }
+
+
+    const clientsToRemove =
+      new Set(
+        mappedClients
+      );
+
+
+    /*
+     * Si conocemos el cliente del crédito y
+     * la ruta contiene ese cliente, la relación
+     * puede retirarse de forma segura.
+     */
+
+    if (
+      normalizedClientId &&
+      currentClientIds.includes(
+        normalizedClientId
+      ) &&
+      directCreditMatch
+    ) {
+
+      clientsToRemove.add(
+        normalizedClientId
+      );
+
+    }
+
+
+    /*
+     * Compatibilidad con rutas automáticas antiguas.
+     * Solo se retira el cliente cuando la coincidencia
+     * de cliente + fecha es inequívoca.
+     */
+
+    if (
+      legacyAutomaticMatch &&
+      currentClientIds.length === 1
+    ) {
+
+      clientsToRemove.add(
+        normalizedClientId
+      );
+
+    }
+
+
+    const remainingClientIds =
+      currentClientIds.filter(
+        id =>
+          !clientsToRemove.has(
+            id
+          )
+      );
+
+
+    const remainingCreditIds =
+      uniqueCreditIds.filter(
+        id =>
+          id !==
+          normalizedCreditId
+      );
+
+
+    const remainingCreditByClient = {};
+
+
+    Object.entries(
+      currentCreditByClient
+    ).forEach(
+      ([mappedClientId, mappedCreditId]) => {
+
+        const normalizedMappedClientId =
+          normalizeId(
+            mappedClientId
+          );
+
+        const normalizedMappedCreditId =
+          normalizeId(
+            mappedCreditId
+          );
+
+
+        if (
+          normalizedMappedCreditId ===
+          normalizedCreditId
+        ) {
+
+          return;
+
+        }
+
+
+        if (
+          clientsToRemove.has(
+            normalizedMappedClientId
+          )
+        ) {
+
+          return;
+
+        }
+
+
+        remainingCreditByClient[
+          normalizedMappedClientId
+        ] =
+          normalizedMappedCreditId;
+
+      }
+    );
+
+
+    const routeRef =
+      getRouteRef(
+        companyId,
+        route.id
+      );
+
+
+    /*
+     * Si no queda ningún cliente, la ruta
+     * pertenecía exclusivamente a este crédito.
+     */
+
+    if (
+      remainingClientIds.length === 0
+    ) {
+
+      await deleteDoc(
+        routeRef
+      );
+
+      continue;
+
+    }
+
+
+    const updateData = {
+
+      clientIds:
+        remainingClientIds,
+
+      totalVisits:
+        remainingClientIds.length,
+
+      creditIds:
+        remainingCreditIds,
+
+      creditByClient:
+        remainingCreditByClient,
+
+      creditId:
+        remainingCreditIds.length === 1
+          ? remainingCreditIds[0]
+          : null,
+
+      updatedAt:
+        serverTimestamp()
+
+    };
+
+
+    await updateDoc(
+      routeRef,
+      updateData
+    );
+
+  }
+
+}
+
+
+/* ======================================================
    ASIGNACIÓN AUTOMÁTICA DE CLIENTE A RUTA
 ====================================================== */
 
@@ -1071,11 +1416,8 @@ export async function assignClientAutomaticallyToRoute(
 
 
     /*
-     * IMPORTANTE:
-     *
-     * Cuando conocemos el crédito del pago,
-     * este SIEMPRE pasa a ser el crédito asociado
-     * al cliente en la nueva ruta.
+     * Cuando conocemos el crédito,
+     * queda asociado directamente al cliente.
      */
 
     if (

@@ -1,15 +1,29 @@
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  serverTimestamp
+} from "firebase/firestore";
+
+import {
+  db
+} from "../../../../../../config/firebase";
+
+
 /* =======================================================
    SERVICIO DE NOTIFICACIONES SMS
 
-   IMPORTANTE:
+   Este servicio no envía directamente el SMS.
 
-   Este archivo NO realiza envíos todavía.
+   Su responsabilidad es crear una solicitud en:
 
-   Queda preparado para conectar posteriormente
-   un proveedor de SMS.
+   companies/{companyId}/smsQueue
 
-   La lógica de créditos, pagos y cobranza NO debe
-   conocer directamente este servicio.
+   El Android CrediCobro SMS se encarga posteriormente
+   de detectar la solicitud y enviarla mediante la SIM.
 ======================================================= */
 
 
@@ -19,13 +33,48 @@
 
 export function isSmsConfigured() {
 
-  return false;
+  return true;
 
 }
 
 
 /* =======================================================
-   ENVIAR NOTIFICACIÓN POR SMS
+   VERIFICAR SMS DUPLICADO
+======================================================= */
+
+async function smsEventAlreadyQueued({
+  smsQueueRef,
+  type,
+  referenceId
+}) {
+
+  const duplicateQuery =
+    query(
+      smsQueueRef,
+      where(
+        "type",
+        "==",
+        type
+      ),
+      where(
+        "referenceId",
+        "==",
+        referenceId
+      )
+    );
+
+  const snapshot =
+    await getDocs(
+      duplicateQuery
+    );
+
+  return !snapshot.empty;
+
+}
+
+
+/* =======================================================
+   CREAR SOLICITUD SMS
 ======================================================= */
 
 export async function sendSmsNotification({
@@ -69,53 +118,189 @@ export async function sendSmsNotification({
   }
 
 
-  /*
-    Todavía no existe una conexión externa.
+  try {
 
-    No hacemos peticiones HTTP,
-    no utilizamos proveedores externos
-    y no enviamos ningún SMS real.
-  */
+    const smsQueueRef =
+      collection(
 
-  console.log(
-    "SMS NOTIFICATION PREPARADA",
-    {
+        db,
+
+        "companies",
+
+        companyId,
+
+        "smsQueue"
+
+      );
+
+
+    /* ==================================================
+       EVITAR SMS DUPLICADO
+    ================================================== */
+
+    if (
+      referenceId
+    ) {
+
+      const alreadyQueued =
+        await smsEventAlreadyQueued({
+
+          smsQueueRef,
+
+          type,
+
+          referenceId
+
+        });
+
+
+      if (
+        alreadyQueued
+      ) {
+
+        console.log(
+          "SMS duplicado evitado:",
+          {
+            companyId,
+            type,
+            referenceId
+          }
+        );
+
+
+        return {
+
+          success:
+            true,
+
+          status:
+            "already_queued",
+
+          channel:
+            "sms",
+
+          companyId,
+
+          phone,
+
+          type,
+
+          referenceId,
+
+          smsId:
+            null
+
+        };
+
+      }
+
+    }
+
+
+    const result =
+      await addDoc(
+
+        smsQueueRef,
+
+        {
+
+          phone,
+
+          message,
+
+          status:
+            "pending",
+
+          type,
+
+          referenceId,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+
+      );
+
+
+    console.log(
+      "SMS agregado a smsQueue:",
+      {
+
+        smsId:
+          result.id,
+
+        companyId,
+
+        phone,
+
+        type,
+
+        referenceId
+
+      }
+    );
+
+
+    return {
+
+      success:
+        true,
+
+      status:
+        "queued",
+
+      channel:
+        "sms",
 
       companyId,
 
       phone,
 
-      message,
+      type,
+
+      referenceId,
+
+      smsId:
+        result.id
+
+    };
+
+
+  } catch (error) {
+
+    console.error(
+      "Error agregando SMS a smsQueue:",
+      error
+    );
+
+
+    return {
+
+      success:
+        false,
+
+      status:
+        "queue_error",
+
+      channel:
+        "sms",
+
+      companyId,
+
+      phone,
 
       type,
 
-      referenceId
+      referenceId,
 
-    }
-  );
+      error:
+        error?.message ||
+        "No se pudo crear la solicitud SMS."
 
+    };
 
-  return {
-
-    success: false,
-
-    status:
-      "not_configured",
-
-    channel:
-      "sms",
-
-    companyId,
-
-    phone,
-
-    type,
-
-    referenceId,
-
-    message:
-      "SMS todavía no está configurado."
-
-  };
+  }
 
 }
+

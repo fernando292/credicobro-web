@@ -1,3 +1,4 @@
+
 .routes {
   width: 100%;
 }
@@ -10,7 +11,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
+  margin-bottom: 26px;
 }
 
 .routes__header h1 {
@@ -43,6 +44,126 @@
 }
 
 /* ======================================================
+   FILTROS Y NAVEGACIÓN DE FECHAS
+====================================================== */
+
+.routes__filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+}
+
+.routes__filter-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.routes__filter-button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 13px;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.routes__filter-button:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.routes__filter-button--active {
+  border-color: #dbeafe;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.routes__filter-button--active:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.routes__date-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.routes__date-button {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.routes__date-button:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.routes__date-picker {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 11px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.routes__date-picker span {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.routes__date-picker input {
+  min-width: 125px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #334155;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* ======================================================
    RESUMEN
 ====================================================== */
 
@@ -50,14 +171,15 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .routes__card {
-  padding: 22px;
+  padding: 21px 22px;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   background: white;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.025);
 }
 
 .routes__card span {
@@ -65,11 +187,37 @@
   margin-bottom: 8px;
   color: #64748b;
   font-size: 13px;
+  font-weight: 600;
 }
 
 .routes__card strong {
   color: #0f172a;
   font-size: 25px;
+  font-weight: 800;
+}
+
+/* ======================================================
+   ENCABEZADO DE RESULTADOS
+====================================================== */
+
+.routes__results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.routes__results-header h2 {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.routes__results-header p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 13px;
 }
 
 /* ======================================================
@@ -82,6 +230,11 @@
   border: 1px dashed #cbd5e1;
   border-radius: 18px;
   background: #f8fafc;
+}
+
+.routes__empty--filtered {
+  padding: 52px 30px;
+  margin-top: 4px;
 }
 
 .routes__empty h2 {
@@ -840,10 +993,23 @@
 }
 
 /* ======================================================
-   RESPONSIVE
+   RESPONSIVE — FILTROS
 ====================================================== */
 
 @media (max-width: 1100px) {
+
+  .routes__filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .routes__filter-buttons {
+    width: 100%;
+  }
+
+  .routes__date-controls {
+    justify-content: flex-end;
+  }
 
   .routes__route-card {
     grid-template-columns:
@@ -853,6 +1019,10 @@
   }
 
 }
+
+/* ======================================================
+   RESPONSIVE — TABLET
+====================================================== */
 
 @media (max-width: 900px) {
 
@@ -876,6 +1046,10 @@
 
 }
 
+/* ======================================================
+   RESPONSIVE — MÓVIL
+====================================================== */
+
 @media (max-width: 600px) {
 
   .routes__header {
@@ -886,10 +1060,61 @@
     gap: 18px;
   }
 
+  .routes__add {
+    width: 100%;
+  }
+
+  .routes__filters {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .routes__filter-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .routes__filter-button {
+    width: 100%;
+    padding: 10px 8px;
+  }
+
+  .routes__date-controls {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .routes__date-button {
+    flex-shrink: 0;
+  }
+
+  .routes__date-picker {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .routes__date-picker input {
+    min-width: 0;
+    width: 100%;
+  }
+
   .routes__summary,
   .routes__route-card,
   .route-form__row {
     grid-template-columns: 1fr;
+  }
+
+  .routes__summary {
+    gap: 10px;
+  }
+
+  .routes__card {
+    padding: 17px 18px;
+  }
+
+  .routes__card strong {
+    font-size: 22px;
   }
 
   .routes__route-card {
@@ -915,6 +1140,14 @@
   .routes__edit-button,
   .routes__delete-button {
     width: 100%;
+  }
+
+  .routes__results-header {
+    margin-bottom: 12px;
+  }
+
+  .routes__results-header h2 {
+    font-size: 17px;
   }
 
   .route-modal {

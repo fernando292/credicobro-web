@@ -1,13 +1,8 @@
 export function buildCredit({
-
   form,
-
   summary,
-
   selectedClient,
-
   creditToEdit
-
 }) {
 
   const installments =
@@ -15,30 +10,25 @@ export function buildCredit({
       form.installments || 0
     );
 
-
   const capital =
     Number(
       summary.capital || 0
     );
-
 
   const totalInterest =
     Number(
       summary.interest || 0
     );
 
-
   const total =
     Number(
       summary.total || 0
     );
 
-
   const installmentValue =
     Number(
       summary.installment || 0
     );
-
 
   /*
    * ======================================================
@@ -50,7 +40,6 @@ export function buildCredit({
     creditToEdit
       ? creditToEdit.id
       : Date.now();
-
 
   /*
    * ======================================================
@@ -71,6 +60,17 @@ export function buildCredit({
         ? selectedClient.name
         : "",
 
+    phone:
+      selectedClient?.phone || null,
+
+    smsEnabled:
+      selectedClient?.smsEnabled === true,
+
+    whatsappEnabled:
+      selectedClient?.whatsappEnabled === true,
+
+    emailEnabled:
+      selectedClient?.emailEnabled === true,
 
     /*
      * ====================================================
@@ -96,7 +96,6 @@ export function buildCredit({
 
     installmentValue,
 
-
     /*
      * ====================================================
      * CONCEPTOS FINANCIEROS
@@ -117,14 +116,12 @@ export function buildCredit({
           )
         : 0,
 
-
     interestPaid:
       creditToEdit
         ? Number(
             creditToEdit.interestPaid || 0
           )
         : 0,
-
 
     capitalBalance:
       creditToEdit
@@ -134,7 +131,6 @@ export function buildCredit({
           )
         : capital,
 
-
     interestBalance:
       creditToEdit
         ? Number(
@@ -142,7 +138,6 @@ export function buildCredit({
             totalInterest
           )
         : totalInterest,
-
 
     /*
      * ====================================================
@@ -161,7 +156,6 @@ export function buildCredit({
     firstPayment:
       form.firstPayment,
 
-
     /*
      * ====================================================
      * PRÓXIMO PAGO
@@ -171,11 +165,14 @@ export function buildCredit({
     nextPaymentDate:
       creditToEdit
         ? (
+          form.firstPayment !== creditToEdit.firstPayment
+            ? form.firstPayment
+            : (
             creditToEdit.nextPaymentDate ||
             form.firstPayment
           )
+        )
         : form.firstPayment,
-
 
     /*
      * ====================================================
@@ -191,7 +188,6 @@ export function buildCredit({
           )
         : total,
 
-
     /*
      * ====================================================
      * PAGOS
@@ -205,14 +201,12 @@ export function buildCredit({
           )
         : 0,
 
-
     paidInstallments:
       creditToEdit
         ? Number(
             creditToEdit.paidInstallments || 0
           )
         : 0,
-
 
     pendingInstallments:
       creditToEdit
@@ -221,7 +215,6 @@ export function buildCredit({
             installments
           )
         : installments,
-
 
     /*
      * ====================================================
@@ -234,7 +227,6 @@ export function buildCredit({
         ? creditToEdit.status
         : "Activo",
 
-
     /*
      * ====================================================
      * NOTAS
@@ -243,7 +235,6 @@ export function buildCredit({
 
     notes:
       form.notes || "",
-
 
     /*
      * ====================================================
@@ -258,7 +249,5 @@ export function buildCredit({
 
   };
 
-
   return credit;
-
 }

@@ -19,6 +19,13 @@ function PaymentSchedule({ credit }) {
   );
 
 
+  const installmentProgress = Array.isArray(
+    credit.installmentProgress
+  )
+    ? credit.installmentProgress
+    : [];
+
+
 
   function parseDate(){
 
@@ -74,15 +81,58 @@ function PaymentSchedule({ credit }) {
     ){
 
 
+      const installmentNumber=i+1;
+
+
+      const progressItem=
+        installmentProgress.find(
+          item =>
+            Number(item.number) ===
+            installmentNumber
+        );
+
+
+
       result.push({
 
-        number:i+1,
+        number:installmentNumber,
 
         date:new Date(date),
 
-        value:installmentValue,
+        value:
+          progressItem
+            ? Number(
+                progressItem.value ??
+                installmentValue
+              )
+            : installmentValue,
 
-        paid:i < paidInstallments
+        paid:
+          progressItem
+            ? progressItem.status === "Pagada"
+            : i < paidInstallments,
+
+        paidAmount:
+          progressItem
+            ? Number(
+                progressItem.paidAmount || 0
+              )
+            : 0,
+
+        pendingAmount:
+          progressItem
+            ? Number(
+                progressItem.pendingAmount || 0
+              )
+            : installmentValue,
+
+        status:
+          progressItem?.status ||
+          (
+            i < paidInstallments
+              ? "Pagada"
+              : "Pendiente"
+          )
 
       });
 
@@ -90,6 +140,13 @@ function PaymentSchedule({ credit }) {
 
 
       const nextDate=new Date(date);
+
+      if(credit.frequency==="Diario"){
+        nextDate.setDate(
+          nextDate.getDate()+1
+        );
+      }
+
 
 
 
@@ -160,6 +217,7 @@ function PaymentSchedule({ credit }) {
 
 
   }
+
 
 
 
@@ -243,7 +301,6 @@ function PaymentSchedule({ credit }) {
 
 
 
-
       <div className="schedule-bar">
 
 
@@ -272,6 +329,7 @@ function PaymentSchedule({ credit }) {
 
 
         {
+
           schedule.map(item=>(
 
 
@@ -380,11 +438,15 @@ function PaymentSchedule({ credit }) {
 
                 {
 
-                  item.paid
+                  item.status === "Pago parcial"
 
-                    ? "Pagada"
+                    ? `Pago parcial $${item.paidAmount.toLocaleString()}`
 
-                    : "Pendiente"
+                    : item.paid
+
+                      ? "Pagada"
+
+                      : "Pendiente"
 
                 }
 
@@ -400,6 +462,7 @@ function PaymentSchedule({ credit }) {
 
 
           ))
+
         }
 
 

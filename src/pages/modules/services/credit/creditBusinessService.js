@@ -39,16 +39,75 @@ function normalizeId(value) {
 }
 
 
-function calculateInstallments(
-  paidAmount,
+function getPaymentSortValue(payment) {
+
+  if (!payment) {
+
+    return 0;
+
+  }
+
+
+  if (
+    payment.createdAt &&
+    typeof payment.createdAt.toMillis === "function"
+  ) {
+
+    return payment.createdAt.toMillis();
+
+  }
+
+
+  if (
+    payment.createdAt &&
+    typeof payment.createdAt.seconds === "number"
+  ) {
+
+    return (
+      payment.createdAt.seconds * 1000 +
+      Math.floor(
+        Number(
+          payment.createdAt.nanoseconds || 0
+        ) / 1000000
+      )
+    );
+
+  }
+
+
+  if (payment.date) {
+
+    const dateValue =
+      new Date(
+        `${String(payment.date).slice(0, 10)}T00:00:00`
+      ).getTime();
+
+
+    if (!Number.isNaN(dateValue)) {
+
+      return dateValue;
+
+    }
+
+  }
+
+
+  return 0;
+
+}
+
+
+/* ======================================================
+   PROGRESO DE CUOTAS
+====================================================== */
+
+function calculateInstallmentProgress(
+  payments,
   installmentValue,
   totalInstallments
 ) {
 
-  const paid =
-    Number(paidAmount || 0);
-
-  const installment =
+  const baseInstallmentValue =
     Number(installmentValue || 0);
 
   const total =
@@ -56,25 +115,424 @@ function calculateInstallments(
 
 
   if (
-    installment <= 0 ||
+    baseInstallmentValue <= 0 ||
     total <= 0
   ) {
 
-    return 0;
+    return {
+
+      allocations: [],
+
+      installments: [],
+
+      paidInstallments: 0,
+
+      pendingInstallments: Math.max(
+        total,
+        0
+      )
+
+    };
 
   }
 
 
-  const completed =
-    Math.floor(
-      paid / installment
+  const sortedPayments =
+    (Array.isArray(payments)
+      ? payments
+      : []
+    )
+      .map(
+        (
+          payment,
+          index
+        ) => ({
+
+          payment,
+
+          originalIndex:
+            index
+
+        })
+      )
+      .sort(
+        (
+          a,
+          b
+        ) => {
+
+          const difference =
+            getPaymentSortValue(
+              a.payment
+            ) -
+            getPaymentSortValue(
+              b.payment
+            );
+
+
+          if (difference !== 0) {
+
+            return difference;
+
+          }
+
+
+          return (
+            a.originalIndex -
+            b.originalIndex
+          );
+
+        }
+      );
+
+
+  /*
+   * --------------------------------------------------
+   * Cada cuota conserva su valor base.
+   *
+   * Cuando una cuota queda incompleta, el saldo
+   * pendiente se arrastra a la siguiente cuota.
+   *
+   * Ejemplo:
+   *
+   * Cuota 1 = 4.000
+   * Pago     = 3.000
+   * Pendiente = 1.000
+   *
+   * Cuota 2 = 4.000 + 1.000 = 5.000
+   * --------------------------------------------------
+   */
+
+  const paidByInstallment =
+    Array(total).fill(0);
+
+  const dueByInstallment =
+    Array(total).fill(
+      baseInstallmentValue
     );
 
 
-  return Math.min(
-    completed,
-    total
-  );
+  const paymentAllocations = [];
+
+
+  /*
+   * El cursor indica la cuota que actualmente
+   * está siendo atendida por los pagos.
+   *
+   * Los pagos se distribuyen desde la cuota actual
+   * hacia las siguientes si existe excedente.
+   */
+
+  let currentInstallment = 0;
+
+
+  for (
+    const paymentEntry of sortedPayments
+  ) {
+
+    const payment =
+      paymentEntry.payment;
+
+    let remaining =
+      Number(
+        payment?.value || 0
+      );
+
+
+    if (remaining <= 0) {
+
+      paymentAllocations.push({
+
+        paymentId:
+          payment?.id || null,
+
+        value:
+          Number(
+            payment?.value || 0
+          ),
+
+        allocations: []
+
+      });
+
+      continue;
+
+    }
+
+
+    const allocations = [];
+
+
+    while (
+      remaining > 0 &&
+      currentInstallment < total
+    ) {
+
+      const installmentIndex =
+        currentInstallment;
+
+
+      const due =
+        Number(
+          dueByInstallment[
+            installmentIndex
+          ] || baseInstallmentValue
+        );
+
+
+      const alreadyPaid =
+        Number(
+          paidByInstallment[
+            installmentIndex
+          ] || 0
+        );
+
+
+      const pending =
+        Math.max(
+          due -
+          alreadyPaid,
+          0
+        );
+
+
+      /*
+       * Si por alguna razón la cuota ya está completa,
+       * avanzamos a la siguiente.
+       */
+
+      if (pending <= 0) {
+
+        currentInstallment += 1;
+
+        continue;
+
+      }
+
+
+      const amount =
+        Math.min(
+          remaining,
+          pending
+        );
+
+
+      paidByInstallment[
+        installmentIndex
+      ] += amount;
+
+
+      remaining -= amount;
+
+
+      allocations.push({
+
+        installmentNumber:
+          installmentIndex + 1,
+
+        amount
+
+      });
+
+
+      /*
+       * Si la cuota quedó completa,
+       * el excedente continúa en la siguiente.
+       */
+
+      if (
+        paidByInstallment[
+          installmentIndex
+        ] >= due
+      ) {
+
+        /*
+         * La siguiente cuota recibe únicamente
+         * el saldo pendiente de la cuota actual.
+         */
+
+        const shortfall = 0;
+
+        if (
+          installmentIndex + 1 <
+          total
+        ) {
+
+          dueByInstallment[
+            installmentIndex + 1
+          ] =
+            baseInstallmentValue +
+            shortfall;
+
+        }
+
+
+        currentInstallment += 1;
+
+      }
+
+    }
+
+
+    /*
+     * Si la cuota actual quedó parcial, el saldo
+     * pendiente se incorpora a la siguiente cuota.
+     *
+     * Esto se calcula después de aplicar el pago.
+     */
+
+    for (
+      let index = 0;
+      index < total - 1;
+      index++
+    ) {
+
+      const due =
+        Number(
+          dueByInstallment[index] ||
+          baseInstallmentValue
+        );
+
+      const paid =
+        Number(
+          paidByInstallment[index] || 0
+        );
+
+      const shortfall =
+        Math.max(
+          due - paid,
+          0
+        );
+
+
+      if (shortfall > 0) {
+
+        dueByInstallment[
+          index + 1
+        ] =
+          baseInstallmentValue +
+          shortfall;
+
+      }
+
+    }
+
+
+    paymentAllocations.push({
+
+      paymentId:
+        payment?.id || null,
+
+      value:
+        Number(
+          payment?.value || 0
+        ),
+
+      allocations
+
+    });
+
+  }
+
+
+  /*
+   * --------------------------------------------------
+   * Construir estado final de cuotas.
+   * --------------------------------------------------
+   */
+
+  const installments = [];
+
+
+  for (
+    let index = 0;
+    index < total;
+    index++
+  ) {
+
+    const due =
+      Number(
+        dueByInstallment[index] ||
+        baseInstallmentValue
+      );
+
+    const paid =
+      Number(
+        paidByInstallment[index] || 0
+      );
+
+    const pending =
+      Math.max(
+        due - paid,
+        0
+      );
+
+
+    let status = "Pendiente";
+
+
+    if (paid >= due) {
+
+      status = "Pagada";
+
+    } else if (paid > 0) {
+
+      status = "Pago parcial";
+
+    }
+
+
+    installments.push({
+
+      number:
+        index + 1,
+
+      baseValue:
+        baseInstallmentValue,
+
+      value:
+        due,
+
+      paidAmount:
+        paid,
+
+      pendingAmount:
+        pending,
+
+      status
+
+    });
+
+  }
+
+
+  const paidInstallments =
+    installments.filter(
+      installment =>
+        installment.status === "Pagada"
+    ).length;
+
+
+  const pendingInstallments =
+    Math.max(
+      total -
+      paidInstallments,
+      0
+    );
+
+
+  return {
+
+    allocations:
+      paymentAllocations,
+
+    installments,
+
+    paidInstallments,
+
+    pendingInstallments
+
+  };
 
 }
 
@@ -125,6 +583,15 @@ function calculateNextPaymentDate(
 
 
   switch (credit.frequency) {
+
+    case "Diario":
+
+      currentDate.setDate(
+        currentDate.getDate() + 1
+      );
+
+      break;
+
 
     case "Semanal":
 
@@ -543,20 +1010,17 @@ export async function registerCreditPayment(
     );
 
 
-  const usedInstallments =
+  const existingPayments =
     paymentsSnapshot.docs.map(
-      item =>
-        Number(
-          item.data().installmentNumber || 0
-        )
+      item => ({
+
+        id:
+          item.id,
+
+        ...item.data()
+
+      })
     );
-
-
-  const nextInstallment =
-    Math.max(
-      ...usedInstallments,
-      0
-    ) + 1;
 
 
   /*
@@ -579,7 +1043,100 @@ export async function registerCreditPayment(
 
 
   /*
-   * Preparar pago
+   * Datos de cuotas
+   */
+
+  const totalInstallments =
+    Number(
+      credit.installments || 0
+    );
+
+
+  const installmentValue =
+    Number(
+      credit.installmentValue || 0
+    );
+
+
+  /*
+   * Calcular el progreso ANTES de guardar
+   * para conocer exactamente cómo se distribuye
+   * el nuevo pago.
+   */
+
+  const progressBeforePayment =
+    calculateInstallmentProgress(
+      existingPayments,
+      installmentValue,
+      totalInstallments
+    );
+
+
+  const nextInstallment =
+    Math.min(
+      Math.max(
+        progressBeforePayment.paidInstallments + 1,
+        1
+      ),
+      Math.max(
+        totalInstallments,
+        1
+      )
+    );
+
+
+  /*
+   * Calcular asignación incluyendo el nuevo pago.
+   *
+   * El ID todavía no existe, por lo que utilizamos
+   * un marcador temporal y posteriormente
+   * actualizamos la asignación guardada con el ID real.
+   */
+
+  const temporaryPayment = {
+
+    ...payment,
+
+    value:
+      paymentValue,
+
+    id:
+      "__NEW_PAYMENT__"
+
+  };
+
+
+  const progressWithNewPayment =
+    calculateInstallmentProgress(
+      [
+        ...existingPayments,
+        temporaryPayment
+      ],
+      installmentValue,
+      totalInstallments
+    );
+
+
+  const newPaymentAllocation =
+    progressWithNewPayment.allocations.find(
+      allocation =>
+        allocation.paymentId ===
+        "__NEW_PAYMENT__"
+    );
+
+
+  /*
+   * Determinar la primera cuota afectada.
+   */
+
+  const firstAffectedInstallment =
+    newPaymentAllocation?.allocations?.[0]
+      ?.installmentNumber ||
+    nextInstallment;
+
+
+  /*
+   * Preparar pago.
    */
 
   const paymentWithInstallment = {
@@ -590,7 +1147,10 @@ export async function registerCreditPayment(
       paymentValue,
 
     installmentNumber:
-      nextInstallment,
+      firstAffectedInstallment,
+
+    installmentAllocations:
+      newPaymentAllocation?.allocations || [],
 
     creditId:
       realCreditId,
@@ -603,7 +1163,7 @@ export async function registerCreditPayment(
   /*
    * Guardar pago.
    *
-   * createPayment() es quien realiza
+   * createPayment() continúa siendo quien realiza
    * la actualización financiera.
    */
 
@@ -652,48 +1212,51 @@ export async function registerCreditPayment(
 
   /*
    * --------------------------------------------------
-   * CUOTAS
-   *
-   * SE MANTIENE LA LÓGICA ACTUAL:
-   * SOLO CUOTAS COMPLETAS.
-   *
-   * La lógica de pagos parciales se implementará
-   * posteriormente.
+   * RECALCULAR CUOTAS
    * --------------------------------------------------
+   *
+   * Se vuelven a leer los pagos después de guardar
+   * para que el crédito siempre tenga el estado
+   * completo y no dependa únicamente del último pago.
    */
 
-  const currentPaidAmount =
-    Number(
-      updatedCreditData.paidAmount || 0
+  const refreshedPaymentsSnapshot =
+    await getDocs(
+      paymentsRef
     );
 
 
-  const totalInstallments =
-    Number(
-      updatedCreditData.installments || 0
+  const refreshedPayments =
+    refreshedPaymentsSnapshot.docs.map(
+      item => ({
+
+        id:
+          item.id,
+
+        ...item.data()
+
+      })
     );
 
 
-  const installmentValue =
-    Number(
-      updatedCreditData.installmentValue || 0
+  const installmentProgress =
+    calculateInstallmentProgress(
+      refreshedPayments,
+      Number(
+        updatedCreditData.installmentValue || 0
+      ),
+      Number(
+        updatedCreditData.installments || 0
+      )
     );
 
 
   const paidInstallments =
-    calculateInstallments(
-      currentPaidAmount,
-      installmentValue,
-      totalInstallments
-    );
+    installmentProgress.paidInstallments;
 
 
   const pendingInstallments =
-    Math.max(
-      totalInstallments -
-      paidInstallments,
-      0
-    );
+    installmentProgress.pendingInstallments;
 
 
   /*
@@ -705,6 +1268,17 @@ export async function registerCreditPayment(
   let nextPaymentDate =
     updatedCreditData.nextPaymentDate ||
     null;
+
+
+  const isDaily =
+    updatedCreditData.frequency ===
+    "Diario";
+
+
+  const hasRemainingBalance =
+    Number(
+      updatedCreditData.balance || 0
+    ) > 0;
 
 
   if (
@@ -734,19 +1308,90 @@ export async function registerCreditPayment(
 
     pendingInstallments,
 
-    nextPaymentDate
+    nextPaymentDate,
+
+    installmentProgress:
+      installmentProgress.installments
 
   };
 
 
   /*
    * Actualizar solamente datos de cuotas.
+   *
+   * Los campos financieros continúan siendo
+   * responsabilidad de createPayment().
    */
 
   await updateDoc(
     creditRef,
     installmentData
   );
+
+
+  /*
+   * --------------------------------------------------
+   * SINCRONIZAR PAGO CON VISITA DE RUTA
+   * --------------------------------------------------
+   *
+   * Este bloque solamente actúa cuando el pago
+   * nació desde Créditos.
+   *
+   * Si el pago nació desde Rutas, se mantiene
+   * el flujo actual de registerRouteVisit().
+   */
+
+  let paymentRoute =
+    null;
+
+
+  if (
+    updatedCreditData.clientId &&
+    payment?.date &&
+    !payment?.routeId &&
+    !payment?.visitId
+  ) {
+
+    try {
+
+      const {
+        syncCreditPaymentToRoute
+      } = await import(
+        "../routes/routeVisitService"
+      );
+
+
+      paymentRoute =
+        await syncCreditPaymentToRoute(
+
+          companyId,
+
+          realCreditId,
+
+          updatedCreditData.clientId,
+
+          savedPayment
+
+        );
+
+    } catch (error) {
+
+      /*
+       * El pago del crédito ya fue guardado.
+       *
+       * Si la sincronización de la ruta falla,
+       * NO debemos hacer fallar ni revertir
+       * el pago del crédito.
+       */
+
+      console.error(
+        "Error sincronizando pago con visita de ruta:",
+        error
+      );
+
+    }
+
+  }
 
 
   /*
@@ -760,7 +1405,13 @@ export async function registerCreditPayment(
 
 
   if (
-    pendingInstallments > 0 &&
+    (
+      pendingInstallments > 0 ||
+      (
+        isDaily &&
+        hasRemainingBalance
+      )
+    ) &&
     nextPaymentDate &&
     updatedCreditData.clientId
   ) {
@@ -826,7 +1477,9 @@ export async function registerCreditPayment(
 
     },
 
-    updatedRoute
+    updatedRoute,
+
+    paymentRoute
 
   };
 
@@ -949,13 +1602,22 @@ export async function deleteCreditPayment(
 
   const payments =
     paymentsSnapshot.docs.map(
-      item =>
-        item.data()
+      item => ({
+
+        id:
+          item.id,
+
+        ...item.data()
+
+      })
     );
 
 
   /*
    * Calcular total pagado.
+   *
+   * Se conserva porque removePayment()
+   * es quien recalcula los acumulados financieros.
    */
 
   const paidAmount =
@@ -973,13 +1635,18 @@ export async function deleteCreditPayment(
 
 
   /*
-   * Mantener lógica actual:
-   * solamente cuotas completas.
+   * --------------------------------------------------
+   * RECONSTRUIR CUOTAS
+   * --------------------------------------------------
+   *
+   * No utilizamos únicamente paidAmount / cuota,
+   * porque con pagos parciales esa división ya no
+   * representa correctamente el estado de las cuotas.
    */
 
-  const paidInstallments =
-    calculateInstallments(
-      paidAmount,
+  const installmentProgress =
+    calculateInstallmentProgress(
+      payments,
       Number(
         credit.installmentValue || 0
       ),
@@ -989,18 +1656,58 @@ export async function deleteCreditPayment(
     );
 
 
+  const paidInstallments =
+    installmentProgress.paidInstallments;
+
+
   const pendingInstallments =
-    Math.max(
-      Number(
-        credit.installments || 0
-      ) -
-      paidInstallments,
-      0
-    );
+    installmentProgress.pendingInstallments;
 
 
   /*
-   * Actualizar cuotas.
+   * --------------------------------------------------
+   * SIGUIENTE FECHA
+   * --------------------------------------------------
+   *
+   * Después de eliminar un pago se reconstruye
+   * nuevamente la siguiente fecha desde el estado
+   * actual del crédito.
+   */
+
+  let nextPaymentDate =
+    credit.nextPaymentDate ||
+    null;
+
+
+  if (
+    pendingInstallments > 0
+  ) {
+
+    /*
+     * Si existen pagos restantes, usamos la fecha
+     * actual del crédito como base y avanzamos una
+     * frecuencia, igual que en el flujo original.
+     */
+
+    nextPaymentDate =
+      calculateNextPaymentDate({
+
+        ...credit,
+
+        nextPaymentDate
+
+      });
+
+  } else {
+
+    nextPaymentDate =
+      null;
+
+  }
+
+
+  /*
+   * Actualizar cuotas y progreso.
    */
 
   await updateDoc(
@@ -1009,7 +1716,12 @@ export async function deleteCreditPayment(
 
       paidInstallments,
 
-      pendingInstallments
+      pendingInstallments,
+
+      nextPaymentDate,
+
+      installmentProgress:
+        installmentProgress.installments
 
     }
   );
@@ -1034,7 +1746,12 @@ export async function deleteCreditPayment(
 
           paidInstallments,
 
-          pendingInstallments
+          pendingInstallments,
+
+          nextPaymentDate,
+
+          installmentProgress:
+            installmentProgress.installments
 
         };
 

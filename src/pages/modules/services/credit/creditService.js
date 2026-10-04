@@ -10,11 +10,12 @@ import {
 import { db } from "../../../../config/firebase";
 
 import {
-  createNotification
-} from "../notifications/notificationService";
+  notifyCreditCreated
+} from "../notifications/notificationEngine";
 
 import {
-  assignClientAutomaticallyToRoute
+  assignClientAutomaticallyToRoute,
+  removeCreditFromRoutes
 } from "../routes/routeService";
 
 
@@ -265,12 +266,24 @@ export async function createCredit(
         capitalAvailable
       ) {
 
+        const availableFormatted =
+          capitalAvailable.toLocaleString(
+            "es-CO"
+          );
+
+
+        const requestedFormatted =
+          creditAmount.toLocaleString(
+            "es-CO"
+          );
+
+
         throw new Error(
-          `Capital insuficiente. Capital disponible: $${capitalAvailable.toLocaleString(
-            "es-CO"
-          )}. Crédito solicitado: $${creditAmount.toLocaleString(
-            "es-CO"
-          )}.`
+          "Capital insuficiente. Capital disponible: $" +
+          availableFormatted +
+          ". Crédito solicitado: $" +
+          requestedFormatted +
+          "."
         );
 
       }
@@ -402,26 +415,40 @@ export async function createCredit(
   );
 
 
-  await createNotification({
+  /* ====================================================
+     NOTIFICACIÓN DE CRÉDITO CREADO
+  ==================================================== */
+
+  await notifyCreditCreated({
 
     companyId,
 
-    title:
-      "Nuevo crédito",
+    client:
+      credit.client ||
+      "Cliente",
 
-    message:
-      `${credit.client || "Cliente"} recibió un crédito por $${creditAmount.toLocaleString(
-        "es-CO"
-      )}`,
+    amount:
+      creditAmount,
 
-    type:
-      "success",
-
-    module:
-      "credits",
+    phone:
+      credit.phone ||
+      null,
 
     referenceId:
-      creditRef.id
+      creditRef.id,
+
+    communicationPreferences: {
+
+      smsEnabled:
+        credit.smsEnabled === true,
+
+      whatsappEnabled:
+        credit.whatsappEnabled === true,
+
+      emailEnabled:
+        credit.emailEnabled === true
+
+    }
 
   });
 
@@ -442,7 +469,8 @@ export async function createCredit(
         await assignClientAutomaticallyToRoute(
           companyId,
           credit.clientId,
-          paymentDate
+          paymentDate,
+          creditRef.id
         );
 
       } catch (error) {
@@ -528,7 +556,8 @@ export async function updateCredit(
         await assignClientAutomaticallyToRoute(
           companyId,
           data.clientId,
-          paymentDate
+          paymentDate,
+          creditId
         );
 
       } catch (error) {
@@ -579,6 +608,44 @@ export async function removeCredit(
     getFinanceRef(
       companyId
     );
+
+
+  /*
+   * Guardamos la información necesaria para
+   * limpiar posteriormente la ruta asociada.
+   *
+   * Esto se hace antes de eliminar el crédito.
+   */
+
+  const existingCreditSnapshot =
+    await getDoc(
+      creditRef
+    );
+
+
+  if (!existingCreditSnapshot.exists()) {
+
+    throw new Error(
+      "Crédito no encontrado."
+    );
+
+  }
+
+
+  const existingCredit =
+    existingCreditSnapshot.data();
+
+
+  const routeClientId =
+    existingCredit.clientId ||
+    null;
+
+
+  const routePaymentDate =
+    existingCredit.nextPaymentDate ||
+    existingCredit.paymentDate ||
+    existingCredit.firstPayment ||
+    null;
 
 
   await runTransaction(
@@ -711,6 +778,34 @@ export async function removeCredit(
 
     }
   );
+
+
+  /*
+   * La eliminación financiera ya terminó correctamente.
+   * Ahora limpiamos únicamente la relación del crédito
+   * con las rutas.
+   *
+   * Si la limpieza falla, no volvemos a crear el crédito
+   * ni alteramos la operación financiera ya completada.
+   */
+
+  try {
+
+    await removeCreditFromRoutes(
+      companyId,
+      creditId,
+      routeClientId,
+      routePaymentDate
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Error limpiando la ruta asociada al crédito:",
+      error
+    );
+
+  }
 
 }
 
@@ -1054,12 +1149,6 @@ export async function recalculateCreditFromPayments(
     );
 
 
-  /*
-   * --------------------------------------------------
-   * OBTENER CRÉDITO
-   * --------------------------------------------------
-   */
-
   const creditSnapshot =
     await getDoc(
       creditRef
@@ -1079,12 +1168,6 @@ export async function recalculateCreditFromPayments(
     creditSnapshot.data();
 
 
-  /*
-   * --------------------------------------------------
-   * OBTENER PAGOS RESTANTES
-   * --------------------------------------------------
-   */
-
   const paymentsSnapshot =
     await getDocs(
       paymentsRef
@@ -1094,19 +1177,15 @@ export async function recalculateCreditFromPayments(
   const payments =
     paymentsSnapshot.docs.map(
       item => ({
+
         id:
           item.id,
 
         ...item.data()
+
       })
     );
 
-
-  /*
-   * --------------------------------------------------
-   * RECALCULAR ACUMULADOS
-   * --------------------------------------------------
-   */
 
   let paidCapital = 0;
 
@@ -1137,12 +1216,6 @@ export async function recalculateCreditFromPayments(
   });
 
 
-  /*
-   * --------------------------------------------------
-   * VALORES ORIGINALES DEL CRÉDITO
-   * --------------------------------------------------
-   */
-
   const totalCredit =
     Number(
       credit.total ||
@@ -1170,12 +1243,6 @@ export async function recalculateCreditFromPayments(
     );
 
 
-  /*
-   * --------------------------------------------------
-   * SALDOS
-   * --------------------------------------------------
-   */
-
   const balance =
     Math.max(
       totalCredit -
@@ -1189,15 +1256,6 @@ export async function recalculateCreditFromPayments(
       ? "Pagado"
       : "Activo";
 
-
-  /*
-   * --------------------------------------------------
-   * CUOTAS
-   *
-   * SE MANTIENE LA LÓGICA ACTUAL:
-   * SOLO CUOTAS COMPLETAS.
-   * --------------------------------------------------
-   */
 
   const installmentValue =
     Number(
@@ -1242,20 +1300,6 @@ export async function recalculateCreditFromPayments(
     );
 
 
-  /*
-   * --------------------------------------------------
-   * RECONSTRUIR FINANZAS
-   *
-   * El crédito original tenía:
-   *
-   * capitalPlaced = capital pendiente
-   * interestPending = interés pendiente
-   *
-   * Los pagos restantes determinan cuánto ya
-   * regresó a capital y cuánto interés se cobró.
-   * --------------------------------------------------
-   */
-
   await runTransaction(
     db,
     async transaction => {
@@ -1278,10 +1322,6 @@ export async function recalculateCreditFromPayments(
         );
 
 
-      /*
-       * Capital pendiente de este crédito.
-       */
-
       const remainingCapital =
         Math.max(
           creditCapital -
@@ -1290,10 +1330,6 @@ export async function recalculateCreditFromPayments(
         );
 
 
-      /*
-       * Interés pendiente de este crédito.
-       */
-
       const remainingInterest =
         Math.max(
           interestAmount -
@@ -1301,23 +1337,6 @@ export async function recalculateCreditFromPayments(
           0
         );
 
-
-      /*
-       * Reconstruimos Finanzas globales
-       * sin afectar el capital inicial.
-       *
-       * Para este crédito:
-       *
-       * capitalPlaced representa el capital
-       * que todavía está colocado en este crédito.
-       *
-       * capitalAvailable representa el capital
-       * que ya regresó.
-       *
-       * Por eso tomamos el estado actual y
-       * revertimos la diferencia provocada
-       * por los pagos eliminados.
-       */
 
       const currentCapitalAvailable =
         Number(
